@@ -126,10 +126,14 @@ def move_enemy(blinky, old_path, cells, grid, player):
     for pos_y, pos_x in new_path:  # Highlight new path
         cells[pos_y][pos_x].surf.fill((255, 255, 0))
     old_path = new_path  # Update path
-    print(new_path[1])
-    blinky.move(*new_path[1], SPEED/3, WIDTH)
+    blinky.move(*new_path[1], SPEED / 3, WIDTH)
 
     return old_path
+
+
+def move_pinky(pinky, cells, grid, player):
+    print(grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2))
+    # Todo: Highlight cell, remove blinky path highlighting
 
 
 def run():
@@ -142,6 +146,7 @@ def run():
 
     # Create ghost(s)
     blinky = Enemy(9 * 20 + 10, 8 * 20 + 10, (255, 0, 0))
+    pinky = Enemy(1 * 20 + 10, 1 * 20 + 10, (255, 105, 180))
 
     # Create a sprite group
     all_sprites = pygame.sprite.Group()
@@ -149,6 +154,7 @@ def run():
         all_sprites.add(row)
     all_sprites.add(player)
     all_sprites.add(blinky)
+    all_sprites.add(pinky)
 
     previous_cell = (16, 9, (0, 0, 0))
     next_move = False
@@ -162,6 +168,8 @@ def run():
         i, j, previous_cell, cells = highlight_player_cell(player, cells, previous_cell, grid)
         next_move, old_direction, new_direction = move_player(player, next_move, old_direction, grid, i, j, cells)
         old_path = move_enemy(blinky, old_path, cells, grid, player)
+
+        move_pinky(pinky, cells, grid, player)
 
         # Game updates
         pygame.display.update()

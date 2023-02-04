@@ -9,7 +9,7 @@ class Enemy(pygame.sprite.Sprite):
         self.surf.fill(colour)
         self.rect = self.surf.get_rect(center=(x, y))
 
-        self.pos = pygame.math.Vector2((190, 180))
+        self.pos = pygame.math.Vector2((x, y))
         self.vel = pygame.math.Vector2(0, 0)
 
     def get_path(self, grid, player_position):
@@ -20,14 +20,11 @@ class Enemy(pygame.sprite.Sprite):
         return astar(grid, (i, j), (x, y))
 
     def get_current_cell(self):
-        return int(self.pos.x / 20) % 19, int((self.pos.y - 15) / 20) % 22
+        return int(self.pos.x / 20) % 19, int(self.pos.y / 20) % 22
 
     def move(self, y, x, speed, width):
-        print(f"{x*20+10}, {y*20+20}, {self.pos.x}, {self.pos.y}")
-        target = pygame.math.Vector2(x*20+10, y*20+20)
+        target = pygame.math.Vector2(x*20+10, y*20+10)
         direction = pygame.math.Vector2(self.pos - target).normalize()
-        print(direction)
-        print(self.pos - target)
 
         if direction == [1, 0]:
             self.vel.x = -speed
@@ -48,4 +45,4 @@ class Enemy(pygame.sprite.Sprite):
             self.pos.x = 0
         if self.pos.x < 0:
             self.pos.x = width
-        self.rect.midbottom = self.pos
+        self.rect.midbottom = self.pos + pygame.math.Vector2(0, 10)
