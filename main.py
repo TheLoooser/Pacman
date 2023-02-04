@@ -90,8 +90,17 @@ def move_player(player, next_move, old_direction, grid, i, j, cells):
             next_move = False
         else:
             player.move(old_direction, SPEED, WIDTH)
-    elif next_move and not grid.is_wall(y_old, x_old) and grid.is_wall(y_new, x_new):  # Keep direction
-        player.move(old_direction, SPEED, WIDTH)
+    elif next_move and grid.is_wall(y_new, x_new):  # Keep direction
+        if grid.is_wall(y_old, x_old):
+            if old_direction % 2 == 1 and player.pos.x % 10 == 0 and (player.pos.x / 10) % 2 == 1:
+                player.stop()
+            elif old_direction % 2 == 0 and (player.pos.y - 5) % 10 == 0 and (
+                    (player.pos.y - 5) / 10) % 2 == 0:
+                player.stop()
+            else:
+                player.move(old_direction, SPEED, WIDTH)
+        else:
+            player.move(old_direction, SPEED, WIDTH)
     elif grid.is_wall(y_new, x_new):  # Stop the player before hitting a wall
         if player.get_direction() % 2 == 1 and player.pos.x % 10 == 0 and (player.pos.x / 10) % 2 == 1:
             player.stop()
@@ -117,6 +126,8 @@ def move_enemy(blinky, old_path, cells, grid, player):
     for pos_y, pos_x in new_path:  # Highlight new path
         cells[pos_y][pos_x].surf.fill((255, 255, 0))
     old_path = new_path  # Update path
+    print(new_path[1])
+    blinky.move(*new_path[1], SPEED/3, WIDTH)
 
     return old_path
 
