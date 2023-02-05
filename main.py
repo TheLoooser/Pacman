@@ -73,7 +73,7 @@ def move_player(player, next_move, old_direction, grid, i, j, cells):
 
     # Highlight the next cell for which the player is headed
     x_new, y_new = grid.get_next_cell((i, j), player.get_direction())
-    cells[y_new][x_new].surf.fill((0, 255, 0))
+    # cells[y_new][x_new].surf.fill((0, 255, 0))
 
     x_old, y_old = grid.get_next_cell((i, j), old_direction)  # keep the old direction
 
@@ -124,16 +124,36 @@ def move_enemy(blinky, old_path, cells, grid, player):
 
     new_path = blinky.get_path(grid.walls, player.get_current_cell())  # Get new path
     for pos_y, pos_x in new_path:  # Highlight new path
-        cells[pos_y][pos_x].surf.fill((255, 255, 0))
+        # cells[pos_y][pos_x].surf.fill((255, 255, 0))
+        surface = pygame.Surface((5, 5))
+        surface.fill((200, 50, 50))
+        cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
+
     old_path = new_path  # Update path
     blinky.move(*new_path[1], SPEED / 3, WIDTH)
 
     return old_path
 
 
-def move_pinky(pinky, cells, grid, player):
-    print(grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2))
-    # Todo: Highlight cell, remove blinky path highlighting
+def move_pinky(pinky, old_path, cells, grid, player):
+    for pos_y, pos_x in old_path:  # Clear old path
+        cells[pos_y][pos_x].surf.fill((0, 0, 0))
+
+    cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
+    # Todo: Fix pinky prediction, Change player highlighting to border only, Combine pinky and blinky move functions
+    #       (redundant code atm)
+
+    new_path = pinky.get_path(grid.walls, cell)  # Get new path
+    for pos_y, pos_x in new_path:  # Highlight new path
+        # cells[pos_y][pos_x].surf.fill((255, 255, 0))
+        surface = pygame.Surface((5, 5))
+        surface.fill((255, 105, 180))
+        cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
+
+    old_path = new_path  # Update path
+    pinky.move(*new_path[1], SPEED / 3, WIDTH)
+
+    return old_path
 
 
 def run():
@@ -160,6 +180,7 @@ def run():
     next_move = False
     old_direction = -1
     old_path = []
+    old_path2 = []
 
     # Main Game Loop
     while True:
@@ -169,7 +190,7 @@ def run():
         next_move, old_direction, new_direction = move_player(player, next_move, old_direction, grid, i, j, cells)
         old_path = move_enemy(blinky, old_path, cells, grid, player)
 
-        move_pinky(pinky, cells, grid, player)
+        old_path2 = move_pinky(pinky, old_path2, cells, grid, player)
 
         # Game updates
         pygame.display.update()
