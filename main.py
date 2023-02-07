@@ -5,6 +5,7 @@ from cell import Cell
 from player import Player
 from grid import Grid
 from enemy import Enemy
+from field import Field
 
 # Based on: https://coderslegacy.com/python/pygame-platformer-game-development/
 
@@ -73,7 +74,11 @@ def move_player(player, next_move, old_direction, grid, i, j, cells):
 
     # Highlight the next cell for which the player is headed
     x_new, y_new = grid.get_next_cell((i, j), player.get_direction())
-    # cells[y_new][x_new].surf.fill((0, 255, 0))
+    colour = (0, 0, 255) if grid.is_wall(y_new, x_new) else (0, 0, 0)
+    cells[y_new][x_new].surf.fill((0, 255, 0))
+    surface = pygame.Surface((17, 17))
+    surface.fill(colour)
+    cells[y_new][x_new].surf.blit(surface, (1, 1))
 
     x_old, y_old = grid.get_next_cell((i, j), old_direction)  # keep the old direction
 
@@ -179,6 +184,7 @@ def run():
     previous_cell = (16, 9, (0, 0, 0))
     next_move = False
     old_direction = -1
+    old_field = Field(-1, -1, (0, 0, 0))
     old_path = []
     old_path2 = []
 
