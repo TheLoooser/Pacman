@@ -67,7 +67,7 @@ def highlight_player_cell(player, cells, previous_cell, grid):
     return i, j, previous_cell, cells
 
 
-def move_player(player, next_move, old_direction, grid, i, j, cells):
+def move_player(player, next_move, old_direction, grid, i, j, cells, old_field):
     # Player movement
     pressed_key = pygame.key.get_pressed()
     next_move, new_direction = player.set_direction(pressed_key, next_move, old_direction)
@@ -75,10 +75,17 @@ def move_player(player, next_move, old_direction, grid, i, j, cells):
     # Highlight the next cell for which the player is headed
     x_new, y_new = grid.get_next_cell((i, j), player.get_direction())
     colour = (0, 0, 255) if grid.is_wall(y_new, x_new) else (0, 0, 0)
+    new_field = Field(x_new, y_new, colour)
+
     cells[y_new][x_new].surf.fill((0, 255, 0))
     surface = pygame.Surface((17, 17))
     surface.fill(colour)
     cells[y_new][x_new].surf.blit(surface, (1, 1))
+
+    # Overwrite the last highlighted cell (remove highlighted border)
+    if new_field.coordinates != old_field.coordinates:
+        x, y = old_field.coordinates
+        cells[y][x].surf.fill(old_field.colour)
 
     x_old, y_old = grid.get_next_cell((i, j), old_direction)  # keep the old direction
 
@@ -119,19 +126,20 @@ def move_player(player, next_move, old_direction, grid, i, j, cells):
 
     # if pygame.sprite.spritecollideany(player, all_sprites):
     #     player.stop()
-    return next_move, old_direction, new_direction
+    return next_move, old_direction, new_direction, new_field
 
 
 def move_enemy(blinky, old_path, cells, grid, player):
+    surface = pygame.Surface((5, 5))
+    surface.fill((0, 0, 0))
+
     # Update enemy target
     for pos_y, pos_x in old_path:  # Clear old path
-        cells[pos_y][pos_x].surf.fill((0, 0, 0))
+        cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
     new_path = blinky.get_path(grid.walls, player.get_current_cell())  # Get new path
+    surface.fill((200, 50, 50))
     for pos_y, pos_x in new_path:  # Highlight new path
-        # cells[pos_y][pos_x].surf.fill((255, 255, 0))
-        surface = pygame.Surface((5, 5))
-        surface.fill((200, 50, 50))
         cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
     old_path = new_path  # Update path
@@ -141,18 +149,17 @@ def move_enemy(blinky, old_path, cells, grid, player):
 
 
 def move_pinky(pinky, old_path, cells, grid, player):
+    surface = pygame.Surface((5, 5))
+    surface.fill((0, 0, 0))
     for pos_y, pos_x in old_path:  # Clear old path
-        cells[pos_y][pos_x].surf.fill((0, 0, 0))
+        cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
     cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
-    # Todo: Fix pinky prediction, Change player highlighting to border only, Combine pinky and blinky move functions
-    #       (redundant code atm)
+    # Todo: Fix pinky prediction, Combine pinky and blinky move functions (redundant code atm)
 
     new_path = pinky.get_path(grid.walls, cell)  # Get new path
+    surface.fill((255, 105, 180))
     for pos_y, pos_x in new_path:  # Highlight new path
-        # cells[pos_y][pos_x].surf.fill((255, 255, 0))
-        surface = pygame.Surface((5, 5))
-        surface.fill((255, 105, 180))
         cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
     old_path = new_path  # Update path
@@ -184,7 +191,7 @@ def run():
     previous_cell = (16, 9, (0, 0, 0))
     next_move = False
     old_direction = -1
-    old_field = Field(-1, -1, (0, 0, 0))
+    old_field = Field(-1, -1, (0, 0, 255))
     old_path = []
     old_path2 = []
 
@@ -193,7 +200,8 @@ def run():
         close_game_when_exiting()
         draw_game(all_sprites)
         i, j, previous_cell, cells = highlight_player_cell(player, cells, previous_cell, grid)
-        next_move, old_direction, new_direction = move_player(player, next_move, old_direction, grid, i, j, cells)
+        next_move, old_direction, new_direction, old_field = move_player(player, next_move, old_direction, grid, i, j,
+                                                                         cells, old_field)
         old_path = move_enemy(blinky, old_path, cells, grid, player)
 
         old_path2 = move_pinky(pinky, old_path2, cells, grid, player)
