@@ -13,7 +13,7 @@ pygame.init()
 
 HEIGHT = 440  # 22 * 20
 WIDTH = 380  # 19 * 20
-SPEED = 2
+SPEED = 1  # 2
 FPS = 60
 
 FramePerSec = pygame.time.Clock()
@@ -55,9 +55,8 @@ def draw_game(all_sprites):
 
 def highlight_player_cell(player, cells, previous_cell, grid):
     # Highlight the current grid cell of the player
-    # player.surf.fill((122, 122, 122))
     i, j = player.get_current_cell()
-    cells[j][i].surf.fill((255, 0, 0))
+    # cells[j][i].surf.fill((255, 0, 0))
 
     if not (j == previous_cell[0] and i == previous_cell[1]):
         cells[previous_cell[0]][previous_cell[1]].surf.fill(previous_cell[2])
@@ -138,9 +137,9 @@ def move_enemy(blinky, old_path, cells, grid, player):
         cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
     new_path = blinky.get_path(grid.walls, player.get_current_cell())  # Get new path
-    surface.fill((200, 50, 50))
-    for pos_y, pos_x in new_path:  # Highlight new path
-        cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
+    # surface.fill((200, 50, 50))
+    # for pos_y, pos_x in new_path:  # Highlight new path
+    #     cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
     old_path = new_path  # Update path
     blinky.move(*new_path[1], SPEED / 3, WIDTH)
@@ -154,13 +153,21 @@ def move_pinky(pinky, old_path, cells, grid, player):
     for pos_y, pos_x in old_path:  # Clear old path
         cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
+    print(player.get_direction())
     cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
-    # Todo: Fix pinky prediction, Combine pinky and blinky move functions (redundant code atm)
+    print(f"{cell}, {player.get_current_cell()}")
+    x, y = cell
+    cells[y][x].surf.fill((255, 105, 180))
+    # Todo: Change pinky prediction with Eruheran's recommendation (block player cell in path finding),
+    #       Combine pinky and blinky move functions (redundant code atm)
 
     new_path = pinky.get_path(grid.walls, cell)  # Get new path
     surface.fill((255, 105, 180))
     for pos_y, pos_x in new_path:  # Highlight new path
         cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
+
+    # y, x = new_path[-1]
+    # cells[y][x].surf.fill((255, 105, 180))
 
     old_path = new_path  # Update path
     pinky.move(*new_path[1], SPEED / 3, WIDTH)

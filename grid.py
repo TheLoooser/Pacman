@@ -48,7 +48,7 @@ class Grid:
         else:
             i = i + 1 if direction == 1 else i - 1
 
-        # TODO: Modulo to wrap top/bot
+        # Todo: Modulo to wrap top/bot
         return i % len(self.walls[0]), j
 
     def get_cell_in_front(self, i, j, direction, n=2):
@@ -56,18 +56,28 @@ class Grid:
         if n == 0:
             return i, j
 
-        if self.is_wall(*self.get_next_cell((j, i), direction)):
+        def swap(a, b):
+            return b, a
+
+        if self.is_wall(*swap(*self.get_next_cell((i, j), direction))):
             return i, j
         else:
             match direction:
-                case Direction.UP:
-                    self.get_cell_in_front(i, j - 1, direction, n - 1)
-                case Direction.RIGHT:
-                    self.get_cell_in_front(i + 1, j, direction, n - 1)
-                case Direction.DOWN:
-                    self.get_cell_in_front(i, j + 1, direction, n - 1)
-                case Direction.LEFT:
-                    self.get_cell_in_front(i - 1, j, direction, n - 1)
+                case Direction.UP.value:
+                    return self.get_cell_in_front(i, j - 1, direction, n - 1)
+                case Direction.RIGHT.value:
+                    return self.get_cell_in_front((i + 1) % len(self.walls[0]), j, direction, n - 1)
+                case Direction.DOWN.value:
+                    return self.get_cell_in_front(i, j + 1, direction, n - 1)
+                case Direction.LEFT.value:
+                    return self.get_cell_in_front((i - 1) % len(self.walls[0]), j, direction, n - 1)
                 case _:
+                    print(f"Direction = {direction}")
                     print("This should not have happened...?")
                     return i, j
+
+
+if __name__ == "__main__":
+    g = Grid()
+    c = g.get_cell_in_front(4, 16, 3, 2)
+    print(c)
