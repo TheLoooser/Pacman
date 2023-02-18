@@ -142,8 +142,21 @@ def move_enemy(blinky, old_path, cells, grid, player):
     for pos_y, pos_x in new_path:  # Highlight new path
         cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
+    def subtract_tuples(t1, t2):
+        return tuple(map(lambda i, j: i-j, t1, t2))
+
     old_path = new_path  # Update path
-    blinky.move(*new_path[1], SPEED / 3, WIDTH)
+    # print(old_path)
+    if len(new_path) > 1:
+        diff = subtract_tuples(new_path[0], new_path[1])
+        abs_diff = tuple(abs(d) for d in diff)
+        # Todo: Fix wrap from right to left
+        if sum(abs_diff) > 1:
+            print(f"{diff}, {subtract_tuples(new_path[0], abs_diff)}")
+            print(*subtract_tuples(new_path[0], abs_diff))
+            blinky.move(*subtract_tuples(new_path[0], abs_diff), SPEED / 3, WIDTH)
+        else:
+            blinky.move(*new_path[1], SPEED / 3, WIDTH)
 
     return old_path
 
@@ -157,7 +170,8 @@ def move_pinky(pinky, old_path, cells, grid, player):
     cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
     x, y = cell
     cells[y][x].surf.fill((255, 105, 180))
-    # Todo: Fix pinky path (near portal), Combine pinky and blinky move functions (redundant code atm)
+    # Todo: Fix ghost path (they wont go through portal), Combine pinky and blinky move functions (redundant code atm)
+    #       (can combine old and new_path, only one var required)
 
     maze = copy.deepcopy(grid.walls)
     player_pos_x, player_pos_y = player.get_current_cell()
@@ -173,7 +187,8 @@ def move_pinky(pinky, old_path, cells, grid, player):
     # cells[y][x].surf.fill((255, 105, 180))
 
     old_path = new_path  # Update path
-    pinky.move(*new_path[1], SPEED / 3, WIDTH)
+    if len(new_path) > 1:
+        pinky.move(*new_path[1], SPEED / 3, WIDTH)
 
     return old_path
 
@@ -214,7 +229,7 @@ def run():
                                                                          cells, old_field)
         old_path = move_enemy(blinky, old_path, cells, grid, player)
 
-        old_path2 = move_pinky(pinky, old_path2, cells, grid, player)
+        #old_path2 = move_pinky(pinky, old_path2, cells, grid, player)
 
         # Game updates
         pygame.display.update()

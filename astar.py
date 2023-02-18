@@ -99,12 +99,13 @@ def astar(maze, start, end, allow_diagonal_movement=False):
         for new_position in adjacent_squares:  # Adjacent squares
 
             # Get node position
-            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+            node_position = ((current_node.position[0] + new_position[0]) % len(maze),
+                             (current_node.position[1] + new_position[1]) % len(maze[0]))
 
             # Make sure within range
-            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (
-                    len(maze[len(maze) - 1]) - 1) or node_position[1] < 0:
-                continue
+            # if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (
+            #         len(maze[len(maze) - 1]) - 1) or node_position[1] < 0:
+            #     continue
 
             # Make sure walkable terrain
             if maze[node_position[0]][node_position[1]] != 0:
@@ -124,8 +125,14 @@ def astar(maze, start, end, allow_diagonal_movement=False):
 
             # Create the f, g, and h values
             child.g = current_node.g + 1
-            child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
-                    (child.position[1] - end_node.position[1]) ** 2)
+            # child.h = ((child.position[0] - end_node.position[0]) ** 2) + \
+            #           ((child.position[1] - end_node.position[1]) ** 2)
+            dx = child.position[0] - end_node.position[0]
+            dx = min(abs(dx), abs(len(maze[0]) + dx), abs(len(maze[0]) - dx))
+            dy = child.position[1] - end_node.position[1]
+            dy = min(abs(dy), abs(len(maze) + dy), abs(len(maze) - dy))
+            child.h = abs(dx) + abs(dy)
+            # child.h = dx**2 + dy **2
             child.f = child.g + child.h
 
             # Child is already in the open list
@@ -166,8 +173,8 @@ def example(print_maze=True):
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ]
 
-    start = (8, 9)
-    end = (20, 17)
+    start = (10, 1)  # (8, 9)
+    end = (10, 18)  # (20, 17)
 
     path = astar(maze, start, end)
 
