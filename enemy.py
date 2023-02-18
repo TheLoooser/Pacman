@@ -20,7 +20,7 @@ class Enemy(pygame.sprite.Sprite):
         return astar(grid, (i, j), (x, y))
 
     def get_current_cell(self):
-        return int(self.pos.x / 20) % 19, int(self.pos.y / 20) % 22
+        return int((self.pos.x - 1) / 20) % 19, int((self.pos.y - 1) / 20) % 22
 
     def move(self, y, x, speed, width):
         target = pygame.math.Vector2(x*20+10, y*20+10)

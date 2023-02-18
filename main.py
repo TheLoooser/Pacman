@@ -142,19 +142,17 @@ def move_enemy(blinky, old_path, cells, grid, player):
     for pos_y, pos_x in new_path:  # Highlight new path
         cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
-    def subtract_tuples(t1, t2):
-        return tuple(map(lambda i, j: i-j, t1, t2))
+    def tuple_difference(t1, t2, add=False):
+        return tuple(map(lambda i, j: i-j if not add else i+j, t1, t2))
 
     old_path = new_path  # Update path
-    # print(old_path)
     if len(new_path) > 1:
-        diff = subtract_tuples(new_path[0], new_path[1])
-        abs_diff = tuple(abs(d) for d in diff)
-        # Todo: Fix wrap from right to left
-        if sum(abs_diff) > 1:
-            print(f"{diff}, {subtract_tuples(new_path[0], abs_diff)}")
-            print(*subtract_tuples(new_path[0], abs_diff))
-            blinky.move(*subtract_tuples(new_path[0], abs_diff), SPEED / 3, WIDTH)
+        diff = tuple_difference(new_path[0], new_path[1])
+        if sum(diff) > 1:
+            blinky.move(*tuple_difference(new_path[0], diff, True), SPEED / 3, WIDTH)
+        elif sum(diff) < -1:
+            abs_diff = tuple(abs(d) for d in diff)
+            blinky.move(*tuple_difference(new_path[0], abs_diff), SPEED / 3, WIDTH)
         else:
             blinky.move(*new_path[1], SPEED / 3, WIDTH)
 
