@@ -1,3 +1,5 @@
+import math
+import sys
 import pygame
 from Logic.astar import astar
 import copy
@@ -24,7 +26,7 @@ class Enemy(pygame.sprite.Sprite):
         return int((self.pos.x - 1) / 20) % 19, int((self.pos.y - 1) / 20) % 22
 
     def move(self, y, x, speed, width):
-        target = pygame.math.Vector2(x*20+10, y*20+10)
+        target = pygame.math.Vector2(x * 20 + 10, y * 20 + 10)
         direction = pygame.math.Vector2(self.pos - target).normalize()
 
         if direction == [1, 0]:
@@ -48,7 +50,7 @@ class Enemy(pygame.sprite.Sprite):
             self.pos.x = width
         self.rect.midbottom = self.pos + pygame.math.Vector2(0, 10)
 
-    def move_enemy(self, path, cells, grid, player, speed, width, pinky=False):
+    def move_enemy(self, path, cells, grid, player, speed, width, enemy="blinky", position=None):
         surface = pygame.Surface((5, 5))
         surface.fill((0, 0, 0))
 
@@ -56,21 +58,49 @@ class Enemy(pygame.sprite.Sprite):
         for pos_y, pos_x in path:  # Clear old path
             cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
 
-        if pinky:
-            cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
-            x, y = cell
-            # cells[y][x].surf.fill((255, 105, 180))
+        match enemy:
+            case "inky":
+                target = player.pos - position + player.pos
+                target.y = target.y - 2 * 15  # correction due to player offset
 
-            maze = copy.deepcopy(grid.walls)
-            player_pos_x, player_pos_y = player.get_current_cell()
-            if (x, y) != (player_pos_x, player_pos_y):
-                maze[player_pos_y][player_pos_x] = 1
+                possible_targets = []
+                level = 1
+                target_i = min(21, max(0, int((target.y - 10) / 20)))
+                target_j = min(18, max(0, int((target.x - 10) / 20)))
+                while not possible_targets:
+                    possible_targets = grid.get_adjacent_cells(target_j, target_i, n=level, is_not_wall=True)
+                    level += 1
 
-            path = self.get_path(maze, cell)  # Get new path
-            surface.fill((255, 105, 180))
-        else:
-            path = self.get_path(grid.walls, player.get_current_cell())  # Get new path
-            surface.fill((200, 50, 50))
+                min_distance = (-1, math.inf)
+                for index, cell in enumerate(possible_targets):
+                    distance = pygame.math.Vector2(cell[0] * 20 + 10, cell[1] * 20 + 10).distance_to(self.pos)
+                    if distance < min_distance[1]:
+                        min_distance = (index, distance)
+
+                # print(f"{possible_targets} - {min_distance} - {target}")
+
+                path = self.get_path(grid.walls, possible_targets[min_distance[0]])  # Get new path
+                surface.fill((0, 255, 255))
+
+            case "pinky":
+                cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
+                x, y = cell
+                # cells[y][x].surf.fill((255, 105, 180))
+
+                maze = copy.deepcopy(grid.walls)
+                player_pos_x, player_pos_y = player.get_current_cell()
+                if (x, y) != (player_pos_x, player_pos_y):
+                    maze[player_pos_y][player_pos_x] = 1
+
+                path = self.get_path(maze, cell)  # Get new path
+                surface.fill((255, 105, 180))
+
+            case "blinky":
+                path = self.get_path(grid.walls, player.get_current_cell())  # Get new path
+                surface.fill((200, 50, 50))
+
+            case _:
+                sys.exit("Enemy move pattern not found.")
 
         for pos_y, pos_x in path:  # Highlight new path
             cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))

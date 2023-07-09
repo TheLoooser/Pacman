@@ -50,6 +50,7 @@ def run():
     # Create ghost(s)
     blinky = Enemy(9 * 20 + 10, 8 * 20 + 10, (255, 0, 0))
     pinky = Enemy(1 * 20 + 10, 1 * 20 + 10, (255, 105, 180))
+    inky = Enemy(14 * 20 + 10, 15 * 20 + 10, (0, 255, 255))
 
     # Create a sprite group
     all_sprites = pygame.sprite.Group()
@@ -58,13 +59,14 @@ def run():
     all_sprites.add(player)
     all_sprites.add(blinky)
     all_sprites.add(pinky)
+    all_sprites.add(inky)
 
     # Initialise variables
     previous_cell = (16, 9, (0, 0, 0))
     next_move = False
     old_direction = -1
     old_field = Field(-1, -1, (0, 0, 255))
-    blinky_path, pinky_path = [], []
+    blinky_path, pinky_path, inky_path = [], [], []
 
     # Main Game Loop
     while True:
@@ -73,10 +75,13 @@ def run():
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
         next_move, old_direction, new_direction, old_field = player.move_player(next_move, old_direction, grid, i, j,
                                                                                 cells, old_field, SPEED, WIDTH)
-        blinky_path = blinky.move_enemy(blinky_path, cells, grid, player, SPEED, WIDTH)
+        blinky_path = blinky.move_enemy(blinky_path, cells, grid, player, SPEED, WIDTH, "blinky")
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
-        pinky_path = pinky.move_enemy(pinky_path, cells, grid, player, SPEED, WIDTH, True)
+        pinky_path = pinky.move_enemy(pinky_path, cells, grid, player, SPEED, WIDTH, "pinky")
+
+        # Todo: Investigate inky getting stuck in tunnel
+        inky_path = inky.move_enemy(inky_path, cells, grid, player, SPEED, WIDTH, "inky", blinky.pos)
 
         # Game updates
         pygame.display.update()

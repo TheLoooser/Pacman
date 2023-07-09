@@ -90,8 +90,31 @@ class Grid:
                     print("This should not have happened...?")
                     return i, j
 
+    def get_adjacent_cells(self, c_i, c_j, n=1, is_not_wall=False):
+        indexes = []
+        start_i, start_j = (c_i - n) % len(self.walls[0]), (c_j - n) % len(self.walls)
+        for i in range(2 * n + 1):
+            for j in range(2 * n + 1):
+                if start_i == (c_i - n) % len(self.walls[0]) \
+                        or start_j == (c_j - n) % len(self.walls) \
+                        or start_i == (c_i + n) % len(self.walls[0]) \
+                        or start_j == (c_j + n) % len(self.walls):
+                    if is_not_wall and not self.is_wall(start_j, start_i):
+                        indexes.append([start_i, start_j])
+                    elif not is_not_wall:
+                        indexes.append([start_i, start_j])
+
+                start_j = (start_j + 1) % len(self.walls)
+            start_i = (start_i + 1) % len(self.walls[0])
+            start_j = (c_j - n) % len(self.walls)
+
+        return indexes
+
 
 if __name__ == "__main__":
     g = Grid()
     c = g.get_cell_in_front(4, 16, 3, 2)
     print(c)
+
+    a = g.get_adjacent_cells(1, 2, 2, True)
+    print(a)
