@@ -53,10 +53,15 @@ class Enemy(pygame.sprite.Sprite):
     def move_enemy(self, path, cells, grid, player, speed, width, enemy="blinky", position=None):
         surface = pygame.Surface((5, 5))
         surface.fill((0, 0, 0))
+        color = (0, 0, 0)
+        thickness = 1
 
         # Update enemy target
         for pos_y, pos_x in path:  # Clear old path
-            cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (6, 15), thickness)
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 15), (15, 15), thickness)
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (15, 6), thickness)
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (15, 6), (15, 15), thickness)
 
         match enemy:
             case "inky":
@@ -80,7 +85,7 @@ class Enemy(pygame.sprite.Sprite):
                 # print(f"{possible_targets} - {min_distance} - {target}")
 
                 path = self.get_path(grid.walls, possible_targets[min_distance[0]])  # Get new path
-                surface.fill((0, 255, 255))
+                color = (0, 255, 255)
 
             case "pinky":
                 cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
@@ -93,17 +98,20 @@ class Enemy(pygame.sprite.Sprite):
                     maze[player_pos_y][player_pos_x] = 1
 
                 path = self.get_path(maze, cell)  # Get new path
-                surface.fill((255, 105, 180))
+                color = (255, 105, 180)
 
             case "blinky":
                 path = self.get_path(grid.walls, player.get_current_cell())  # Get new path
-                surface.fill((200, 50, 50))
+                color = (200, 50, 50)
 
             case _:
                 sys.exit("Enemy move pattern not found.")
 
         for pos_y, pos_x in path:  # Highlight new path
-            cells[pos_y][pos_x].surf.blit(surface, (7.5, 7.5))
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (6, 15), thickness)
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 15), (15, 15), thickness)
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (15, 6), thickness)
+            pygame.draw.line(cells[pos_y][pos_x].surf, color, (15, 6), (15, 15), thickness)
 
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))

@@ -1,5 +1,6 @@
 from enum import Enum
 from Level.cell import Cell
+from Logic.dot import Dot
 
 
 class Direction(Enum):
@@ -48,6 +49,15 @@ class Grid:
             cells.append(grid_row)
 
         return cells
+
+    def init_dots(self):
+        dots = []
+        for j in range(22):
+            for i in range(19):
+                if not self.walls[j][i]:
+                    dots.append(Dot(i * 20 + 10, j * 20 + 10))
+
+        return dots
 
     def is_wall(self, i, j):
         return self.walls[i][j]

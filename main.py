@@ -43,7 +43,7 @@ def paused():
 
     # Print pause text
     font = pygame.font.SysFont("arial", 50)
-    text = font.render('Pause', True, (200, 200, 200))
+    text = font.render('Pause', True, (222, 222, 222))
     # text.set_alpha(200)
     text_rect = text.get_rect()
     text_rect.center = ((display_surface.get_width() / 2), (display_surface.get_height() / 2))
@@ -66,19 +66,16 @@ def paused():
         FramePerSec.tick(15)
 
 
-def draw_game(all_sprites):
-    # Initialise black background
-    display_surface.fill((0, 0, 0))
-
-    # Draw all sprites
-    for entity in all_sprites:
-        display_surface.blit(entity.surf, entity.rect)
+def draw_surface(surfaces):
+    for surf in surfaces:
+        display_surface.blit(surf.surf, surf.rect)
 
 
 def run():
     # Initialise Map
     grid = Grid()
     cells = grid.init_map()
+    dots = grid.init_dots()
 
     # Create a player
     player = Player()
@@ -89,13 +86,12 @@ def run():
     inky = Enemy(14 * 20 + 10, 15 * 20 + 10, (0, 255, 255))
 
     # Create a sprite group
-    all_sprites = pygame.sprite.Group()
+    cell_sprites = pygame.sprite.Group()
     for row in cells:
-        all_sprites.add(row)
-    all_sprites.add(player)
-    all_sprites.add(blinky)
-    all_sprites.add(pinky)
-    all_sprites.add(inky)
+        cell_sprites.add(row)
+
+    character_sprites = pygame.sprite.Group()
+    character_sprites.add([player, blinky, pinky, inky])
 
     # Initialise variables
     previous_cell = (16, 9, (0, 0, 0))
@@ -116,7 +112,11 @@ def run():
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
                     paused()
 
-        draw_game(all_sprites)
+        display_surface.fill((0, 0, 0))  # Initialise black background
+        draw_surface(cell_sprites)
+        draw_surface(dots)
+        draw_surface(character_sprites)
+
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
         next_move, old_direction, new_direction, old_field = player.move_player(next_move, old_direction, grid, i, j,
                                                                                 cells, old_field, SPEED, WIDTH)
