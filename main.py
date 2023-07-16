@@ -1,4 +1,5 @@
 import pygame
+import pygame_menu
 from pygame.locals import *
 import sys
 
@@ -123,6 +124,8 @@ def run():
         next_move, old_direction, new_direction, old_field, dots = player.move_player(next_move, old_direction, grid, i,
                                                                                       j, cells, old_field, dots, SPEED,
                                                                                       WIDTH)
+
+        # Todo: Gradually increase enemy speed over time
         blinky_path = blinky.move_enemy(blinky_path, cells, grid, player, SPEED, WIDTH, "blinky")
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
@@ -137,4 +140,17 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    # run()
+
+    # Main menu
+    my_theme = pygame_menu.themes.THEME_DARK
+    my_theme.widget_font = pygame_menu.font.FONT_8BIT
+    my_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection()
+    my_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_NONE
+
+    menu = pygame_menu.Menu('', WIDTH, HEIGHT, theme=my_theme)
+    menu.add.label('Pacman', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 100))
+    menu.add.button('Play', run)
+    menu.add.button('Credits')
+    menu.add.button('Quit', pygame_menu.events.EXIT)
+    menu.mainloop(display_surface)
