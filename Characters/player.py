@@ -73,7 +73,7 @@ class Player(pygame.sprite.Sprite):
 
         return i, j, previous_cell, cells
 
-    def move_player(self, next_move, old_direction, grid, i, j, cells, old_field, speed, width):
+    def move_player(self, next_move, old_direction, grid, i, j, cells, old_field, dots, speed, width):
         # Player movement
         pressed_key = pygame.key.get_pressed()
         next_move, new_direction = self.set_direction(pressed_key, next_move, old_direction)
@@ -130,6 +130,10 @@ class Player(pygame.sprite.Sprite):
         else:
             self.move(old_direction, speed, width)
 
+        # Eat dot
+        if self.get_current_cell() in dots:
+            dots.pop(self.get_current_cell(), None)
+
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()
-        return next_move, old_direction, new_direction, new_field
+        return next_move, old_direction, new_direction, new_field, dots

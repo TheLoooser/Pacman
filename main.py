@@ -26,7 +26,7 @@ def blur_surface(surface, amount):
     if amount < 1:
         raise ValueError("")
 
-    scale = 1.0/float(amount)
+    scale = 1.0 / float(amount)
     surface_size = surface.get_size()
     scale_size = (int(surface_size[0] * scale), int(surface_size[1] * scale))
     surf = pygame.transform.smoothscale(surface, scale_size)
@@ -112,14 +112,17 @@ def run():
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
                     paused()
 
+        # Draw surfaces
         display_surface.fill((0, 0, 0))  # Initialise black background
         draw_surface(cell_sprites)
-        draw_surface(dots)
+        draw_surface(dots.values())
         draw_surface(character_sprites)
 
+        # Move player and ghosts
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
-        next_move, old_direction, new_direction, old_field = player.move_player(next_move, old_direction, grid, i, j,
-                                                                                cells, old_field, SPEED, WIDTH)
+        next_move, old_direction, new_direction, old_field, dots = player.move_player(next_move, old_direction, grid, i,
+                                                                                      j, cells, old_field, dots, SPEED,
+                                                                                      WIDTH)
         blinky_path = blinky.move_enemy(blinky_path, cells, grid, player, SPEED, WIDTH, "blinky")
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
