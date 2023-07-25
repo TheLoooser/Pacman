@@ -50,12 +50,13 @@ class Grid:
 
         return cells
 
-    def init_dots(self):
+    def init_dots(self, pellets):
         dots = {}
         for j in range(22):
             for i in range(19):
                 if not self.walls[j][i]:
-                    dots[(i, j)] = Dot(i * 20 + 10, j * 20 + 10)
+                    is_pellet = True if (i, j) in pellets else False
+                    dots[(i, j)] = Dot(i * 20 + 10, j * 20 + 10, is_pellet)
 
         return dots
 

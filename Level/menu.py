@@ -31,6 +31,12 @@ def paused(display, clock, width, height):
     text_rect.center = ((display.get_width() / 2), (display.get_height() / 2))
     display.blit(text, text_rect)
 
+    font = pygame.font.Font(file_path, 18)
+    text = font.render('Press ESC to continue', True, (222, 222, 222))
+    text_rect = text.get_rect()
+    text_rect.center = ((display.get_width() / 2), (display.get_height() / 2) + 50)
+    display.blit(text, text_rect)
+
     pause = True
     while pause:
         for event in pygame.event.get():
@@ -75,6 +81,12 @@ def draw_hud(display, nr_of_lives, score):
     display.blit(text, text_rect)
 
     # Current score
+    score = score % 1600000
+    if score > 999999:
+        score = str(score)
+        score = chr(int(score[:2]) + 55) + score[2:]
+    else:
+        score = str(score).zfill(6)
     font = pygame.font.Font(file_path, 16)
     text = font.render(f'{score}', True, (222, 222, 222))
     text_rect = text.get_rect()

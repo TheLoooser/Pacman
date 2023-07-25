@@ -1,10 +1,13 @@
+import sys
+import pygame
 import pygame_menu
+from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 
 from Characters.player import Player
 from Level.grid import Grid
 from Characters.enemy import Enemy
 from Level.field import Field
-from Level.menu import *
+from Level.menu import draw_hud, draw_surface, blur_surface, paused
 
 # Based on: https://coderslegacy.com/python/pygame-platformer-game-development/
 
@@ -25,7 +28,9 @@ def run():
     # Initialise Map
     grid = Grid()
     cells = grid.init_map()
-    dots = grid.init_dots()
+    pellets = [(1, 3), (17, 3), (1, 16), (17, 16)]
+    dots = grid.init_dots(pellets)
+    max_points = (len(dots) - 1) * 100
 
     # Create a player
     player = Player()
@@ -64,7 +69,7 @@ def run():
 
         # Draw surfaces
         display_surface.fill((0, 0, 0))  # Initialise black background
-        draw_hud(display_surface, 3, 174859)
+        draw_hud(display_surface, 3, max_points - len(dots)*100)
         draw_surface(display_surface, cell_sprites)
         draw_surface(display_surface, dots.values())
         draw_surface(display_surface, character_sprites)
@@ -89,18 +94,26 @@ def run():
         FramePerSec.tick(FPS)
 
 
-if __name__ == "__main__":
-    # run()
-
+def main_menu():
     # Main menu
     my_theme = pygame_menu.themes.THEME_DARK
     my_theme.widget_font = pygame_menu.font.FONT_8BIT
     my_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection()
     my_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_NONE
 
-    menu = pygame_menu.Menu('', WIDTH, HEIGHT, theme=my_theme)
-    menu.add.label('Pacman', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 100))
-    menu.add.button('Play', run)
-    menu.add.button('Credits')
-    menu.add.button('Quit', pygame_menu.events.EXIT)
-    menu.mainloop(display_surface)
+    my_menu = pygame_menu.Menu('', WIDTH, HEIGHT, theme=my_theme)
+    my_menu.add.label('Pacman', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 100))
+    my_menu.add.button('Play', run)
+    my_menu.add.button('Credits')  # credits()
+    my_menu.add.button('Quit', pygame_menu.events.EXIT)
+    my_menu.mainloop(display_surface)
+
+
+# def credits():
+#     # TODO
+
+
+if __name__ == "__main__":
+    # run()
+
+    main_menu()
