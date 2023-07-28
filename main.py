@@ -101,6 +101,7 @@ def get_theme():
     my_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_NONE
     return my_theme
 
+
 def main_menu():
     # Main menu
     my_menu = pygame_menu.Menu('', WIDTH, HEIGHT, theme=get_theme())
