@@ -94,23 +94,38 @@ def run():
         FramePerSec.tick(FPS)
 
 
-def main_menu():
-    # Main menu
+def get_theme():
     my_theme = pygame_menu.themes.THEME_DARK
     my_theme.widget_font = pygame_menu.font.FONT_8BIT
     my_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection()
     my_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_NONE
+    return my_theme
 
-    my_menu = pygame_menu.Menu('', WIDTH, HEIGHT, theme=my_theme)
+def main_menu():
+    # Main menu
+    my_menu = pygame_menu.Menu('', WIDTH, HEIGHT, theme=get_theme())
     my_menu.add.label('Pacman', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 100))
     my_menu.add.button('Play', run)
-    my_menu.add.button('Credits')  # credits()
+    my_menu.add.button('Credits', credits_menu)
     my_menu.add.button('Quit', pygame_menu.events.EXIT)
     my_menu.mainloop(display_surface)
 
 
-# def credits():
-#     # TODO
+def credits_menu():
+    my_credits = pygame_menu.Menu('', WIDTH, HEIGHT, theme=get_theme())
+    my_credits.add.label('Credits', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 20))
+    my_credits.add.label('Creator\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(0, 0))
+    my_credits.add.label('Co-Creator\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-15, 0))
+    my_credits.add.label('Director\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-5, 0))
+    my_credits.add.label('Programmer\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-25, 0))
+    my_credits.add.label('Artist\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(8, 0))
+    my_credits.add.label('Writer\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(5, 0))
+    my_credits.add.label('Designer\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-5, 0))
+    my_credits.add.label('Playtester\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-20, 0))
+    my_credits.add.label('Producer\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-8, 0))
+    my_credits.add.label('Special Thanks\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-38, 30))
+    my_credits.add.button('Back', main_menu)
+    my_credits.mainloop(display_surface)
 
 
 if __name__ == "__main__":
