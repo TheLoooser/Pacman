@@ -1,8 +1,14 @@
+# Built-in
 import sys
+import random
+
+# Pygame
 import pygame
 import pygame_menu
-from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
+from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, WINDOWCLOSE
+from pygame._sdl2 import Window, Texture, Renderer
 
+# Modules
 from Characters.player import Player
 from Level.grid import Grid
 from Characters.enemy import Enemy
@@ -19,9 +25,28 @@ SPEED = 1  # 2
 FPS = 60
 
 FramePerSec = pygame.time.Clock()
-
 display_surface = pygame.display.set_mode((WIDTH, HEIGHT + 1.5 * 20))
 pygame.display.set_caption("Game")
+
+
+def change_surface(renderer, color):
+    surf = pygame.Surface((30, 30))
+    surf.fill(color)
+
+    tex = Texture.from_surface(renderer, surf)
+    renderer.clear()
+    tex.draw()
+    renderer.present()
+    del tex
+
+
+def create_window(color=(255, 0, 0)):
+    win = Window("2nd window", size=(256, 256), always_on_top=True)
+    win.opacity = 0.5
+    renderer = Renderer(win)
+    change_surface(renderer, color)
+
+    return win, renderer
 
 
 def run():
@@ -55,17 +80,45 @@ def run():
     old_field = Field(-1, -1, (0, 0, 255))
     blinky_path, pinky_path, inky_path = [], [], []
 
+    # Initialise variables for the second window
+    window, renderer = -1, -1  # window will be created later
+    toggle = False
+
     # Main Game Loop
     while True:
+        # Exit upon pressing ALT + F4
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LALT] and keys[pygame.K_F4]:
+            pygame.quit()
+            sys.exit(0)
+
         for event in pygame.event.get():
             # Close game upon exiting the window
             if event.type == QUIT:
                 pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN:
+                sys.exit(0)
+            elif getattr(event, "window", None) == window:
+                if event.type == KEYDOWN and event.key == K_ESCAPE or event.type == WINDOWCLOSE:
+                    toggle = not toggle
+                    window.destroy()
+                # Close 2nd window if it is in focus and toggle key is pressed
+                if event.type == KEYDOWN and toggle and event.key == pygame.K_t:
+                    toggle = not toggle
+                    window.destroy()
+            elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:  # pause game
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
                     paused(display_surface, FramePerSec, WIDTH, HEIGHT)
+                # Close 2nd window if main window is currently in focus
+                elif event.key == pygame.K_t:
+                    if toggle:
+                        window.destroy()
+                    else:
+                        window, renderer = create_window()
+                    toggle = not toggle
+            elif event.type == WINDOWCLOSE:
+                pygame.quit()
+                sys.exit(0)
 
         # Draw surfaces
         display_surface.fill((0, 0, 0))  # Initialise black background
@@ -88,6 +141,11 @@ def run():
 
         # Todo: Investigate inky getting stuck in tunnel
         inky_path = inky.move_enemy(inky_path, cells, grid, player, SPEED, WIDTH, "inky", blinky.pos)
+
+        # Update second window
+        r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+        if toggle:
+            change_surface(renderer, (r, g, b))
 
         # Game updates
         pygame.display.update()
@@ -133,3 +191,8 @@ if __name__ == "__main__":
     # run()
 
     main_menu()
+
+    # TODO: FPS display in top right cell (When pressing Alt + F)
+    #       Second Window with Matrix (coloured numbers)
+    #       Properly align Score (condense, more to the right)
+    #       Add packages to requirements.txt
