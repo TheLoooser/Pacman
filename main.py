@@ -1,12 +1,10 @@
 # Built-in
 import sys
-import random
 
 # Pygame
 import pygame
 import pygame_menu
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, WINDOWCLOSE
-from pygame._sdl2 import Window, Texture, Renderer
 
 # Modules
 from Characters.player import Player
@@ -14,6 +12,7 @@ from Level.grid import Grid
 from Characters.enemy import Enemy
 from Level.field import Field
 from Level.menu import draw_hud, draw_surface, blur_surface, paused
+from Level.window import create_window, change_surface
 
 # Based on: https://coderslegacy.com/python/pygame-platformer-game-development/
 
@@ -27,26 +26,6 @@ FPS = 60
 FramePerSec = pygame.time.Clock()
 display_surface = pygame.display.set_mode((WIDTH, HEIGHT + 1.5 * 20))
 pygame.display.set_caption("Game")
-
-
-def change_surface(renderer, color):
-    surf = pygame.Surface((30, 30))
-    surf.fill(color)
-
-    tex = Texture.from_surface(renderer, surf)
-    renderer.clear()
-    tex.draw()
-    renderer.present()
-    del tex
-
-
-def create_window(color=(255, 0, 0)):
-    win = Window("2nd window", size=(256, 256), always_on_top=True)
-    win.opacity = 0.5
-    renderer = Renderer(win)
-    change_surface(renderer, color)
-
-    return win, renderer
 
 
 def run():
@@ -122,7 +101,7 @@ def run():
 
         # Draw surfaces
         display_surface.fill((0, 0, 0))  # Initialise black background
-        draw_hud(display_surface, 3, max_points - len(dots)*100)
+        draw_hud(display_surface, 3, max_points - len(dots) * 100)
         draw_surface(display_surface, cell_sprites)
         draw_surface(display_surface, dots.values())
         draw_surface(display_surface, character_sprites)
@@ -143,9 +122,8 @@ def run():
         inky_path = inky.move_enemy(inky_path, cells, grid, player, SPEED, WIDTH, "inky", blinky.pos)
 
         # Update second window
-        r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
         if toggle:
-            change_surface(renderer, (r, g, b))
+            change_surface(window.size, renderer)
 
         # Game updates
         pygame.display.update()
