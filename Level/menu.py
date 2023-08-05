@@ -73,11 +73,17 @@ def draw_hud(display, nr_of_lives, score):
     for i in range(nr_of_lives):
         display.blit(life, (rect[0] + 60 + i*20, rect[1] + 440, rect[2] + 60 + i*20, rect[3] + 470))
 
+    # Copyright
+    smallfont = pygame.font.Font(file_path, 10)
+    text = smallfont.render('© 2023', True, (222, 222, 222))
+    text_rect = text.get_rect()
+    text_rect.center = (180, 455)
+    display.blit(text, text_rect)
+
     # Score text
-    font = pygame.font.Font(file_path, 16)
     text = font.render('Score:', True, (222, 222, 222))
     text_rect = text.get_rect()
-    text_rect.center = (230, 455)
+    text_rect.center = (270, 455)
     display.blit(text, text_rect)
 
     # Current score
@@ -90,7 +96,7 @@ def draw_hud(display, nr_of_lives, score):
     font = pygame.font.Font(file_path, 16)
     text = font.render(f'{score}', True, (222, 222, 222))
     text_rect = text.get_rect()
-    text_rect.center = (320, 455)
+    text_rect.center = (340, 455)
     display.blit(text, text_rect)
 
 

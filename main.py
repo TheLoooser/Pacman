@@ -25,7 +25,7 @@ FPS = 60
 
 FramePerSec = pygame.time.Clock()
 display_surface = pygame.display.set_mode((WIDTH, HEIGHT + 1.5 * 20))
-pygame.display.set_caption("Game")
+pygame.display.set_caption("Pacman")
 
 
 def run():
@@ -129,6 +129,9 @@ def run():
         pygame.display.update()
         FramePerSec.tick(FPS)
 
+        # FPS
+        pygame.display.set_caption(f"Pacman (FPS: {FramePerSec.get_fps():.1f})")
+
 
 def get_theme():
     my_theme = pygame_menu.themes.THEME_DARK
@@ -170,7 +173,5 @@ if __name__ == "__main__":
 
     main_menu()
 
-    # TODO: FPS display in top right cell (When pressing Alt + F)
-    #       Second Window with Matrix (coloured numbers)
-    #       Properly align Score (condense, more to the right)
-    #       Add packages to requirements.txt
+    # TODO: Second Window with Matrix (coloured numbers)
+    #       Toggle path highlighting
