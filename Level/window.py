@@ -1,6 +1,6 @@
 import random
 import pygame
-from pygame._sdl2 import Window, Texture, Renderer
+from pygame._sdl2 import Window, Texture, Renderer  # WARNING: Module still in development
 
 
 def cell_number(number):
