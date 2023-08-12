@@ -1,5 +1,6 @@
 # Built-in
 import sys
+import numpy as np
 
 # Pygame
 import pygame
@@ -35,6 +36,10 @@ def run():
     pellets = [(1, 3), (17, 3), (1, 16), (17, 16)]
     dots = grid.init_dots(pellets)
     max_points = (len(dots) - 1) * 100
+
+    # Matrix
+    base_matrix = np.array(Grid().walls)
+    old_matrix = np.copy(base_matrix)
 
     # Create a player
     player = Player()
@@ -93,7 +98,7 @@ def run():
                     if toggle:
                         window.destroy()
                     else:
-                        window, renderer = create_window()
+                        window, renderer = create_window(matrix)
                     toggle = not toggle
             elif event.type == WINDOWCLOSE:
                 pygame.quit()
@@ -122,8 +127,15 @@ def run():
         inky_path = inky.move_enemy(inky_path, cells, grid, player, SPEED, WIDTH, "inky", blinky.pos)
 
         # Update second window
+        for key in dots:
+            base_matrix[key[1]][key[0]] = 2
+        player_pos_x, player_pos_y = player.get_current_cell()
+        matrix = np.copy(base_matrix)
+        matrix[player_pos_y][player_pos_x] = 99
         if toggle:
-            change_surface(window.size, renderer)
+            if not np.array_equal(old_matrix, matrix):
+                old_matrix = np.copy(matrix)
+                change_surface(window.size, renderer, matrix)
 
         # Game updates
         pygame.display.update()
@@ -175,3 +187,9 @@ if __name__ == "__main__":
 
     # TODO: Second Window with Matrix (coloured numbers)
     #       Toggle path highlighting
+    #       Improve point system (e.g. time based)
+    #       Add fear behaviour of ghosts
+    #       Add collision (ie ghosts kill pacman)
+    #       Remove lives upon death
+    #       Game over screen when running out of lives 
+    #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
