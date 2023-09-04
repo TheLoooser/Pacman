@@ -29,6 +29,10 @@ display_surface = pygame.display.set_mode((WIDTH, HEIGHT + 1.5 * 20))
 pygame.display.set_caption("Pacman")
 
 
+def get_move_pattern(enemy, is_feared):
+    return enemy if not is_feared else "feared"
+
+
 def run():
     # Initialise Map
     grid = Grid()
@@ -63,6 +67,8 @@ def run():
     old_direction = -1
     old_field = Field(-1, -1, (0, 0, 255))
     blinky_path, pinky_path, inky_path = [], [], []
+    fear_duration = 5  # sec
+    elapsed_fear_time = 0
 
     # Initialise variables for the second window
     window, renderer = -1, -1  # window will be created later
@@ -113,20 +119,26 @@ def run():
 
         # Move player and ghosts
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
-        next_move, old_direction, new_direction, old_field, dots = player.move_player(next_move, old_direction, grid, i,
-                                                                                      j, cells, old_field, dots, SPEED,
-                                                                                      WIDTH)
+        next_move, old_direction, new_direction, old_field, dots, fear_state =\
+            player.move_player(next_move, old_direction, grid, i, j, cells, old_field, dots, SPEED, WIDTH)
+        # if fear_state:
+        #     elapsed_fear_time = time.time()
+
 
         # Todo: Gradually increase enemy speed over time
-        blinky_path = blinky.move_enemy(blinky_path, cells, grid, player, SPEED, WIDTH, "blinky")
+        blinky_path = blinky.move_enemy(blinky_path, cells, grid, player, SPEED, WIDTH,
+                                        get_move_pattern("blinky", fear_state))
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
-        pinky_path = pinky.move_enemy(pinky_path, cells, grid, player, SPEED, WIDTH, "pinky")
+        pinky_path = pinky.move_enemy(pinky_path, cells, grid, player, SPEED, WIDTH,
+                                      get_move_pattern("pinky", fear_state))
 
         # Todo: Investigate inky getting stuck in tunnel
-        inky_path = inky.move_enemy(inky_path, cells, grid, player, SPEED, WIDTH, "inky", blinky.pos)
+        inky_path = inky.move_enemy(inky_path, cells, grid, player, SPEED, WIDTH,
+                                    get_move_pattern("inky", fear_state), blinky.pos)
 
         # Update second window
+        base_matrix = np.array(Grid().walls)
         for key in dots:
             base_matrix[key[1]][key[0]] = 2
         player_pos_x, player_pos_y = player.get_current_cell()

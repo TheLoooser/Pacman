@@ -10,3 +10,5 @@ class Dot(pygame.sprite.Sprite):
         radius = 2 if not is_pellet else 5
         pygame.draw.circle(self.surf, (255, 255, 255), (30 // 2, 30 // 2), radius)
         self.rect = self.surf.get_rect(center=(x + 1.5, y + 1.5))
+
+        self.is_pellet = is_pellet

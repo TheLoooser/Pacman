@@ -104,6 +104,9 @@ class Enemy(pygame.sprite.Sprite):
                 path = self.get_path(grid.walls, player.get_current_cell())  # Get new path
                 color = (200, 50, 50)
 
+            case "feared":
+                print("Oh no, I am sooooo afraid...")
+
             case _:
                 sys.exit("Enemy move pattern not found.")
 

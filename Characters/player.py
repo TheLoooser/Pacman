@@ -131,9 +131,13 @@ class Player(pygame.sprite.Sprite):
             self.move(old_direction, speed, width)
 
         # Eat dot
+        fear_state = False
         if self.get_current_cell() in dots:
-            dots.pop(self.get_current_cell(), None)
+            dot = dots.pop(self.get_current_cell(), None)
+            if dot.is_pellet:
+                print("FEAR!!!")
+                fear_state = True
 
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()
-        return next_move, old_direction, new_direction, new_field, dots
+        return next_move, old_direction, new_direction, new_field, dots, fear_state
