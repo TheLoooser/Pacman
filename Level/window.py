@@ -2,19 +2,26 @@ import pygame
 from pygame._sdl2 import Window, Texture, Renderer  # WARNING: Module still in development
 
 
-def change_surface(window_size, renderer, matrix, color=(255, 255, 255)):
+def change_surface(window_size, renderer, matrix):
     surf = pygame.Surface(window_size)
-    surf.fill(color)
+    surf.fill((255, 255, 255))
 
     w = window_size[0] / 19
     h = window_size[1] / 22
 
     file_path = "Resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, 8)
+    colour_dict = {
+        0: (0, 0, 0),  # corridor
+        1: (0, 0, 255),  # wall
+        2: (69, 69, 69),  # dot
+        99: (255, 165, 0)  # player
+    }
 
     for i in range(19):
         for j in range(22):
-            t = font.render(f"{matrix[j][i]}", True, (0, 0, 0))
+            number = matrix[j][i]
+            t = font.render(f"{number}", True, colour_dict[number])
             tr = t.get_rect()
             tr.center = (w * i + w / 2, h * j + h / 2)
             surf.blit(t, tr)
@@ -26,10 +33,10 @@ def change_surface(window_size, renderer, matrix, color=(255, 255, 255)):
     del tex
 
 
-def create_window(matrix, color=(255, 255, 255)):
+def create_window(matrix):
     win = Window("2nd window", size=(256, 256), always_on_top=True)
     win.opacity = 0.8
     renderer = Renderer(win)
-    change_surface(win.size, renderer, matrix, color)
+    change_surface(win.size, renderer, matrix)
 
     return win, renderer
