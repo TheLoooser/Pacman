@@ -9,6 +9,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, name, colour, path=None):
         super().__init__()
         self.name = name
+        self._is_feared = 0
         if path is None:
             self.path = []
         else:
@@ -61,6 +62,10 @@ class Enemy(pygame.sprite.Sprite):
         surface.fill((0, 0, 0))
         color = (0, 0, 0)
         thickness = 1
+        if self._is_feared == 0 and enemy == "feared":
+            self._is_feared = 1
+        elif enemy != "feared":
+            self._is_feared = 0
 
         # Update enemy target
         for pos_y, pos_x in self.path:  # Clear old path
@@ -111,9 +116,27 @@ class Enemy(pygame.sprite.Sprite):
                 color = (200, 50, 50)
 
             case "feared":
-                path = []
-                print(grid.get_random_position())
-                print("Oh no, I am sooooo afraid...")
+                # TODO: Get new path in case initial random position is reached during fear time
+                def swap(a, b):
+                    return b, a
+
+                if self._is_feared < 2:
+                    self._is_feared = 2
+                    # new path to random pos
+                    path = self.get_path(grid.walls, grid.get_random_position())  # Get new path
+                    print("Got a new path to a random position.")
+                elif self.path:
+                    new_path = self.get_path(grid.walls, swap(*self.path[-1]))
+                    if len(new_path) >= len(self.path):
+                        path = self.path
+                    else:
+                        path = new_path
+                else:
+                    path = []
+                print(path)
+                # TODO: fix ghosts loosing fear path (soon after being feared)
+
+                color = (127, 127, 127)
 
             case _:
                 sys.exit("Enemy move pattern not found.")

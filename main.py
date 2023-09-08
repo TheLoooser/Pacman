@@ -126,6 +126,8 @@ def run():
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
         next_move, old_direction, new_direction, old_field, dots, fear_state = \
             player.move_player(next_move, old_direction, grid, i, j, cells, old_field, dots, SPEED, WIDTH)
+
+        # Fear timer
         if fear_state:
             fear_timer.start()
 
