@@ -38,6 +38,9 @@ class Timer:
     def get_elapsed_time(self):
         return time.perf_counter() - self._start_time + self._elapsed_time if self._start_time else self._elapsed_time
 
+    def is_running(self):
+        return self._start_time is not None
+
 
 if __name__ == "__main__":
     timer = Timer()
@@ -50,9 +53,11 @@ if __name__ == "__main__":
     timer.stop()
 
     timer.start()
+    print(timer.is_running())
     time.sleep(3)
     timer.resume()
     timer.pause()
     timer.stop()
+    print(timer.is_running())
 
 
