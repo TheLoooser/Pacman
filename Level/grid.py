@@ -1,3 +1,4 @@
+import random
 from enum import Enum
 from Level.cell import Cell
 from Logic.dot import Dot
@@ -120,6 +121,18 @@ class Grid:
             start_j = (c_j - n) % len(self.walls)
 
         return indexes
+
+    def get_random_position(self):
+
+        i = random.randint(0, len(self.walls) - 1)
+        while sum(self.walls[i]) == len(self.walls[0]):
+            i = random.randint(0, len(self.walls) - 1)
+
+        j = random.randint(0, len(self.walls[i]) - 1)
+        while self.walls[i][j] == 1:
+            j = (j + 1) % len(self.walls[i])
+
+        return i, j
 
 
 if __name__ == "__main__":

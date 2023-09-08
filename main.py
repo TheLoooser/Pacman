@@ -9,11 +9,12 @@ from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, WINDOWCLOSE
 
 # Modules
 from Characters.player import Player
-from Level.grid import Grid
 from Characters.enemy import Enemy
+from Level.grid import Grid
 from Level.field import Field
 from Level.menu import draw_hud, draw_surface, blur_surface, paused
 from Level.window import create_window, change_surface
+from Logic import timer
 
 # Based on: https://coderslegacy.com/python/pygame-platformer-game-development/
 
@@ -49,9 +50,9 @@ def run():
     player = Player()
 
     # Create ghost(s)
-    blinky = Enemy(9 * 20 + 10, 8 * 20 + 10, (255, 0, 0))
-    pinky = Enemy(1 * 20 + 10, 1 * 20 + 10, (255, 105, 180))
-    inky = Enemy(14 * 20 + 10, 15 * 20 + 10, (0, 255, 255))
+    blinky = Enemy(9 * 20 + 10, 8 * 20 + 10, "blinky", (255, 0, 0))
+    pinky = Enemy(1 * 20 + 10, 1 * 20 + 10, "pinky", (255, 105, 180))
+    inky = Enemy(14 * 20 + 10, 15 * 20 + 10, "inky", (0, 255, 255))
 
     # Create a sprite group
     cell_sprites = pygame.sprite.Group()
@@ -66,9 +67,8 @@ def run():
     next_move = False
     old_direction = -1
     old_field = Field(-1, -1, (0, 0, 255))
-    blinky_path, pinky_path, inky_path = [], [], []
     fear_duration = 5  # sec
-    elapsed_fear_time = 0
+    fear_timer = timer.Timer()
 
     # Initialise variables for the second window
     window, renderer = -1, -1  # window will be created later
@@ -98,7 +98,12 @@ def run():
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:  # pause game
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
-                    paused(display_surface, FramePerSec, WIDTH, HEIGHT)
+                    if fear_timer.is_running():
+                        fear_timer.pause()
+                        paused(display_surface, FramePerSec, WIDTH, HEIGHT)
+                        fear_timer.resume()
+                    else:
+                        paused(display_surface, FramePerSec, WIDTH, HEIGHT)
                 # Close 2nd window if main window is currently in focus
                 elif event.key == pygame.K_t:
                     if toggle:
@@ -119,23 +124,28 @@ def run():
 
         # Move player and ghosts
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
-        next_move, old_direction, new_direction, old_field, dots, fear_state =\
+        next_move, old_direction, new_direction, old_field, dots, fear_state = \
             player.move_player(next_move, old_direction, grid, i, j, cells, old_field, dots, SPEED, WIDTH)
-        # if fear_state:
-        #     elapsed_fear_time = time.time()
+        if fear_state:
+            fear_timer.start()
 
+        if fear_timer.get_elapsed_time() > fear_duration:
+            print("fear_over")
+            fear_timer.stop()
+        if fear_timer.is_running():
+            fear_state = True
 
         # Todo: Gradually increase enemy speed over time
-        blinky_path = blinky.move_enemy(blinky_path, cells, grid, player, SPEED, WIDTH,
-                                        get_move_pattern("blinky", fear_state))
+        blinky.move_enemy(cells, grid, player, SPEED, WIDTH,
+                          get_move_pattern("blinky", fear_state))
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
-        pinky_path = pinky.move_enemy(pinky_path, cells, grid, player, SPEED, WIDTH,
-                                      get_move_pattern("pinky", fear_state))
+        pinky.move_enemy(cells, grid, player, SPEED, WIDTH,
+                         get_move_pattern("pinky", fear_state))
 
         # Todo: Investigate inky getting stuck in tunnel
-        inky_path = inky.move_enemy(inky_path, cells, grid, player, SPEED, WIDTH,
-                                    get_move_pattern("inky", fear_state), blinky.pos)
+        inky.move_enemy(cells, grid, player, SPEED, WIDTH,
+                        get_move_pattern("inky", fear_state), blinky.pos)
 
         # Update second window
         base_matrix = np.array(Grid().walls)
@@ -201,6 +211,7 @@ if __name__ == "__main__":
     #       Toggle path highlighting
     #       Improve point system (e.g. time based)
     #       Add fear behaviour of ghosts
+    #       Ghosts start from center of the map (ie their home)
     #       Add collision (ie ghosts kill pacman)
     #       Remove lives upon death
     #       Game over screen when running out of lives 
