@@ -39,6 +39,12 @@ def paused(display, clock, width, height):
 
     pause = True
     while pause:
+        # Exit upon pressing ALT + F4
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LALT] and keys[pygame.K_F4]:
+            pygame.quit()
+            sys.exit(0)
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
