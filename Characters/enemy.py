@@ -5,6 +5,10 @@ from Logic.astar import astar
 import copy
 
 
+def swap(a, b):
+    return b, a
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, name, colour, path=None):
         super().__init__()
@@ -23,10 +27,8 @@ class Enemy(pygame.sprite.Sprite):
         self.vel = pygame.math.Vector2(0, 0)
 
     def get_path(self, grid, player_position):
-        i, j = self.get_current_cell()
-        i, j = j, i
-        x, y = player_position
-        x, y = y, x
+        i, j = swap(*self.get_current_cell())
+        x, y = swap(*player_position)
         return astar(grid, (i, j), (x, y))
 
     def get_current_cell(self):
@@ -117,14 +119,12 @@ class Enemy(pygame.sprite.Sprite):
 
             case "feared":
                 # TODO: Get new path in case initial random position is reached during fear time
-                def swap(a, b):
-                    return b, a
-
                 if self._is_feared < 2:
                     self._is_feared = 2
-                    # new path to random pos
-                    path = self.get_path(grid.walls, grid.get_random_position())  # Get new path
-                    print("Got a new path to a random position.")
+                    # Get new path to a random position
+                    random_pos = grid.get_random_position()
+                    path = self.get_path(grid.walls, swap(*random_pos))
+                    # print(f"Got a new path to a random position. {random_pos} -> {path}")
                 elif self.path:
                     new_path = self.get_path(grid.walls, swap(*self.path[-1]))
                     if len(new_path) >= len(self.path):
@@ -133,8 +133,6 @@ class Enemy(pygame.sprite.Sprite):
                         path = new_path
                 else:
                     path = []
-                print(path)
-                # TODO: fix ghosts loosing fear path (soon after being feared)
 
                 color = (127, 127, 127)
 
@@ -151,13 +149,19 @@ class Enemy(pygame.sprite.Sprite):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))
 
         if len(path) > 1:
+            # Make ghosts warp around border
             diff = tuple_difference(path[0], path[1])
             if sum(diff) > 1:
                 self.move(*tuple_difference(path[0], diff, True), speed / 3, width)
             elif sum(diff) < -1:
                 abs_diff = tuple(abs(d) for d in diff)
                 self.move(*tuple_difference(path[0], abs_diff), speed / 3, width)
-            else:
+            # Move ghosts along calculated path
+            elif swap(*self.get_current_cell()) == path[0]:
                 self.move(*path[1], speed / 3, width)
+            else:
+                self.move(*path[0], speed / 3, width)
+        else:
+            self.move(*path[0], speed / 3, width)
 
         self.path = path
