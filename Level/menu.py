@@ -2,6 +2,8 @@ import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 import sys
 
+from Logic import checkbox
+
 
 def blur_surface(surface, amount):
     if amount < 1:
@@ -15,7 +17,18 @@ def blur_surface(surface, amount):
     return surf
 
 
-def paused(display, clock, width, height):
+def print_text(display, text, font_size, colour, x_pos, y_pos, clickable=False):
+    file_path = "Resources\\PixeloidSans.ttf"
+    font = pygame.font.Font(file_path, font_size)
+    text = font.render(text, True, colour)
+    # text.set_alpha(200)
+    text_rect = text.get_rect()
+    text_rect.center = (x_pos, y_pos)
+    display.blit(text, text_rect)
+    return text_rect if clickable else None
+
+
+def paused(display, clock, width, height, checkboxes):
     # Darken pause background
     s = pygame.Surface((width, height))  # the size of your rect
     s.set_alpha(50)  # alpha level
@@ -23,19 +36,25 @@ def paused(display, clock, width, height):
     display.blit(s, (0, 0))
 
     # Print pause text
-    file_path = "Resources\\PixeloidSans.ttf"
-    font = pygame.font.Font(file_path, 50)
-    text = font.render('Pause', True, (222, 222, 222))
-    # text.set_alpha(200)
-    text_rect = text.get_rect()
-    text_rect.center = ((display.get_width() / 2), (display.get_height() / 2))
-    display.blit(text, text_rect)
+    print_text(display, "Pause", 50, (222, 222, 222),
+               (display.get_width() / 2), (display.get_height() * .2))
+    print_text(display, "Press ESC to continue", 18, (222, 222, 222),
+               (display.get_width() / 2), (display.get_height() * .2) + 50)
+    # Buttons
+    # Todo: Add subtexts to buttons (for secondary texts -> smaller fontsize, under main text)
+    button_rects = {'back': print_text(display, "BACK (Resume Game)", 18, (222, 222, 222),
+                                       (display.get_width() / 2), (display.get_height() / 2) + 50, True),
+                    'exit': print_text(display, "EXIT (Return to Main Menu)", 18, (222, 222, 222),
+                                       (display.get_width() / 2), (display.get_height() / 2) + 80, True),
+                    'quit': print_text(display, "QUIT (Close the application)", 18, (222, 222, 222),
+                                       (display.get_width() / 2), (display.get_height() * .8), True)}
 
+    # Checkbox
+    file_path = "Resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, 18)
-    text = font.render('Press ESC to continue', True, (222, 222, 222))
-    text_rect = text.get_rect()
-    text_rect.center = ((display.get_width() / 2), (display.get_height() / 2) + 50)
-    display.blit(text, text_rect)
+    chckbx = checkbox.CheckBox(display, (display.get_width() * .3), (display.get_height() / 2), 1,
+                               caption="Highlight paths", font=font, font_color=(222, 222, 222),
+                               checked=checkboxes['path_highlights'])
 
     pause = True
     while pause:
@@ -53,11 +72,30 @@ def paused(display, clock, width, height):
                 if event.key == K_ESCAPE:
                     pause = False
 
-        # button("Continue", 150, 450, 100, 50, green, bright_green, unpause)
-        # button("Quit", 550, 450, 100, 50, red, bright_red, quitgame)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button, rect in button_rects.items():
+                    if rect.collidepoint(event.pos):
+                        match button:
+                            case "back":
+                                pause = False
+                            case "exit":
+                                pause = False
+                                from main import main_menu
+                                main_menu()
+                            case "quit":
+                                pygame.quit()
+                                sys.exit()
+                            case _:
+                                sys.exit("Button not found.")
 
+            chckbx.update_checkbox(event)
+
+        chckbx.render_checkbox()
         pygame.display.update()
         clock.tick(15)
+
+    checkboxes['path_highlights'] = chckbx.checked
+    return checkboxes
 
 
 def draw_hud(display, nr_of_lives, score):
@@ -77,7 +115,7 @@ def draw_hud(display, nr_of_lives, score):
     rect = life.get_rect()
 
     for i in range(nr_of_lives):
-        display.blit(life, (rect[0] + 60 + i*20, rect[1] + 440, rect[2] + 60 + i*20, rect[3] + 470))
+        display.blit(life, (rect[0] + 60 + i * 20, rect[1] + 440, rect[2] + 60 + i * 20, rect[3] + 470))
 
     # Copyright
     smallfont = pygame.font.Font(file_path, 10)

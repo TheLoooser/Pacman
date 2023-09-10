@@ -69,6 +69,7 @@ def run():
     old_field = Field(-1, -1, (0, 0, 255))
     fear_duration = 5  # sec
     fear_timer = timer.Timer()
+    checkboxes = {"path_highlights": True}
 
     # Initialise variables for the second window
     window, renderer = -1, -1  # window will be created later
@@ -100,10 +101,11 @@ def run():
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
                     if fear_timer.is_running():
                         fear_timer.pause()
-                        paused(display_surface, FramePerSec, WIDTH, HEIGHT)
+                        checkboxes = paused(display_surface, FramePerSec, WIDTH, HEIGHT, checkboxes)
                         fear_timer.resume()
                     else:
-                        paused(display_surface, FramePerSec, WIDTH, HEIGHT)
+                        checkboxes = paused(display_surface, FramePerSec, WIDTH, HEIGHT, checkboxes)
+                        print(f"IN MAIN -> {checkboxes['path_highlights']}")
                 # Close 2nd window if main window is currently in focus
                 elif event.key == pygame.K_t:
                     if toggle:
@@ -138,16 +140,16 @@ def run():
             fear_state = True
 
         # Todo: Gradually increase enemy speed over time
-        blinky.move_enemy(cells, grid, player, SPEED, WIDTH,
-                          get_move_pattern("blinky", fear_state))
+        blinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("blinky", fear_state),
+                          checkboxes['path_highlights'])
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
-        pinky.move_enemy(cells, grid, player, SPEED, WIDTH,
-                         get_move_pattern("pinky", fear_state))
+        pinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("pinky", fear_state),
+                         checkboxes['path_highlights'])
 
         # Todo: Investigate inky getting stuck in tunnel
-        inky.move_enemy(cells, grid, player, SPEED, WIDTH,
-                        get_move_pattern("inky", fear_state), blinky.pos)
+        inky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("inky", fear_state),
+                        checkboxes['path_highlights'], blinky.pos)
 
         # Update second window
         base_matrix = np.array(Grid().walls)
@@ -210,7 +212,7 @@ if __name__ == "__main__":
     main_menu()
 
     # TODO: Second Window with Matrix (coloured numbers)
-    #       Toggle path highlighting
+    #       Align pause menu buttons
     #       Improve point system (e.g. time based)
     #       Add fear behaviour of ghosts
     #       Ghosts start from center of the map (ie their home)

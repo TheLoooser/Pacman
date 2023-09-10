@@ -59,7 +59,7 @@ class Enemy(pygame.sprite.Sprite):
             self.pos.x = width
         self.rect.midbottom = self.pos + pygame.math.Vector2(0, 10)
 
-    def move_enemy(self, cells, grid, player, speed, width, enemy="blinky", position=None):
+    def move_enemy(self, cells, grid, player, speed, width, enemy="blinky", highlight_path=True, position=None):
         surface = pygame.Surface((5, 5))
         surface.fill((0, 0, 0))
         color = (0, 0, 0)
@@ -139,11 +139,12 @@ class Enemy(pygame.sprite.Sprite):
             case _:
                 sys.exit("Enemy move pattern not found.")
 
-        for pos_y, pos_x in path:  # Highlight new path
-            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (6, 15), thickness)
-            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 15), (15, 15), thickness)
-            pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (15, 6), thickness)
-            pygame.draw.line(cells[pos_y][pos_x].surf, color, (15, 6), (15, 15), thickness)
+        if highlight_path:
+            for pos_y, pos_x in path:  # Highlight new path
+                pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (6, 15), thickness)
+                pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 15), (15, 15), thickness)
+                pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (15, 6), thickness)
+                pygame.draw.line(cells[pos_y][pos_x].surf, color, (15, 6), (15, 15), thickness)
 
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))
