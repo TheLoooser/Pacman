@@ -80,7 +80,7 @@ class Player(pygame.sprite.Sprite):
 
         # Highlight the next cell for which the player is headed
         x_new, y_new = grid.get_next_cell((i, j), self.get_direction())
-        colour = (0, 0, 255) if grid.is_wall(y_new, x_new) else (0, 0, 0)
+        colour = (0, 0, 255) if (grid.is_wall(y_new, x_new) and (y_new, x_new) != (9, 9)) else (0, 0, 0)
         new_field = Field(x_new, y_new, colour)
 
         cells[y_new][x_new].surf.fill((0, 255, 0))

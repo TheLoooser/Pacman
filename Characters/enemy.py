@@ -9,6 +9,17 @@ def swap(a, b):
     return b, a
 
 
+def get_maze(grid_walls, pos):
+    ghost_house = [(9, 9), (10, 8), (10, 9), (10, 10)]
+    maze = copy.deepcopy(grid_walls)
+    # When the ghost is in his home
+    if swap(*pos) in ghost_house:
+        for room in ghost_house:
+            maze[room[0]][room[1]] = 0
+
+    return maze
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, name, colour, path=None):
         super().__init__()
@@ -96,8 +107,8 @@ class Enemy(pygame.sprite.Sprite):
                         min_distance = (index, distance)
 
                 # print(f"{possible_targets} - {min_distance} - {target}")
-
-                path = self.get_path(grid.walls, possible_targets[min_distance[0]])  # Get new path
+                maze = get_maze(grid.walls, self.get_current_cell())
+                path = self.get_path(maze, possible_targets[min_distance[0]])  # Get new path
                 color = (0, 255, 255)
 
             case "pinky":
@@ -105,7 +116,7 @@ class Enemy(pygame.sprite.Sprite):
                 x, y = cell
                 # cells[y][x].surf.fill((255, 105, 180))
 
-                maze = copy.deepcopy(grid.walls)
+                maze = get_maze(grid.walls, self.get_current_cell())
                 player_pos_x, player_pos_y = player.get_current_cell()
                 if (x, y) != (player_pos_x, player_pos_y):
                     maze[player_pos_y][player_pos_x] = 1
@@ -114,7 +125,8 @@ class Enemy(pygame.sprite.Sprite):
                 color = (255, 105, 180)
 
             case "blinky":
-                path = self.get_path(grid.walls, player.get_current_cell())  # Get new path
+                maze = get_maze(grid.walls, self.get_current_cell())
+                path = self.get_path(maze, player.get_current_cell())  # Get new path
                 color = (200, 50, 50)
 
             case "feared":

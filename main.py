@@ -50,9 +50,9 @@ def run():
     player = Player()
 
     # Create ghost(s)
-    blinky = Enemy(9 * 20 + 10, 8 * 20 + 10, "blinky", (255, 0, 0))
-    pinky = Enemy(1 * 20 + 10, 1 * 20 + 10, "pinky", (255, 105, 180))
-    inky = Enemy(14 * 20 + 10, 15 * 20 + 10, "inky", (0, 255, 255))
+    blinky = Enemy(9 * 20 + 10, 9 * 20 + 10, "blinky", (255, 0, 0))
+    pinky = Enemy(8 * 20 + 10, 10 * 20 + 10, "pinky", (255, 105, 180))
+    inky = Enemy(9 * 20 + 10, 10 * 20 + 10, "inky", (0, 255, 255))
 
     # Create a sprite group
     cell_sprites = pygame.sprite.Group()
@@ -61,6 +61,13 @@ def run():
 
     character_sprites = pygame.sprite.Group()
     character_sprites.add([player, blinky, pinky, inky])
+
+    # Ghost house door
+    door = {}
+    door_surface = pygame.Surface((20, 3))
+    door_surface.fill((255, 165, 0))
+    door['surface'] = door_surface
+    door['rectangle'] = door_surface.get_rect(center=(9 * 20 + 11, 9 * 20 + 2))
 
     # Initialise variables
     previous_cell = (16, 9, (0, 0, 0))
@@ -123,6 +130,7 @@ def run():
         draw_surface(display_surface, cell_sprites)
         draw_surface(display_surface, dots.values())
         draw_surface(display_surface, character_sprites)
+        display_surface.blit(door['surface'], door['rectangle'])
 
         # Move player and ghosts
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
@@ -215,7 +223,7 @@ if __name__ == "__main__":
     #       Align pause menu buttons
     #       Improve point system (e.g. time based)
     #       Add fear behaviour of ghosts
-    #       Ghosts start from center of the map (ie their home)
+    #       Add ghost release timer (random)
     #       Add collision (ie ghosts kill pacman)
     #       Remove lives upon death
     #       Game over screen when running out of lives 

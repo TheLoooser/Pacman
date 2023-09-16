@@ -39,12 +39,16 @@ class Grid:
         ]
 
     def init_map(self):
+        home = [(9, 9), (8, 10), (9, 10), (10, 10)]
         cells = []
         for j in range(22):
             grid_row = []
             for i in range(19):
                 if self.walls[j][i]:
-                    grid_row.append(Cell(i * 20 + 10, j * 20 + 10, (0, 0, 255)))
+                    if (i, j) in home:
+                        grid_row.append(Cell(i * 20 + 10, j * 20 + 10, (0, 0, 0)))
+                    else:
+                        grid_row.append(Cell(i * 20 + 10, j * 20 + 10, (0, 0, 255)))
                 else:
                     grid_row.append(Cell(i * 20 + 10, j * 20 + 10, (0, 0, 0)))
             cells.append(grid_row)
