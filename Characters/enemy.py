@@ -130,8 +130,7 @@ class Enemy(pygame.sprite.Sprite):
                 color = (200, 50, 50)
 
             case "feared":
-                # TODO: Get new path in case initial random position is reached during fear time
-                if self._is_feared < 2:
+                if self._is_feared < 2 or swap(*self.get_current_cell()) == self.path[-1]:
                     self._is_feared = 2
                     # Get new path to a random position
                     random_pos = grid.get_random_position()
