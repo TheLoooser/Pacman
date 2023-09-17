@@ -1,5 +1,6 @@
 # Built-in
 import sys
+import random
 import numpy as np
 
 # Pygame
@@ -51,8 +52,8 @@ def run():
 
     # Create ghost(s)
     blinky = Enemy(9 * 20 + 10, 9 * 20 + 10, "blinky", (255, 0, 0))
-    pinky = Enemy(8 * 20 + 10, 10 * 20 + 10, "pinky", (255, 105, 180))
-    inky = Enemy(9 * 20 + 10, 10 * 20 + 10, "inky", (0, 255, 255))
+    pinky = Enemy(9 * 20 + 10, 10 * 20 + 10, "pinky", (255, 105, 180))
+    inky = Enemy(8 * 20 + 10, 10 * 20 + 10, "inky", (0, 255, 255))
 
     # Create a sprite group
     cell_sprites = pygame.sprite.Group()
@@ -76,7 +77,12 @@ def run():
     old_field = Field(-1, -1, (0, 0, 255))
     fear_duration = 5  # sec
     fear_timer = timer.Timer()
+    release_times = {name: timing for name, timing in
+                     zip(["blinky", "pinky", "inky"], sorted(random.sample(range(0, 10), 3)))}
+    release_timer = timer.Timer()
+    release_timer.start()
     checkboxes = {"path_highlights": True}
+    print(release_times)
 
     # Initialise variables for the second window
     window, renderer = -1, -1  # window will be created later
@@ -106,6 +112,7 @@ def run():
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:  # pause game
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
+                    release_timer.pause()
                     if fear_timer.is_running():
                         fear_timer.pause()
                         checkboxes = paused(display_surface, FramePerSec, WIDTH, HEIGHT, checkboxes)
@@ -113,6 +120,7 @@ def run():
                     else:
                         checkboxes = paused(display_surface, FramePerSec, WIDTH, HEIGHT, checkboxes)
                         print(f"IN MAIN -> {checkboxes['path_highlights']}")
+                    release_timer.resume()
                 # Close 2nd window if main window is currently in focus
                 elif event.key == pygame.K_t:
                     if toggle:
@@ -148,16 +156,19 @@ def run():
             fear_state = True
 
         # Todo: Gradually increase enemy speed over time
-        blinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("blinky", fear_state),
-                          checkboxes['path_highlights'])
+        if release_timer.get_elapsed_time() > release_times["blinky"]:
+            blinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("blinky", fear_state),
+                              checkboxes['path_highlights'])
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
-        pinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("pinky", fear_state),
-                         checkboxes['path_highlights'])
+        if release_timer.get_elapsed_time() > release_times["pinky"]:
+            pinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("pinky", fear_state),
+                             checkboxes['path_highlights'])
 
         # Todo: Investigate inky getting stuck in tunnel
-        inky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("inky", fear_state),
-                        checkboxes['path_highlights'], blinky.pos)
+        if release_timer.get_elapsed_time() > release_times["inky"]:
+            inky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("inky", fear_state),
+                            checkboxes['path_highlights'], blinky.pos)
 
         # Update second window
         base_matrix = np.array(Grid().walls)
@@ -219,12 +230,11 @@ if __name__ == "__main__":
 
     main_menu()
 
-    # TODO: Second Window with Matrix (coloured numbers)
-    #       Align pause menu buttons
-    #       Improve point system (e.g. time based)
-    #       Add fear behaviour of ghosts
-    #       Add ghost release timer (random)
-    #       Add collision (ie ghosts kill pacman)
+    # TODO: Add collision (ie ghosts kill pacman and vice versa)
     #       Remove lives upon death
     #       Game over screen when running out of lives 
     #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
+    #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
+    #       Align pause menu buttons
+    #       Improve point system (e.g. time based)
+    #       Second Window with Matrix (coloured numbers)
