@@ -134,10 +134,12 @@ class Enemy(pygame.sprite.Sprite):
                     self._is_feared = 2
                     # Get new path to a random position
                     random_pos = grid.get_random_position()
-                    path = self.get_path(grid.walls, swap(*random_pos))
+                    maze = get_maze(grid.walls, self.get_current_cell())
+                    path = self.get_path(maze, swap(*random_pos))
                     # print(f"Got a new path to a random position. {random_pos} -> {path}")
                 elif self.path:
-                    new_path = self.get_path(grid.walls, swap(*self.path[-1]))
+                    maze = get_maze(grid.walls, self.get_current_cell())
+                    new_path = self.get_path(maze, swap(*self.path[-1]))
                     if len(new_path) >= len(self.path):
                         path = self.path
                     else:
@@ -156,6 +158,11 @@ class Enemy(pygame.sprite.Sprite):
                 pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 15), (15, 15), thickness)
                 pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (15, 6), thickness)
                 pygame.draw.line(cells[pos_y][pos_x].surf, color, (15, 6), (15, 15), thickness)
+
+        # Collision
+        if player.get_current_cell() == self.get_current_cell() and enemy != 'feared':
+            from main import run
+            run()
 
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))

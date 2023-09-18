@@ -232,9 +232,13 @@ if __name__ == "__main__":
 
     # TODO: Add collision (ie ghosts kill pacman and vice versa)
     #       Remove lives upon death
+    #       Update dots upon dying (remove already eaten ones)
     #       Game over screen when running out of lives 
     #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
     #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
     #       Align pause menu buttons
     #       Improve point system (e.g. time based)
+    #       - Time based survival points (points per sec)
+    #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
+    #       - Time based completion points (faster lvl completion = more pts)
     #       Second Window with Matrix (coloured numbers)
