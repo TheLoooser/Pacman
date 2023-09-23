@@ -73,7 +73,7 @@ class Player(pygame.sprite.Sprite):
 
         return i, j, previous_cell, cells
 
-    def move_player(self, next_move, old_direction, grid, i, j, cells, old_field, dots, speed, width):
+    def move_player(self, next_move, old_direction, grid, i, j, cells, old_field, params):
         # Player movement
         pressed_key = pygame.key.get_pressed()
         next_move, new_direction = self.set_direction(pressed_key, next_move, old_direction)
@@ -96,6 +96,7 @@ class Player(pygame.sprite.Sprite):
         x_old, y_old = grid.get_next_cell((i, j), old_direction)  # keep the old direction
 
         # Movement
+        speed, width = params['speed'], params['width']
         if next_move and not grid.is_wall(y_new, x_new):  # Change direction
             if ((self.get_direction() % 2 == 0
                  and self.pos.x % 10 == 0
@@ -132,12 +133,12 @@ class Player(pygame.sprite.Sprite):
 
         # Eat dot
         fear_state = False
-        if self.get_current_cell() in dots:
-            dot = dots.pop(self.get_current_cell(), None)
+        if self.get_current_cell() in params['dots']:
+            dot = params['dots'].pop(self.get_current_cell(), None)
             if dot.is_pellet:
                 print("FEAR!!!")
                 fear_state = True
 
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()
-        return next_move, old_direction, new_direction, new_field, dots, fear_state
+        return next_move, old_direction, new_direction, new_field, fear_state

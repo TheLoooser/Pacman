@@ -70,7 +70,7 @@ class Enemy(pygame.sprite.Sprite):
             self.pos.x = width
         self.rect.midbottom = self.pos + pygame.math.Vector2(0, 10)
 
-    def move_enemy(self, cells, grid, player, speed, width, enemy="blinky", highlight_path=True, position=None):
+    def move_enemy(self, cells, grid, player, params, enemy="blinky", highlight_path=True, position=None):
         surface = pygame.Surface((5, 5))
         surface.fill((0, 0, 0))
         color = (0, 0, 0)
@@ -162,11 +162,13 @@ class Enemy(pygame.sprite.Sprite):
         # Collision
         if player.get_current_cell() == self.get_current_cell() and enemy != 'feared':
             from main import run
-            run()
+            params['lives'] = params['lives'] - 1
+            run(params)
 
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))
 
+        speed, width = params['speed'], params['width']
         if len(path) > 1:
             # Make ghosts warp around border
             diff = tuple_difference(path[0], path[1])

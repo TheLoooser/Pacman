@@ -35,13 +35,22 @@ def get_move_pattern(enemy, is_feared):
     return enemy if not is_feared else "feared"
 
 
-def run():
+def run(params=None):
+    if params is None:
+        # Initialise parameters
+        params = {
+            'width': 380, 'speed': 1, 'lives': 3, 'score': 0,
+            # Initialise variables for the second window
+            'window': -1, 'renderer': -1, 'toggle': False  # window will be created later
+            }
+
     # Initialise Map
     grid = Grid()
     cells = grid.init_map()
     pellets = [(1, 3), (17, 3), (1, 16), (17, 16)]
-    dots = grid.init_dots(pellets)
-    max_points = (len(dots) - 1) * 100
+    if 'dots' not in params.keys():
+        params['dots'] = grid.init_dots(pellets)
+        params['max_points'] = (len(params['dots']) - 1) * 100
 
     # Matrix
     base_matrix = np.array(Grid().walls)
@@ -84,10 +93,6 @@ def run():
     checkboxes = {"path_highlights": True}
     print(release_times)
 
-    # Initialise variables for the second window
-    window, renderer = -1, -1  # window will be created later
-    toggle = False
-
     # Main Game Loop
     while True:
         # Exit upon pressing ALT + F4
@@ -101,14 +106,14 @@ def run():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit(0)
-            elif getattr(event, "window", None) == window:
+            elif getattr(event, "window", None) == params['window']:
                 if event.type == KEYDOWN and event.key == K_ESCAPE or event.type == WINDOWCLOSE:
-                    toggle = not toggle
-                    window.destroy()
+                    params['toggle'] = not params['toggle']
+                    params['window'].destroy()
                 # Close 2nd window if it is in focus and toggle key is pressed
-                if event.type == KEYDOWN and toggle and event.key == pygame.K_t:
-                    toggle = not toggle
-                    window.destroy()
+                if event.type == KEYDOWN and params['toggle'] and event.key == pygame.K_t:
+                    params['toggle'] = not params['toggle']
+                    params['window'].destroy()
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:  # pause game
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
@@ -123,27 +128,27 @@ def run():
                     release_timer.resume()
                 # Close 2nd window if main window is currently in focus
                 elif event.key == pygame.K_t:
-                    if toggle:
-                        window.destroy()
+                    if params['toggle']:
+                        params['window'].destroy()
                     else:
-                        window, renderer = create_window(matrix)
-                    toggle = not toggle
+                        params['window'], params['renderer'] = create_window(matrix)
+                    params['toggle'] = not params['toggle']
             elif event.type == WINDOWCLOSE:
                 pygame.quit()
                 sys.exit(0)
 
         # Draw surfaces
         display_surface.fill((0, 0, 0))  # Initialise black background
-        draw_hud(display_surface, 3, max_points - len(dots) * 100)
+        draw_hud(display_surface, params['lives'], params['max_points'] - len(params['dots']) * 100)
         draw_surface(display_surface, cell_sprites)
-        draw_surface(display_surface, dots.values())
+        draw_surface(display_surface, params['dots'].values())
         draw_surface(display_surface, character_sprites)
         display_surface.blit(door['surface'], door['rectangle'])
 
         # Move player and ghosts
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
-        next_move, old_direction, new_direction, old_field, dots, fear_state = \
-            player.move_player(next_move, old_direction, grid, i, j, cells, old_field, dots, SPEED, WIDTH)
+        next_move, old_direction, new_direction, old_field, fear_state = \
+            player.move_player(next_move, old_direction, grid, i, j, cells, old_field, params)
 
         # Fear timer
         if fear_state:
@@ -157,30 +162,30 @@ def run():
 
         # Todo: Gradually increase enemy speed over time
         if release_timer.get_elapsed_time() > release_times["blinky"]:
-            blinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("blinky", fear_state),
+            blinky.move_enemy(cells, grid, player, params, get_move_pattern("blinky", fear_state),
                               checkboxes['path_highlights'])
 
         # Todo: Investigate no path found bug when player is somewhere in lower half
         if release_timer.get_elapsed_time() > release_times["pinky"]:
-            pinky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("pinky", fear_state),
+            pinky.move_enemy(cells, grid, player, params, get_move_pattern("pinky", fear_state),
                              checkboxes['path_highlights'])
 
         # Todo: Investigate inky getting stuck in tunnel
         if release_timer.get_elapsed_time() > release_times["inky"]:
-            inky.move_enemy(cells, grid, player, SPEED, WIDTH, get_move_pattern("inky", fear_state),
+            inky.move_enemy(cells, grid, player, params, get_move_pattern("inky", fear_state),
                             checkboxes['path_highlights'], blinky.pos)
 
         # Update second window
         base_matrix = np.array(Grid().walls)
-        for key in dots:
+        for key in params['dots']:
             base_matrix[key[1]][key[0]] = 2
         player_pos_x, player_pos_y = player.get_current_cell()
         matrix = np.copy(base_matrix)
         matrix[player_pos_y][player_pos_x] = 99
-        if toggle:
+        if params['toggle']:
             if not np.array_equal(old_matrix, matrix):
                 old_matrix = np.copy(matrix)
-                change_surface(window.size, renderer, matrix)
+                change_surface(params['window'].size, params['renderer'], matrix)
 
         # Game updates
         pygame.display.update()
@@ -226,14 +231,10 @@ def credits_menu():
 
 
 if __name__ == "__main__":
-    # run()
-
     main_menu()
 
     # TODO: Add collision (ie ghosts kill pacman and vice versa)
-    #       Remove lives upon death
-    #       Update dots upon dying (remove already eaten ones)
-    #       Game over screen when running out of lives 
+    #       Game over screen when running out of lives (or when all dots are eaten)
     #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
     #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
     #       Align pause menu buttons
