@@ -233,11 +233,11 @@ def credits_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Add collision (ie ghosts kill pacman and vice versa)
-    #       Game over screen when running out of lives (or when all dots are eaten)
+    # TODO: Game over screen when running out of lives (or when all dots are eaten)
     #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
     #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
     #       Align pause menu buttons
+    #       Add points for eating ghosts
     #       Improve point system (e.g. time based)
     #       - Time based survival points (points per sec)
     #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)

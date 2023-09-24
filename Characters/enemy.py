@@ -34,8 +34,15 @@ class Enemy(pygame.sprite.Sprite):
         self.surf.fill(colour)
         self.rect = self.surf.get_rect(center=(x, y))
 
+        self._home = pygame.math.Vector2((x, y))
         self.pos = pygame.math.Vector2((x, y))
         self.vel = pygame.math.Vector2(0, 0)
+
+    def _reset_position(self):
+        x = self._home.x
+        y = self._home.y
+        self.rect = self.surf.get_rect(center=(x, y))
+        self.pos = pygame.math.Vector2((x, y))
 
     def get_path(self, grid, player_position):
         i, j = swap(*self.get_current_cell())
@@ -130,7 +137,9 @@ class Enemy(pygame.sprite.Sprite):
                 color = (200, 50, 50)
 
             case "feared":
-                if self._is_feared < 2 or swap(*self.get_current_cell()) == self.path[-1]:
+                if self._is_feared == 3:
+                    return  # wait for fear timer to be over
+                elif self._is_feared < 2 or swap(*self.get_current_cell()) == self.path[-1]:
                     self._is_feared = 2
                     # Get new path to a random position
                     random_pos = grid.get_random_position()
@@ -160,10 +169,15 @@ class Enemy(pygame.sprite.Sprite):
                 pygame.draw.line(cells[pos_y][pos_x].surf, color, (15, 6), (15, 15), thickness)
 
         # Collision
-        if player.get_current_cell() == self.get_current_cell() and enemy != 'feared':
-            from main import run
-            params['lives'] = params['lives'] - 1
-            run(params)
+        if player.get_current_cell() == self.get_current_cell():
+            if enemy == 'feared':
+                self._is_feared = 3  # ghost was eaten while being feared
+                self._reset_position()  # return to home
+                return
+            else:
+                from main import run
+                params['lives'] = params['lives'] - 1
+                run(params)
 
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))
