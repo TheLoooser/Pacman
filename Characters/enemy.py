@@ -2,6 +2,7 @@ import math
 import sys
 import pygame
 from Logic.astar import astar
+from Level.menu import game_over
 import copy
 
 
@@ -175,9 +176,14 @@ class Enemy(pygame.sprite.Sprite):
                 self._reset_position()  # return to home
                 return
             else:
+                # DISCLAIMER: This is NOT clean code!
                 from main import run
                 params['lives'] = params['lives'] - 1
-                run(params)
+                if params['lives'] == 0:
+                    print("GAME OVER!!!")
+                    game_over()
+                else:
+                    run(params)
 
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))

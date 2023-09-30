@@ -39,7 +39,8 @@ def run(params=None):
     if params is None:
         # Initialise parameters
         params = {
-            'width': 380, 'speed': 1, 'lives': 3, 'score': 0,
+            'width': 380, 'height': 440, 'speed': 1, 'lives': 1, 'score': 0,
+            # 'display': display_surface, 'clock': FramePerSec,
             # Initialise variables for the second window
             'window': -1, 'renderer': -1, 'toggle': False  # window will be created later
             }
@@ -233,9 +234,11 @@ def credits_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Game over screen when running out of lives (or when all dots are eaten)
+    # TODO: Check if display_surface can be replace with pygame.display
+    #       Game over screen when running out of lives (or when all dots are eaten)
     #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
     #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
+    #       Implement Clyde
     #       Align pause menu buttons
     #       Add points for eating ghosts
     #       Improve point system (e.g. time based)

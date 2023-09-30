@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 import sys
 
+from Logic.input_box import InputBox
 from Logic import checkbox
 
 
@@ -147,3 +148,73 @@ def draw_hud(display, nr_of_lives, score):
 def draw_surface(display, surfaces):
     for surf in surfaces:
         display.blit(surf.surf, surf.rect)
+
+
+def game_over():
+    clock = pygame.time.Clock()
+    # Darken pause background
+    # s = pygame.Surface(pygame.display.get_window_size())  # the size of your rect
+    # # s.set_alpha(150)  # alpha level
+    # s.fill((50, 50, 50))  # this fills the entire surface
+    surf = pygame.display.get_surface()
+    # surf.blit(s, (0, 0))
+    surf.fill((50, 50, 50))  # this fills the entire surface
+
+    input_box = InputBox(100, 100, 140, 32, active=True)
+
+    high_scores = {
+        'God': '∞',
+        # SMB Any% Times
+        'Niftski': '454631',
+        'Kosmic': '455646',
+        'Darbian': '456528',
+        'GTAce': '455364',
+        'AndrewG': '456695',
+        # MK64 (ASCII Letters)
+        'Abney': '777564',
+        # SM64
+        'GreenSuigi': '646464',
+        'Kano': '646401',  # 0, 1 Star Runner
+        'Simply': '640000',
+        # Speedrunnning Youtubers (Subscriber Count in ten)
+        'SmallAnt1': '279000',
+        'Bismuth': '20800',
+        'SummoningSalt': '175000',
+        'Linkus7': '26700',
+        'AverageTrey': '6270',
+        'Msushi': '14400',
+        'Wirtual': '105000',
+        'Karl Jobst': '88600',
+        # LoL Players
+        'Faker': '999999',
+        'Uzi': '111111',
+        'XPeke': '560413',  # Game Length of Kassadin Backdoor, plus year
+        'YellowStar': '0',
+        # Others
+        'Todd Todgers': '-1',  # if you know, you know
+        'Billy Mitchell': '-99',  # Video Game Player of the Century ;)
+    }
+    # Sort dict (based on score value
+    high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1])}
+    score = 666666
+
+    while True:
+        # Exit upon pressing ALT + F4
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LALT] and keys[pygame.K_F4]:
+            pygame.quit()
+            sys.exit(0)
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            input_box.handle_event(event)
+
+        input_box.update()
+        surf.fill((50, 50, 50))  # this fills the entire surface
+        input_box.draw(surf)
+
+        pygame.display.update()
+        clock.tick(15)
