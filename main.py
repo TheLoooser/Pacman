@@ -234,8 +234,7 @@ def credits_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Check if display_surface can be replace with pygame.display
-    #       Game over screen when running out of lives (or when all dots are eaten)
+    # TODO: Game over screen when running out of lives (or when all dots are eaten)
     #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
     #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
     #       Implement Clyde

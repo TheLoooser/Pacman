@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 import sys
+import random
 
 from Logic.input_box import InputBox
 from Logic import checkbox
@@ -18,13 +19,13 @@ def blur_surface(surface, amount):
     return surf
 
 
-def print_text(display, text, font_size, colour, x_pos, y_pos, clickable=False):
+def print_text(display, text, font_size, colour, x_pos, y_pos, clickable=False, pos='center'):
     file_path = "Resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, font_size)
     text = font.render(text, True, colour)
     # text.set_alpha(200)
-    text_rect = text.get_rect()
-    text_rect.center = (x_pos, y_pos)
+    text_rect = text.get_rect(center=(x_pos, y_pos)) if pos == 'center' else text.get_rect(topleft=(x_pos, y_pos))
+    # text_rect.center = (x_pos, y_pos)
     display.blit(text, text_rect)
     return text_rect if clickable else None
 
@@ -101,12 +102,7 @@ def paused(display, clock, width, height, checkboxes):
 
 def draw_hud(display, nr_of_lives, score):
     # Life text
-    file_path = "Resources\\PixeloidSans.ttf"
-    font = pygame.font.Font(file_path, 16)
-    text = font.render('Lives:', True, (222, 222, 222))
-    text_rect = text.get_rect()
-    text_rect.center = (35, 455)
-    display.blit(text, text_rect)
+    print_text(display, 'Lives:', 16, (222, 222, 222), 35, 455)
 
     # Life icons
     life = pygame.Surface((30, 30))
@@ -119,6 +115,7 @@ def draw_hud(display, nr_of_lives, score):
         display.blit(life, (rect[0] + 60 + i * 20, rect[1] + 440, rect[2] + 60 + i * 20, rect[3] + 470))
 
     # Copyright
+    file_path = "Resources\\PixeloidSans.ttf"
     smallfont = pygame.font.Font(file_path, 10)
     text = smallfont.render('© 2023', True, (222, 222, 222))
     text_rect = text.get_rect()
@@ -126,10 +123,7 @@ def draw_hud(display, nr_of_lives, score):
     display.blit(text, text_rect)
 
     # Score text
-    text = font.render('Score:', True, (222, 222, 222))
-    text_rect = text.get_rect()
-    text_rect.center = (270, 455)
-    display.blit(text, text_rect)
+    print_text(display, 'Score:', 16, (222, 222, 222), 270, 455)
 
     # Current score
     score = score % 1600000
@@ -138,11 +132,7 @@ def draw_hud(display, nr_of_lives, score):
         score = chr(int(score[:2]) + 55) + score[2:]
     else:
         score = str(score).zfill(6)
-    font = pygame.font.Font(file_path, 16)
-    text = font.render(f'{score}', True, (222, 222, 222))
-    text_rect = text.get_rect()
-    text_rect.center = (340, 455)
-    display.blit(text, text_rect)
+    print_text(display, f'{score}', 16, (222, 222, 222), 340, 455)
 
 
 def draw_surface(display, surfaces):
@@ -152,51 +142,45 @@ def draw_surface(display, surfaces):
 
 def game_over():
     clock = pygame.time.Clock()
-    # Darken pause background
-    # s = pygame.Surface(pygame.display.get_window_size())  # the size of your rect
-    # # s.set_alpha(150)  # alpha level
-    # s.fill((50, 50, 50))  # this fills the entire surface
     surf = pygame.display.get_surface()
-    # surf.blit(s, (0, 0))
     surf.fill((50, 50, 50))  # this fills the entire surface
 
-    input_box = InputBox(100, 100, 140, 32, active=True)
+    input_box = InputBox(100, 400, 140, 32, active=True)
 
-    high_scores = {
-        'God': '∞',
+    high_scores = [
         # SMB Any% Times
-        'Niftski': '454631',
-        'Kosmic': '455646',
-        'Darbian': '456528',
-        'GTAce': '455364',
-        'AndrewG': '456695',
+        ('Niftski', 454631),
+        ('Kosmic', 455646),
+        ('Darbian', 456528),
+        ('GTAce', 455364),
+        ('AndrewG', 456695),
         # MK64 (ASCII Letters)
-        'Abney': '777564',
+        ('Abney', 777564),
         # SM64
-        'GreenSuigi': '646464',
-        'Kano': '646401',  # 0, 1 Star Runner
-        'Simply': '640000',
+        ('GreenSuigi', 646464),
+        ('Kano', 646401),  # 0, 1 Star Runner
+        ('Simply', 640000),
         # Speedrunnning Youtubers (Subscriber Count in ten)
-        'SmallAnt1': '279000',
-        'Bismuth': '20800',
-        'SummoningSalt': '175000',
-        'Linkus7': '26700',
-        'AverageTrey': '6270',
-        'Msushi': '14400',
-        'Wirtual': '105000',
-        'Karl Jobst': '88600',
+        ('SmallAnt1', 279000),
+        ('Bismuth', 20800),
+        ('SummoningSalt', 175000),
+        ('Linkus7', 26700),
+        ('AverageTrey', 6270),
+        ('Msushi', 14400),
+        ('Wirtual', 105000),
+        ('Karl Jobst', 88600),
         # LoL Players
-        'Faker': '999999',
-        'Uzi': '111111',
-        'XPeke': '560413',  # Game Length of Kassadin Backdoor, plus year
-        'YellowStar': '0',
+        ('Faker', 999999),
+        ('Uzi', 111111),
+        ('XPeke', 560413),  # Game Length of Kassadin Backdoor, plus year
+        ('YellowStar', 0000000),
         # Others
-        'Todd Todgers': '-1',  # if you know, you know
-        'Billy Mitchell': '-99',  # Video Game Player of the Century ;)
-    }
-    # Sort dict (based on score value
-    high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1])}
-    score = 666666
+        ('Todd Todgers', -1),  # if you know, you know
+        ('Billy Mitchell', -99),  # Video Game Player of the Century ;)
+    ]
+    # Sort dict (based on score value)
+    high_scores = [('God', '∞')] + sorted(high_scores, key=lambda tup: tup[1], reverse=True)
+    indexes = [0] + sorted([i for i in random.sample(range(1, len(high_scores) - 1), 8)]) + [len(high_scores) - 1]
 
     while True:
         # Exit upon pressing ALT + F4
@@ -212,8 +196,24 @@ def game_over():
 
             input_box.handle_event(event)
 
-        input_box.update()
         surf.fill((50, 50, 50))  # this fills the entire surface
+
+        # Print title
+        print_text(surf, 'High Scores', 22, (222, 222, 222), surf.get_width()/2, 20)
+
+        # Print names and (random selection of) scores
+        for i in range(len(indexes)):
+            print_text(surf, f"{indexes[i]+1:02d}. {high_scores[indexes[i]][0]:<14}", 16,
+                       (222, 222, 222), surf.get_width()/6, 50+20*i, pos='topleft')
+
+            value = f"{high_scores[indexes[i]][1]:06d}" if isinstance(high_scores[indexes[i]][1], int) \
+                else high_scores[indexes[i]][1]
+            print_text(surf, f"{value}", 16,(222, 222, 222),
+                       surf.get_width() - surf.get_width() / 3, 50 + 20 * i, pos='topleft')
+
+        print_text(surf, 'Enter your name', 18, (222, 222, 222), surf.get_width() / 2, 350)
+
+        input_box.update()
         input_box.draw(surf)
 
         pygame.display.update()
