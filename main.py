@@ -31,11 +31,25 @@ display_surface = pygame.display.set_mode((WIDTH, HEIGHT + 1.5 * 20))
 pygame.display.set_caption("Pacman")
 
 
-def get_move_pattern(enemy, is_feared):
+def get_move_pattern(enemy: str, is_feared: bool) -> str:
+    """
+    Returns the string name of the enemy if the enemy is not feared. Otherwise, 'feared' will be returned
+
+    :param enemy: The name of the enemy.
+    :param is_feared: Whether the enemy is currently feared or not.
+    :return: The name of the enemy or 'feared'.
+    """
     return enemy if not is_feared else "feared"
 
 
-def run(params=None):
+def run(params: dict = None) -> None:
+    """
+    The main game loop
+
+    :param params: A dictionary of game parameters
+    :return: Nothing
+    """
+
     if params is None:
         # Initialise parameters
         params = {
@@ -197,6 +211,11 @@ def run(params=None):
 
 
 def get_theme():
+    """
+    Return a configured pygame_menu theme.
+
+    :return: The pygame_menu theme.
+    """
     my_theme = pygame_menu.themes.THEME_DARK
     my_theme.widget_font = pygame_menu.font.FONT_8BIT
     my_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection()
@@ -205,7 +224,10 @@ def get_theme():
 
 
 def main_menu():
-    # Main menu
+    """
+    Main menu
+    """
+
     my_menu = pygame_menu.Menu('', WIDTH, HEIGHT, theme=get_theme())
     my_menu.add.label('Pacman', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 100))
     my_menu.add.button('Play', run)
@@ -215,6 +237,10 @@ def main_menu():
 
 
 def credits_menu():
+    """
+    Credits menu
+    """
+
     my_credits = pygame_menu.Menu('', WIDTH, HEIGHT, theme=get_theme())
     my_credits.add.label('Credits', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 20))
     my_credits.add.label('Creator\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(0, 0))

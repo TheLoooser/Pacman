@@ -1,4 +1,7 @@
-"""Code from: https://gist.github.com/ryancollingwood/32446307e976a11a1185a5394d6657bc"""
+"""
+This file contains an implementation of the A* path finding algorithm.
+Original code from: https://gist.github.com/ryancollingwood/32446307e976a11a1185a5394d6657bc
+"""
 
 # Credit for this: Nicholas Swift
 # as found at https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
@@ -7,7 +10,13 @@ import heapq
 from Logic.node import Node
 
 
-def return_path(current_node):
+def return_path(current_node: Node) -> list[tuple[int]]:
+    """
+    Returns the path as a list of tuples (in reverse order)
+
+    :param current_node: The current node
+    :return: The found path as a list
+    """
     path = []
     current = current_node
     while current is not None:
@@ -16,13 +25,14 @@ def return_path(current_node):
     return path[::-1]  # Return reversed path
 
 
-def astar(maze, start, end, allow_diagonal_movement=False):
+def astar(maze: list[list[int]], start: tuple[int, int], end: tuple[int, int], allow_diagonal_movement: bool = False):
     """
     Returns a list of tuples as a path from the given start to the given end in the given maze
-    :param maze:
-    :param start:
-    :param end:
-    :param allow_diagonal_movement:
+
+    :param maze: A list of lists, containing 0s and 1s, representing the maze
+    :param start: The start node of the path
+    :param end: The desired end node
+    :param allow_diagonal_movement: Whether diagonal movement in the maze is allowed or not
     :return:
     """
 
