@@ -271,3 +271,6 @@ if __name__ == "__main__":
     #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
     #       - Time based completion points (faster lvl completion = more pts)
     #       Second Window with Matrix (coloured numbers)
+    #       MIT License
+    #       Sphinx, black, mypy, pylint, pre-commit
+    #       rtd dark theme
