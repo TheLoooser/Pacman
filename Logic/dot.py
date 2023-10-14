@@ -1,8 +1,22 @@
+"""
+This module contains an implementation of a dot object.
+"""
 import pygame
 
 
 class Dot(pygame.sprite.Sprite):
-    def __init__(self, x, y, is_pellet=False):
+    """
+    A class to represent a dot.
+    """
+
+    def __init__(self, x: int, y: int, is_pellet: bool = False):
+        """
+        Constructs a dot object.
+
+        :param x: The horizontal position.
+        :param y: The vertical position.
+        :param is_pellet: Whether the dot is a pellet (large dot) or not.
+        """
         super().__init__()
         self.surf = pygame.Surface((30, 30))
         self.surf.fill((0, 0, 0))

@@ -21,7 +21,7 @@ class Field:
         self._colour = colour
 
     @property
-    def colour(self):
+    def colour(self) -> tuple[int, int, int]:
         """
         Get the colour of the field.
 
@@ -30,7 +30,7 @@ class Field:
         return self._colour
 
     @colour.setter
-    def colour(self, colour: tuple[int, int, int]):
+    def colour(self, colour: tuple[int, int, int]) -> None:
         """
         Set the field colour.
 
@@ -40,7 +40,7 @@ class Field:
         self._colour = colour
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> tuple[int, int]:
         """
         Get the coordinates of the field.
 
@@ -49,7 +49,7 @@ class Field:
         return self._x, self._y
 
     @coordinates.setter
-    def coordinates(self, coordinates: tuple[int, int]):
+    def coordinates(self, coordinates: tuple[int, int]) -> None:
         """
         Set the coordinates of the field.
 

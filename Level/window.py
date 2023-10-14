@@ -7,7 +7,7 @@ import pygame
 from pygame._sdl2 import Window, Texture, Renderer  # WARNING: Module still in development
 
 
-def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy.array):
+def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy.array) -> None:
     """
     Updates the surface of the second window.
 
@@ -47,7 +47,7 @@ def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy
     del tex
 
 
-def create_window(matrix: numpy.array):
+def create_window(matrix: numpy.array) -> tuple[Window, Renderer]:
     """
     Creates a second window.
 

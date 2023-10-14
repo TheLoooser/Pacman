@@ -11,7 +11,7 @@ from Logic.input_box import InputBox
 from Logic import checkbox
 
 
-def blur_surface(surface: pygame.Surface, amount: int):
+def blur_surface(surface: pygame.Surface, amount: int) -> pygame.Surface:
     """
     Blurs the given surface.
 
@@ -31,14 +31,14 @@ def blur_surface(surface: pygame.Surface, amount: int):
 
 
 def print_text(display: pygame.Surface, text: str, font_size: int, colour: tuple[int, int, int], x_pos: float,
-               y_pos: float, clickable: bool = False, pos: str = 'center'):
+               y_pos: float, clickable: bool = False, pos: str = 'center') -> None | pygame.Rect:
     """
     Prints a given text on a given surface.
 
     :param display: The surface.
     :param text: The text.
     :param font_size: The font size of the text.
-    :param colour: THe colour of the text.
+    :param colour: The colour of the text.
     :param x_pos: The horizontal position on the surface.
     :param y_pos: The vertical position on the surface.
     :param clickable: Whether the text should be clickable or not
@@ -56,7 +56,8 @@ def print_text(display: pygame.Surface, text: str, font_size: int, colour: tuple
     return text_rect if clickable else None
 
 
-def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height: int, checkboxes: dict[str, bool]):
+def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height: int, checkboxes: dict[str, bool]) \
+        -> dict[str, bool]:
     """
     Pauses the game (opens the pause menu).
 
@@ -90,7 +91,7 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
     # Checkbox
     file_path = "Resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, 18)
-    chckbx = checkbox.CheckBox(display, (display.get_width() * .3), (display.get_height() / 2), 1,
+    chckbx = checkbox.CheckBox(display, (display.get_width() * .3), (display.get_height() / 2),
                                caption="Highlight paths", font=font, font_color=(222, 222, 222),
                                checked=checkboxes['path_highlights'])
 
@@ -136,7 +137,7 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
     return checkboxes
 
 
-def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int):
+def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
     """
     Draws the HUD ar the bottom of the main window.
 
@@ -179,7 +180,7 @@ def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int):
     print_text(display, f'{score}', 16, (222, 222, 222), 340, 455)
 
 
-def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group):
+def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group) -> None:
     """
     Draws all surfaces of the given group on the main display surface.
 
@@ -191,7 +192,7 @@ def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group):
         display.blit(surf.surf, surf.rect)
 
 
-def game_over():
+def game_over() -> None:
     """
     Shows the game over screen
 

@@ -4,6 +4,7 @@ This module contains an enumeration of directions and the grid (i.e. the map) of
 
 import random
 from enum import Enum
+
 from Level.cell import Cell
 from Logic.dot import Dot
 
@@ -52,11 +53,11 @@ class Grid:
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ]
 
-    def init_map(self):
+    def init_map(self) -> list[list[Cell]]:
         """
         Initialises the grid with the appropriate cell sprites.
 
-        :return: A list of cell objects.
+        :return: A matrix of cell objects.
         """
         home = [(9, 9), (8, 10), (9, 10), (10, 10)]
         cells = []
@@ -74,12 +75,12 @@ class Grid:
 
         return cells
 
-    def init_dots(self, pellets: list[tuple[int, int]]):
+    def init_dots(self, pellets: list[tuple[int, int]]) -> dict[tuple[int, int], Dot]:
         """
         Initialises the dots (and pellets) on the grid.
 
         :param pellets: A list of coordinates of the large dots.
-        :return: A list of dot objects.
+        :return: A dictionary of dot objects.
         """
         dots = {}
         for j in range(22):
@@ -90,7 +91,7 @@ class Grid:
 
         return dots
 
-    def is_wall(self, i: int, j: int):
+    def is_wall(self, i: int, j: int) -> bool:
         """
         Checks whether the cell at the given position is a wall or not.
 
@@ -100,7 +101,7 @@ class Grid:
         """
         return self.walls[i][j]
 
-    def get_next_cell(self, current_cell: tuple[int, int], direction: int):
+    def get_next_cell(self, current_cell: tuple[int, int], direction: int) -> tuple[int, int]:
         """
         Get the next adjacent cell in a given direction.
 
@@ -120,7 +121,7 @@ class Grid:
         # Todo: Modulo to wrap top/bot
         return i % len(self.walls[0]), j
 
-    def get_cell_in_front(self, i: int, j: int, direction: int, n: int = 2):
+    def get_cell_in_front(self, i: int, j: int, direction: int, n: int = 2) -> tuple[int, int]:
         """
         Recursively get the position of the cell n stapes in front of the given position.
 
@@ -154,7 +155,7 @@ class Grid:
                 print("This should not have happened...?")
                 return i, j
 
-    def get_adjacent_cells(self, c_i: int, c_j: int, n: int = 1, is_not_wall: bool = False):
+    def get_adjacent_cells(self, c_i: int, c_j: int, n: int = 1, is_not_wall: bool = False) -> list[list[int]]:
         """
         Get a list of tuples containing the indexes of all adjacent cells.
 
@@ -183,7 +184,7 @@ class Grid:
 
         return indexes
 
-    def get_random_position(self):
+    def get_random_position(self) -> tuple[int, int]:
         """
         Get a random position on the grid, which is not a wall.
 
