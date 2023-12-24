@@ -3,6 +3,7 @@ This module contains menu-related functions.
 """
 
 import sys
+import yaml
 import random
 import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE  # pylint: disable = no-name-in-module
@@ -204,41 +205,21 @@ def game_over() -> None:
 
     input_box = InputBox(100, 400, 140, 32, active=True)
 
-    high_scores = [
-        # SMB Any% Times
-        ('Niftski', 454631),
-        ('Kosmic', 455646),
-        ('Darbian', 456528),
-        ('GTAce', 455364),
-        ('AndrewG', 456695),
-        # MK64 (ASCII Letters)
-        ('Abney', 777564),
-        # SM64
-        ('GreenSuigi', 646464),
-        ('Kano', 646401),  # 0, 1 Star Runner
-        ('Simply', 640000),
-        # Speedrunnning Youtubers (Subscriber Count in ten)
-        ('SmallAnt1', 279000),
-        ('Bismuth', 20800),
-        ('SummoningSalt', 175000),
-        ('Linkus7', 26700),
-        ('AverageTrey', 6270),
-        ('Msushi', 14400),
-        ('Wirtual', 105000),
-        ('Karl Jobst', 88600),
-        # LoL Players
-        ('Faker', 999999),
-        ('Uzi', 111111),
-        ('XPeke', 560413),  # Game Length of Kassadin Backdoor, plus year
-        ('YellowStar', 0000000),
-        # Others
-        ('Todd Todgers', -1),  # if you know, you know
-        ('Billy Mitchell', -99),  # Video Game Player of the Century ;)
-    ]
+    # Load high scores
+    with open("Resources/high_scores.yaml", "r") as stream:
+        try:
+            high_scores = yaml.safe_load(stream)
+            print(high_scores)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    top_score = {'name': 'God', 'value': '∞'}
+
     # Sort dict (based on score value)
-    high_scores = [('God', '∞')] + sorted(high_scores, key=lambda tup: tup[1], reverse=True)
+    high_scores = [top_score] + sorted(high_scores, key=lambda d: d['value'], reverse=True)
     indexes = [0] + sorted(list(random.sample(range(1, len(high_scores) - 1), 8))) + [len(high_scores) - 1]
 
+    user_name = None
     while True:
         # Exit upon pressing ALT + F4
         keys = pygame.key.get_pressed()
@@ -251,7 +232,8 @@ def game_over() -> None:
                 pygame.quit()
                 sys.exit()
 
-            input_box.handle_event(event)
+            input_box_text = input_box.handle_event(event)
+            user_name = input_box_text if input_box_text is not None and user_name is None else user_name
 
         surf.fill((50, 50, 50))  # this fills the entire surface
 
@@ -260,18 +242,22 @@ def game_over() -> None:
 
         # Print names and (random selection of) scores
         for i in range(len(indexes)):
-            print_text(surf, f"{indexes[i] + 1:02d}. {high_scores[indexes[i]][0]:<14}", 16,
+            print_text(surf, f"{indexes[i] + 1:02d}. {high_scores[indexes[i]]['name']:<14}", 16,
                        (222, 222, 222), surf.get_width() / 6, 50 + 20 * i, pos='topleft')
 
-            value = f"{high_scores[indexes[i]][1]:06d}" if isinstance(high_scores[indexes[i]][1], int) \
-                else high_scores[indexes[i]][1]
+            value = f"{high_scores[indexes[i]]['value']:06d}" if isinstance(high_scores[indexes[i]]['value'], int) \
+                else high_scores[indexes[i]]['value']
             print_text(surf, f"{value}", 16, (222, 222, 222),
                        surf.get_width() - surf.get_width() / 3, 50 + 20 * i, pos='topleft')
 
-        print_text(surf, 'Enter your name', 18, (222, 222, 222), surf.get_width() / 2, 350)
+        # Show input box until the player has entered a username
+        if not user_name:
+            print_text(surf, 'Enter your name', 18, (222, 222, 222), surf.get_width() / 2, 350)
 
-        input_box.update()
-        input_box.draw(surf)
+            input_box.update()
+            input_box.draw(surf)
+
+        # Todo: Next Button to return to main menu
 
         pygame.display.update()
         clock.tick(15)

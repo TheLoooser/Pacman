@@ -33,7 +33,7 @@ class InputBox:
         self.txt_surface = FONT.render(text, True, self.color)
         self.active = active
 
-    def handle_event(self, event: pygame.event.Event) -> None:
+    def handle_event(self, event: pygame.event.Event) -> None | str:
         """
         Handle the interactions with the input box.
 
@@ -52,8 +52,7 @@ class InputBox:
         if event.type == pg.KEYDOWN:
             if self.active:
                 if event.key == pg.K_RETURN:
-                    print(self.text)
-                    self.text = ''
+                    return self.text
                 elif event.key == pg.K_BACKSPACE:
                     self.text = self.text[:-1]
                 elif event.key == pg.K_ESCAPE:
@@ -63,6 +62,8 @@ class InputBox:
                     self.text += event.unicode
                 # Re-render the text.
                 self.txt_surface = FONT.render(self.text, True, self.color)
+
+        return None
 
     def update(self) -> None:
         """
