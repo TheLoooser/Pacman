@@ -1,10 +1,23 @@
+"""
+This module contains an implementation of a player object.
+"""
 import pygame
 from pygame.locals import *
+
+from Level.cell import Cell
 from Level.field import Field
+from Level.grid import Grid
+from Level.menu import game_over
 
 
 class Player(pygame.sprite.Sprite):
+    """
+    A class to represent a player.
+    """
     def __init__(self):
+        """
+        Constructs a player object.
+        """
         super().__init__()
         self.surf = pygame.Surface((30, 30))
         self.surf.fill((0, 0, 0))
@@ -16,7 +29,15 @@ class Player(pygame.sprite.Sprite):
         self.vel = pygame.math.Vector2(0, 0)
         self.dir = -1
 
-    def move(self, direction, speed, width):
+    def move(self, direction: int, speed: float, width: int) -> None:
+        """
+        Update the player's position.
+
+        :param direction: The moving direction.
+        :param speed: The speed of the player.
+        :param width: The width of game window.
+        :return: Nothing.
+        """
         if direction == 3:
             self.vel.x = -speed
             self.vel.y = 0
@@ -38,13 +59,31 @@ class Player(pygame.sprite.Sprite):
             self.pos.x = width
         self.rect.midbottom = self.pos
 
-    def stop(self):
+    def stop(self) -> None:
+        """
+        Stops the player at its current position.
+
+        :return: Nothing.
+        """
         self.vel = pygame.math.Vector2(0, 0)
 
-    def get_current_cell(self):
+    def get_current_cell(self) -> tuple[int, int]:
+        """
+        Gets the players current position in cell coordinates.
+
+        :return: The position.
+        """
         return int(self.pos.x / 20) % 19, int((self.pos.y - 15) / 20) % 22
 
-    def set_direction(self, pressed_keys, next_move, old_direction):
+    def set_direction(self, pressed_keys: any, next_move: bool, old_direction: int) -> tuple[bool, int]:
+        """
+        Sets the players moving direction.
+
+        :param pressed_keys: Sequence of boolean values representing the state of every key on the keyboard.
+        :param next_move: Whether a new direction has been requested by the user.
+        :param old_direction: The old moving direction of the player.
+        :return: A boolean indicating whether a new direction is requested or not and the old moving direction.
+        """
         if pressed_keys[K_LEFT]:
             self.dir = 3
         if pressed_keys[K_RIGHT]:
@@ -58,11 +97,24 @@ class Player(pygame.sprite.Sprite):
         else:
             return False | next_move, old_direction
 
-    def get_direction(self):
+    def get_direction(self) -> int:
+        """
+        Gets the current moving direction of the player.
+
+        :return: The player's direction.
+        """
         return self.dir
 
-    def highlight_player_cell(self, cells, previous_cell, grid):
-        # Highlight the current grid cell of the player
+    def highlight_player_cell(self, cells: list[list[Cell]], previous_cell: tuple[int, int, tuple[int, int, int]],
+                              grid: Grid) -> tuple[int, int, tuple[int, int, tuple[int, int, int]], list[list[Cell]]]:
+        """
+        Highlight the current grid cell of the player.
+
+        :param cells: The matrix of Cell objects.
+        :param previous_cell: Index and colour of the previously highlighted cell.
+        :param grid: The grid matrix of the game.
+        :return: The current highlighted cell and the cell matrix.
+        """
         i, j = self.get_current_cell()
         # cells[j][i].surf.fill((255, 0, 0))
 
@@ -73,7 +125,21 @@ class Player(pygame.sprite.Sprite):
 
         return i, j, previous_cell, cells
 
-    def move_player(self, next_move, old_direction, grid, i, j, cells, old_field, params):
+    def move_player(self, next_move: bool, old_direction: int, grid: Grid, i: int, j: int, cells: list[list[Cell]],
+                    old_field: Field, params: dict[str, any]) -> tuple[bool, int, int, Field, bool]:
+        """
+        Move the player.
+
+        :param next_move: Whether an input for a new direction has been pressed or not.
+        :param old_direction: The player's current moving direction.
+        :param grid: The grid matrix of the game.
+        :param i: The vertical index.
+        :param j: The horizontal index.
+        :param cells: The matrix of Cell objects.
+        :param old_field: The previous field object.
+        :param params: Various game parameters.
+        :return: Updated player movement variables.
+        """
         # Player movement
         pressed_key = pygame.key.get_pressed()
         next_move, new_direction = self.set_direction(pressed_key, next_move, old_direction)
@@ -138,6 +204,10 @@ class Player(pygame.sprite.Sprite):
             if dot.is_pellet:
                 print("FEAR!!!")
                 fear_state = True
+
+        # Game over when all dots are eaten
+        if not params['dots']:
+            game_over()
 
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()

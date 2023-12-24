@@ -1,20 +1,25 @@
-# Built-in
-import sys
-import random
-import numpy as np
+"""
+This script is the main entry point to the game.
+"""
 
+# Built-in
+import random
+import sys
+
+# Packages
+import numpy as np
 # Pygame
 import pygame
 import pygame_menu
-from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, WINDOWCLOSE
+from pygame.locals import K_ESCAPE, KEYDOWN, QUIT, WINDOWCLOSE
 
 # Modules
-from Characters.player import Player
 from Characters.enemy import Enemy
-from Level.grid import Grid
+from Characters.player import Player
 from Level.field import Field
-from Level.menu import draw_hud, draw_surface, blur_surface, paused
-from Level.window import create_window, change_surface
+from Level.grid import Grid
+from Level.menu import blur_surface, draw_hud, draw_surface, paused
+from Level.window import change_surface, create_window
 from Logic import timer
 
 # Based on: https://coderslegacy.com/python/pygame-platformer-game-development/
@@ -265,6 +270,7 @@ if __name__ == "__main__":
     #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
     #       Implement Clyde
     #       Align pause menu buttons
+    #       Blue blinking ghosts when fleeing
     #       Add points for eating ghosts
     #       Improve point system (e.g. time based)
     #       - Time based survival points (points per sec)
@@ -272,5 +278,5 @@ if __name__ == "__main__":
     #       - Time based completion points (faster lvl completion = more pts)
     #       Second Window with Matrix (coloured numbers)
     #       MIT License
-    #       Sphinx, black, mypy, pylint, pre-commit
+    #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
