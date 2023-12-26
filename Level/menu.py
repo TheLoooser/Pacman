@@ -193,7 +193,7 @@ def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group) -> None
         display.blit(surf.surf, surf.rect)
 
 
-def game_over() -> None:
+def game_over(score) -> None:
     """
     Shows the game over screen
 
@@ -203,6 +203,7 @@ def game_over() -> None:
     surf = pygame.display.get_surface()
     surf.fill((50, 50, 50))  # this fills the entire surface
 
+    next_rect = None
     input_box = InputBox(100, 400, 140, 32, active=True)
 
     # Load high scores
@@ -235,6 +236,16 @@ def game_over() -> None:
             input_box_text = input_box.handle_event(event)
             user_name = input_box_text if input_box_text is not None and user_name is None else user_name
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if next_rect:
+                    if next_rect.collidepoint(event.pos):
+                        # Append player score to high scores
+                        with open("Resources/high_scores.yaml", "a") as f:
+                            f.write(f"- name: {user_name}\n  value: {score}\n")
+
+                        from main import main_menu  # pylint: disable = import-outside-toplevel
+                        main_menu()
+
         surf.fill((50, 50, 50))  # this fills the entire surface
 
         # Print title
@@ -256,8 +267,11 @@ def game_over() -> None:
 
             input_box.update()
             input_box.draw(surf)
+        else:
+            next_rect = print_text(surf, "→ NEXT →", 22, (222, 222, 222),
+                                   (surf.get_width() / 2), (surf.get_height() / 2) + 150, True)
 
-        # Todo: Next Button to return to main menu
+        # Todo: Fix None path, when eating Pinky and then camping before door (of ghost house)
 
         pygame.display.update()
         clock.tick(15)

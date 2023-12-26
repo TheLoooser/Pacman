@@ -159,7 +159,7 @@ def run(params: dict = None) -> None:
 
         # Draw surfaces
         display_surface.fill((0, 0, 0))  # Initialise black background
-        draw_hud(display_surface, params['lives'], params['max_points'] - len(params['dots']) * 100)
+        draw_hud(display_surface, params['lives'], params['score'])
         draw_surface(display_surface, cell_sprites)
         draw_surface(display_surface, params['dots'].values())
         draw_surface(display_surface, character_sprites)
@@ -194,6 +194,9 @@ def run(params: dict = None) -> None:
         if release_timer.get_elapsed_time() > release_times["inky"]:
             inky.move_enemy(cells, grid, player, params, get_move_pattern("inky", fear_state),
                             checkboxes['path_highlights'], blinky.pos)
+
+        # Update score
+        params['score'] = params['max_points'] - len(params['dots']) * 100
 
         # Update second window
         base_matrix = np.array(Grid().walls)

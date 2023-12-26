@@ -162,7 +162,7 @@ class Enemy(pygame.sprite.Sprite):
             case _:
                 sys.exit("Enemy move pattern not found.")
 
-        if highlight_path:
+        if highlight_path and path:
             for pos_y, pos_x in path:  # Highlight new path
                 pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (6, 15), thickness)
                 pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 15), (15, 15), thickness)
@@ -181,7 +181,7 @@ class Enemy(pygame.sprite.Sprite):
                 params['lives'] = params['lives'] - 1
                 if params['lives'] == 0:
                     print("GAME OVER!!!")
-                    game_over()
+                    game_over(params['score'])
                 else:
                     run(params)
 

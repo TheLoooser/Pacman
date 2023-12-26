@@ -207,7 +207,7 @@ class Player(pygame.sprite.Sprite):
 
         # Game over when all dots are eaten
         if not params['dots']:
-            game_over()
+            game_over(params['score'])
 
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()
