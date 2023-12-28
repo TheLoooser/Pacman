@@ -271,7 +271,5 @@ def game_over(score) -> None:
             next_rect = print_text(surf, "→ NEXT →", 22, (222, 222, 222),
                                    (surf.get_width() / 2), (surf.get_height() / 2) + 150, True)
 
-        # Todo: Fix None path, when eating Pinky and then camping before door (of ghost house)
-
         pygame.display.update()
         clock.tick(15)
