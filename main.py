@@ -5,12 +5,15 @@ This script is the main entry point to the game.
 # Built-in
 import random
 import sys
+from collections import defaultdict
 
 # Packages
 import numpy as np
+import yaml
 # Pygame
 import pygame
 import pygame_menu
+from pygame_menu.locals import ALIGN_LEFT, ALIGN_RIGHT
 from pygame.locals import K_ESCAPE, KEYDOWN, QUIT, WINDOWCLOSE
 
 # Modules
@@ -62,7 +65,7 @@ def run(params: dict = None) -> None:
             # 'display': display_surface, 'clock': FramePerSec,
             # Initialise variables for the second window
             'window': -1, 'renderer': -1, 'toggle': False  # window will be created later
-            }
+        }
 
     # Initialise Map
     grid = Grid()
@@ -240,6 +243,7 @@ def main_menu():
     my_menu.add.label('Pacman', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 100))
     my_menu.add.button('Play', run)
     my_menu.add.button('Credits', credits_menu)
+    my_menu.add.button('Scores', score_menu)
     my_menu.add.button('Quit', pygame_menu.events.EXIT)
     my_menu.mainloop(display_surface)
 
@@ -252,7 +256,7 @@ def credits_menu():
     my_credits = pygame_menu.Menu('', WIDTH, HEIGHT, theme=get_theme())
     my_credits.add.label('Credits', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 20))
     my_credits.add.label('Creator\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(0, 0))
-    my_credits.add.label('Co-Creator\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-15, 0))
+    my_credits.add.label('Co Creator\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-15, 0))
     my_credits.add.label('Director\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-5, 0))
     my_credits.add.label('Programmer\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(-25, 0))
     my_credits.add.label('Artist\t Dizzy', font_size=12, font_color=(200, 200, 200), margin=(8, 0))
@@ -265,14 +269,64 @@ def credits_menu():
     my_credits.mainloop(display_surface)
 
 
+def score_menu():
+    """
+    High score menu
+    """
+
+    my_scores = pygame_menu.Menu('', WIDTH, HEIGHT, theme=get_theme())
+    my_scores.add.label('High Scores', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 20))
+
+    # Load high scores
+    with open("Resources/high_scores.yaml", "r") as stream:
+        try:
+            high_scores = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    top_score = {'name': 'God', 'value': '∞'}
+
+    # Sort dict (based on score value)
+    high_scores = [top_score] + sorted(high_scores, key=lambda d: d['value'], reverse=True)
+    indexes = [0, 1, 2] + sorted(list(random.sample(range(3, len(high_scores)), 7)))
+
+    def def_value():
+        return 200, 200, 200
+
+    colours = defaultdict(def_value)
+    colours[0] = (255, 215, 0)  # gold
+    colours[1] = (165, 169, 180)  # silver
+    colours[2] = (205, 127, 50)  # bronze
+
+    # Print names and (random selection of) scores
+    for i in range(len(indexes)):
+
+        my_scores.add.label(f"{indexes[i] + 1:02d}", font_size=14, align=ALIGN_LEFT,
+                            font_color=colours[i], font_shadow=True, margin=(10, 0))
+        my_scores.add.label(f"{high_scores[indexes[i]]['name']:<14}", font_size=14, align=ALIGN_LEFT,
+                            font_color=colours[i], font_shadow=True, margin=(50, 0), float=True)
+        value = f"{high_scores[indexes[i]]['value']:06d}" if isinstance(high_scores[indexes[i]]['value'], int) \
+            else high_scores[indexes[i]]['value']
+        if i == 0:
+            lbl = my_scores.add.label("8", font_size=14, align=ALIGN_RIGHT, font_color=colours[i], font_shadow=True,
+                                      margin=(-20, 0), float=True)
+            lbl.rotate(90)
+        else:
+            my_scores.add.label(f"{value}", font_size=14, align=ALIGN_RIGHT, font_color=colours[i],
+                                font_shadow=True, margin=(-20, 0), float=True)
+
+    my_scores.add.label('', font_size=12, font_color=(200, 200, 200), margin=(0, 20))
+    my_scores.add.button('Back', main_menu)
+    my_scores.mainloop(display_surface)
+
+
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Game over screen when running out of lives (or when all dots are eaten)
-    #         (similar to pause, show score, go back to main menu, reset game variables, e.g. score and dots)
-    #       Add persisting high score (top ten scores, store in local file, add main menu entry for scores)
+    # TODO: Fix None path, when eating Pinky and then camping before door (of ghost house)
     #       Implement Clyde
     #       Align pause menu buttons
+    #       ___
     #       Blue blinking ghosts when fleeing
     #       Add points for eating ghosts
     #       Improve point system (e.g. time based)
