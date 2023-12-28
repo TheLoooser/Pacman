@@ -72,12 +72,12 @@ class CheckBox:
         :return: Nothing.
         """
         self._draw_button_text()
-        if self.checked:
+        if not self.checked:
             pygame.draw.rect(self.surface, self.color, self.checkbox_obj)
             pygame.draw.rect(self.surface, self.oc, self.checkbox_outline, 1)
             w, _ = self.font.size(self.caption)
             pygame.draw.circle(self.surface, self.cc, (self.x + w + 30, self.y + 10), 4)
-        elif not self.checked:
+        elif self.checked:
             pygame.draw.rect(self.surface, self.color, self.checkbox_obj)
             pygame.draw.rect(self.surface, self.oc, self.checkbox_outline, 1)
 

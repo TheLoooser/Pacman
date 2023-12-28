@@ -69,35 +69,38 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
     :param checkboxes: A dict of checkboxes with their toggle status.
     :return: The updated dictionary of checkboxes with their status.
     """
-    # Darken pause background
+    background = display.copy()
     s = pygame.Surface((width, height))  # the size of your rect
     s.set_alpha(50)  # alpha level
     s.fill((50, 50, 50))  # this fills the entire surface
-    display.blit(s, (0, 0))
-
-    # Print pause text
-    print_text(display, "Pause", 50, (222, 222, 222),
-               (display.get_width() / 2), (display.get_height() * .2))
-    print_text(display, "Press ESC to continue", 18, (222, 222, 222),
-               (display.get_width() / 2), (display.get_height() * .2) + 50)
-    # Buttons
-    # Todo: Add subtexts to buttons (for secondary texts -> smaller fontsize, under main text)
-    button_rects = {'back': print_text(display, "BACK (Resume Game)", 18, (222, 222, 222),
-                                       (display.get_width() / 2), (display.get_height() / 2) + 50, True),
-                    'exit': print_text(display, "EXIT (Return to Main Menu)", 18, (222, 222, 222),
-                                       (display.get_width() / 2), (display.get_height() / 2) + 80, True),
-                    'quit': print_text(display, "QUIT (Close the application)", 18, (222, 222, 222),
-                                       (display.get_width() / 2), (display.get_height() * .8), True)}
 
     # Checkbox
     file_path = "Resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, 18)
-    chckbx = checkbox.CheckBox(display, (display.get_width() * .3), (display.get_height() / 2),
+    chckbx = checkbox.CheckBox(display, (display.get_width() * .3), (display.get_height() / 3),
                                caption="Highlight paths", font=font, font_color=(222, 222, 222),
                                checked=checkboxes['path_highlights'])
 
     pause = True
     while pause:
+        # Darken pause background
+        display.blit(background, (0, 0))
+        display.blit(s, (0, 0))
+
+        # Print pause text
+        print_text(display, "Pause", 50, (222, 222, 222),
+                   (display.get_width() / 2), (display.get_height() * .15))
+        print_text(display, "Press ESC to continue", 18, (222, 222, 222),
+                   (display.get_width() / 2), (display.get_height() * .15) + 50)
+
+        # Buttons
+        button_rects = {'back': print_text(display, "BACK", 33, (222, 222, 222),
+                                           (display.get_width() / 2), (display.get_height() / 2) + 20, True),
+                        'exit': print_text(display, "EXIT", 33, (222, 222, 222),
+                                           (display.get_width() / 2), (display.get_height() / 2) + 70, True),
+                        'quit': print_text(display, "QUIT", 33, (222, 222, 222),
+                                           (display.get_width() / 2), (display.get_height() / 2) + 120, True)}
+
         # Exit upon pressing ALT + F4
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LALT] and keys[pygame.K_F4]:
@@ -129,6 +132,25 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
                                 sys.exit("Button not found.")
 
             chckbx.update_checkbox(event)
+
+        def get_hover_surface(button_name: str) -> pygame.Surface:
+            match button_name:
+                case "back":
+                    message = 'Resume the game'
+                case "exit":
+                    message = 'Return to the main menu'
+                case "quit":
+                    message = 'Close the application'
+                case _:
+                    message = 'Something went wrong'
+            hover_surface = font.render(message, True, pygame.Color(255, 255, 255), pygame.Color(34, 34, 34))
+            return hover_surface
+
+        # Display info text when hovering over buttons
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        for button, rect in button_rects.items():
+            if rect.collidepoint((mouse_x, mouse_y)):
+                display.blit(get_hover_surface(button), (mouse_x - rect.width / 2, mouse_y - rect.height / 2))
 
         chckbx.render_checkbox()
         pygame.display.update()

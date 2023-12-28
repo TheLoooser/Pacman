@@ -323,12 +323,11 @@ def score_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Fix None path, when eating Pinky and then camping before door (of ghost house)
-    #       Implement Clyde
-    #       Align pause menu buttons
-    #       ___
-    #       Blue blinking ghosts when fleeing
+    # TODO: Blue blinking ghosts when fleeing
     #       Add points for eating ghosts
+    #       Fix None path, when eating Pinky and then camping before door (of ghost house)
+    #       Implement Clyde
+    #       ___
     #       Improve point system (e.g. time based)
     #       - Time based survival points (points per sec)
     #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
