@@ -14,6 +14,7 @@ class Player(pygame.sprite.Sprite):
     """
     A class to represent a player.
     """
+
     def __init__(self):
         """
         Constructs a player object.
@@ -22,7 +23,8 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.Surface((30, 30))
         self.surf.fill((0, 0, 0))
         self.surf.set_colorkey((0, 0, 0))
-        pygame.draw.circle(self.surf, (255, 255, 0), (30 // 2, 30 // 2), 7)
+        pygame.draw.circle(self.surf, (255, 255, 0), (30 // 2, 30 // 2), 7.5)
+        pygame.draw.polygon(self.surf, (0, 0, 0), [(0, 7), (0, 20), (15, 14)])
         self.rect = self.surf.get_rect()
 
         self.pos = pygame.math.Vector2((190, 345))
@@ -171,6 +173,12 @@ class Player(pygame.sprite.Sprite):
                         and (self.pos.y - 5) % 10 == 0
                         and ((self.pos.y - 5) / 10) % 2 == 0)):
                 self.move(new_direction, speed, width)
+
+                # Rotate player sprite
+                dir_change = (new_direction - old_direction)
+                angle = (90 * dir_change) if dir_change % 2 == 0 else (90 * dir_change) + 180
+                self.surf = pygame.transform.rotate(self.surf, angle)
+
                 old_direction = new_direction
                 next_move = False
             else:
