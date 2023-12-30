@@ -199,7 +199,7 @@ def run(params: dict = None) -> None:
                             checkboxes['path_highlights'], blinky.pos)
 
         # Update score
-        params['score'] = params['max_points'] - len(params['dots']) * 100
+        params['score'] = params['max_points'] - len(params['dots']) * 100 + blinky.score + inky.score + pinky.score  # + clyde.score
 
         # Update second window
         base_matrix = np.array(Grid().walls)
@@ -323,15 +323,14 @@ def score_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Blue blinking ghosts when fleeing
-    #       Add points for eating ghosts
-    #       Fix None path, when eating Pinky and then camping before door (of ghost house)
+    # TODO: Fix None path, when eating Pinky and then camping before door (of ghost house)
     #       Implement Clyde
     #       ___
     #       Improve point system (e.g. time based)
     #       - Time based survival points (points per sec)
     #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
     #       - Time based completion points (faster lvl completion = more pts)
+    #       - Adjust points for eating ghosts
     #       Second Window with Matrix (coloured numbers)
     #       MIT License
     #       Sphinx, black, mypy, pylint, isort, pre-commit

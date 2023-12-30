@@ -25,25 +25,32 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, name, colour, path=None):
         super().__init__()
         self.name = name
+        self.col = colour
         self._is_feared = 0
         if path is None:
             self.path = []
         else:
             self.path = path
 
-        self.surf = pygame.Surface((19, 19))
-        self.surf.fill(colour)
+        self.surf = pygame.Surface((18, 18))
+        self.surf.fill((0, 0, 0))
+        pygame.draw.circle(self.surf, colour, (18 // 2, 18 // 2), 9)
+        pygame.draw.rect(self.surf, colour, pygame.Rect(0, 9, 18, 9))
         self.rect = self.surf.get_rect(center=(x, y))
 
         self._home = pygame.math.Vector2((x, y))
         self.pos = pygame.math.Vector2((x, y))
         self.vel = pygame.math.Vector2(0, 0)
 
+        self.score = 0  # Points given to the player for being eaten
+
     def _reset_position(self):
         x = self._home.x
         y = self._home.y
         self.rect = self.surf.get_rect(center=(x, y))
         self.pos = pygame.math.Vector2((x, y))
+        pygame.draw.circle(self.surf, self.col, (18 // 2, 18 // 2), 9)
+        pygame.draw.rect(self.surf, self.col, pygame.Rect(0, 9, 18, 9))
 
     def get_path(self, grid, player_position):
         i, j = swap(*self.get_current_cell())
@@ -87,6 +94,8 @@ class Enemy(pygame.sprite.Sprite):
             self._is_feared = 1
         elif enemy != "feared":
             self._is_feared = 0
+            pygame.draw.circle(self.surf, self.col, (18 // 2, 18 // 2), 9)
+            pygame.draw.rect(self.surf, self.col, pygame.Rect(0, 9, 18, 9))
 
         # Update enemy target
         for pos_y, pos_x in self.path:  # Clear old path
@@ -138,6 +147,11 @@ class Enemy(pygame.sprite.Sprite):
                 color = (200, 50, 50)
 
             case "feared":
+                if self.pos != self._home:
+                    colour = (0, 127, 255) if int(pygame.time.get_ticks() / 400) % 2 == 0 else (255, 255, 255)
+                    pygame.draw.circle(self.surf, colour, (18 // 2, 18 // 2), 9)
+                    pygame.draw.rect(self.surf, colour, pygame.Rect(0, 9, 18, 9))
+
                 if self._is_feared == 3:
                     return  # wait for fear timer to be over
                 elif self._is_feared < 2 or swap(*self.get_current_cell()) == self.path[-1]:
@@ -174,6 +188,7 @@ class Enemy(pygame.sprite.Sprite):
             if enemy == 'feared':
                 self._is_feared = 3  # ghost was eaten while being feared
                 self._reset_position()  # return to home
+                self.score += 3333
                 return
             else:
                 # DISCLAIMER: This is NOT clean code!
