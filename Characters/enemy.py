@@ -203,6 +203,10 @@ class Enemy(pygame.sprite.Sprite):
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))
 
+        # Do not move the enemy if no path has been found
+        if not path:
+            return
+
         speed, width = params['speed'], params['width']
         if len(path) > 1:
             # Make ghosts warp around border
