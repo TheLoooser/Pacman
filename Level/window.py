@@ -29,7 +29,10 @@ def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy
         0: (0, 0, 0),  # corridor
         1: (0, 0, 255),  # wall
         2: (69, 69, 69),  # dot
-        99: (255, 165, 0)  # player
+        3: (34, 139, 34),  # pellet
+        4: (255, 0, 0),  # ghost
+        5: (255, 105, 180),  # feared ghost
+        6: (255, 69, 0)  # player
     }
 
     for i in range(19):
@@ -55,7 +58,7 @@ def create_window(matrix: numpy.array) -> tuple[Window, Renderer]:
     :return: The second window instance and its renderer.
     """
     win = Window("2nd window", size=(256, 256), always_on_top=True)
-    win.opacity = 0.8
+    win.opacity = 1.0  # 0.8
     renderer = Renderer(win)
     change_surface(win.size, renderer, matrix)
 

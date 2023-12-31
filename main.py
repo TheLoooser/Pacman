@@ -204,10 +204,13 @@ def run(params: dict = None) -> None:
         # Update second window
         base_matrix = np.array(Grid().walls)
         for key in params['dots']:
-            base_matrix[key[1]][key[0]] = 2
+            base_matrix[key[1]][key[0]] = 3 if key in pellets else 2
         player_pos_x, player_pos_y = player.get_current_cell()
         matrix = np.copy(base_matrix)
-        matrix[player_pos_y][player_pos_x] = 99
+        matrix[player_pos_y][player_pos_x] = 6
+        for enemy in [blinky, pinky, inky]:
+            pos_x, pos_y = enemy.get_current_cell()
+            matrix[pos_y][pos_x] = 5 if fear_state and enemy.pos != enemy._home else 4
         if params['toggle']:
             if not np.array_equal(old_matrix, matrix):
                 old_matrix = np.copy(matrix)
@@ -323,15 +326,13 @@ def score_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Fix None path, when eating Pinky and then camping before door (of ghost house)
-    #       Implement Clyde
+    # TODO: Implement Clyde
     #       ___
     #       Improve point system (e.g. time based)
     #       - Time based survival points (points per sec)
     #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
     #       - Time based completion points (faster lvl completion = more pts)
     #       - Adjust points for eating ghosts
-    #       Second Window with Matrix (coloured numbers)
     #       MIT License
     #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
