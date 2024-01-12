@@ -158,8 +158,8 @@ def example(print_maze=True):
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
 
-    start = (10, 1)  # (8, 9)
-    end = (10, 18)  # (20, 17)
+    start = (10, 18)  # (8, 9)
+    end = (20, 1)  # (20, 17)
 
     path = astar(maze, start, end)
 

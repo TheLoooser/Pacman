@@ -38,15 +38,15 @@ class Enemy(pygame.sprite.Sprite):
         pygame.draw.rect(self.surf, colour, pygame.Rect(0, 9, 18, 9))
         self.rect = self.surf.get_rect(center=(x, y))
 
-        self._home = pygame.math.Vector2((x, y))
+        self.home = pygame.math.Vector2((x, y))
         self.pos = pygame.math.Vector2((x, y))
         self.vel = pygame.math.Vector2(0, 0)
 
         self.score = 0  # Points given to the player for being eaten
 
     def _reset_position(self):
-        x = self._home.x
-        y = self._home.y
+        x = self.home.x
+        y = self.home.y
         self.rect = self.surf.get_rect(center=(x, y))
         self.pos = pygame.math.Vector2((x, y))
         pygame.draw.circle(self.surf, self.col, (18 // 2, 18 // 2), 9)
@@ -104,6 +104,9 @@ class Enemy(pygame.sprite.Sprite):
             pygame.draw.line(cells[pos_y][pos_x].surf, color, (6, 6), (15, 6), thickness)
             pygame.draw.line(cells[pos_y][pos_x].surf, color, (15, 6), (15, 15), thickness)
 
+        # Set the colour of the new highlighted path
+        color = self.col
+
         match enemy:
             case "inky":
                 target = player.pos - position + player.pos
@@ -126,7 +129,6 @@ class Enemy(pygame.sprite.Sprite):
                 # print(f"{possible_targets} - {min_distance} - {target}")
                 maze = get_maze(grid.walls, self.get_current_cell())
                 path = self.get_path(maze, possible_targets[min_distance[0]])  # Get new path
-                color = (0, 255, 255)
 
             case "pinky":
                 cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
@@ -139,15 +141,24 @@ class Enemy(pygame.sprite.Sprite):
                     maze[player_pos_y][player_pos_x] = 1
 
                 path = self.get_path(maze, cell)  # Get new path
-                color = (255, 105, 180)
 
             case "blinky":
                 maze = get_maze(grid.walls, self.get_current_cell())
                 path = self.get_path(maze, player.get_current_cell())  # Get new path
-                color = (200, 50, 50)
+                color = (200, 50, 50)  # use a slightly less intensive colour
+
+            case "clyde":
+                maze = get_maze(grid.walls, self.get_current_cell())
+                # If the distance between clyde and player is <= 5.5 grid cells,
+                # then go to bottom left corner (does not work with the portal).
+                if (math.sqrt(math.pow(player.pos.x - self.pos.x, 2) + math.pow(player.pos.y - self.pos.y, 2))
+                        <= 5.5 * 20):
+                    path = self.get_path(maze, (1, 20))  # Get new path
+                else:
+                    path = self.get_path(maze, player.get_current_cell())  # Get new path
 
             case "feared":
-                if self.pos != self._home:
+                if self.pos != self.home:
                     colour = (0, 127, 255) if int(pygame.time.get_ticks() / 400) % 2 == 0 else (255, 255, 255)
                     pygame.draw.circle(self.surf, colour, (18 // 2, 18 // 2), 9)
                     pygame.draw.rect(self.surf, colour, pygame.Rect(0, 9, 18, 9))

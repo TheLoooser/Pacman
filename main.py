@@ -86,6 +86,8 @@ def run(params: dict = None) -> None:
     blinky = Enemy(9 * 20 + 10, 9 * 20 + 10, "blinky", (255, 0, 0))
     pinky = Enemy(9 * 20 + 10, 10 * 20 + 10, "pinky", (255, 105, 180))
     inky = Enemy(8 * 20 + 10, 10 * 20 + 10, "inky", (0, 255, 255))
+    clyde = Enemy(10 * 20 + 10, 10 * 20 + 10, "clyde", (250, 185, 85))
+    enemies = {"blinky": blinky, "pinky": pinky, "inky": inky, "clyde": clyde}
 
     # Create a sprite group
     cell_sprites = pygame.sprite.Group()
@@ -93,7 +95,7 @@ def run(params: dict = None) -> None:
         cell_sprites.add(row)
 
     character_sprites = pygame.sprite.Group()
-    character_sprites.add([player, blinky, pinky, inky])
+    character_sprites.add([player, blinky, pinky, inky, clyde])
 
     # Ghost house door
     door = {}
@@ -110,7 +112,7 @@ def run(params: dict = None) -> None:
     fear_duration = 5  # sec
     fear_timer = timer.Timer()
     release_times = {name: timing for name, timing in
-                     zip(["blinky", "pinky", "inky"], sorted(random.sample(range(0, 10), 3)))}
+                     zip(["blinky", "pinky", "inky", "clyde"], sorted(random.sample(range(0, 10), 4)))}
     release_timer = timer.Timer()
     release_timer.start()
     checkboxes = {"path_highlights": True}
@@ -183,23 +185,19 @@ def run(params: dict = None) -> None:
         if fear_timer.is_running():
             fear_state = True
 
+        for enemy_name, enemy in enemies.items():
+            if release_timer.get_elapsed_time() > release_times[enemy_name]:
+                position = blinky.pos if enemy_name == "inky" else None
+                enemy.move_enemy(cells, grid, player, params, get_move_pattern(enemy_name, fear_state),
+                                 checkboxes['path_highlights'], position)
+
         # Todo: Gradually increase enemy speed over time
-        if release_timer.get_elapsed_time() > release_times["blinky"]:
-            blinky.move_enemy(cells, grid, player, params, get_move_pattern("blinky", fear_state),
-                              checkboxes['path_highlights'])
-
-        # Todo: Investigate no path found bug when player is somewhere in lower half
-        if release_timer.get_elapsed_time() > release_times["pinky"]:
-            pinky.move_enemy(cells, grid, player, params, get_move_pattern("pinky", fear_state),
-                             checkboxes['path_highlights'])
-
-        # Todo: Investigate inky getting stuck in tunnel
-        if release_timer.get_elapsed_time() > release_times["inky"]:
-            inky.move_enemy(cells, grid, player, params, get_move_pattern("inky", fear_state),
-                            checkboxes['path_highlights'], blinky.pos)
+        #       Investigate no path found bug when player is somewhere in lower half
+        #       Investigate inky getting stuck in tunnel
 
         # Update score
-        params['score'] = params['max_points'] - len(params['dots']) * 100 + blinky.score + inky.score + pinky.score  # + clyde.score
+        params['score'] = params['max_points'] - len(
+            params['dots']) * 100 + blinky.score + inky.score + pinky.score  # + clyde.score
 
         # Update second window
         base_matrix = np.array(Grid().walls)
@@ -210,7 +208,7 @@ def run(params: dict = None) -> None:
         matrix[player_pos_y][player_pos_x] = 6
         for enemy in [blinky, pinky, inky]:
             pos_x, pos_y = enemy.get_current_cell()
-            matrix[pos_y][pos_x] = 5 if fear_state and enemy.pos != enemy._home else 4
+            matrix[pos_y][pos_x] = 5 if fear_state and enemy.pos != enemy.home else 4
         if params['toggle']:
             if not np.array_equal(old_matrix, matrix):
                 old_matrix = np.copy(matrix)
@@ -326,13 +324,11 @@ def score_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Implement Clyde
-    #       ___
-    #       Improve point system (e.g. time based)
+    # TODO: Improve point system (e.g. time based)
     #       - Time based survival points (points per sec)
     #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
     #       - Time based completion points (faster lvl completion = more pts)
     #       - Adjust points for eating ghosts
-    #       MIT License
+    #       Adjust speed
     #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
