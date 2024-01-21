@@ -32,7 +32,7 @@ def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy
         3: (34, 139, 34),  # pellet
         4: (255, 0, 0),  # ghost
         5: (255, 105, 180),  # feared ghost
-        6: (255, 69, 0)  # player
+        6: (255, 69, 0),  # player
     }
 
     for i in range(19):

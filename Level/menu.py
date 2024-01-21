@@ -31,8 +31,16 @@ def blur_surface(surface: pygame.Surface, amount: int) -> pygame.Surface:
     return surf
 
 
-def print_text(display: pygame.Surface, text: str, font_size: int, colour: tuple[int, int, int], x_pos: float,
-               y_pos: float, clickable: bool = False, pos: str = 'center') -> None | pygame.Rect:
+def print_text(
+    display: pygame.Surface,
+    text: str,
+    font_size: int,
+    colour: tuple[int, int, int],
+    x_pos: float,
+    y_pos: float,
+    clickable: bool = False,
+    pos: str = "center",
+) -> None | pygame.Rect:
     """
     Prints a given text on a given surface.
 
@@ -51,14 +59,15 @@ def print_text(display: pygame.Surface, text: str, font_size: int, colour: tuple
     font = pygame.font.Font(file_path, font_size)
     text = font.render(text, True, colour)
     # text.set_alpha(200)
-    text_rect = text.get_rect(center=(x_pos, y_pos)) if pos == 'center' else text.get_rect(topleft=(x_pos, y_pos))
+    text_rect = text.get_rect(center=(x_pos, y_pos)) if pos == "center" else text.get_rect(topleft=(x_pos, y_pos))
     # text_rect.center = (x_pos, y_pos)
     display.blit(text, text_rect)
     return text_rect if clickable else None
 
 
-def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height: int, checkboxes: dict[str, bool]) \
-        -> dict[str, bool]:
+def paused(
+    display: pygame.Surface, clock: pygame.time.Clock, width: int, height: int, checkboxes: dict[str, bool]
+) -> dict[str, bool]:
     """
     Pauses the game (opens the pause menu).
 
@@ -77,9 +86,15 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
     # Checkbox
     file_path = "Resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, 18)
-    chckbx = checkbox.CheckBox(display, (display.get_width() * .3), (display.get_height() / 3),
-                               caption="Highlight paths", font=font, font_color=(222, 222, 222),
-                               checked=checkboxes['path_highlights'])
+    chckbx = checkbox.CheckBox(
+        display,
+        (display.get_width() * 0.3),
+        (display.get_height() / 3),
+        caption="Highlight paths",
+        font=font,
+        font_color=(222, 222, 222),
+        checked=checkboxes["path_highlights"],
+    )
 
     pause = True
     while pause:
@@ -88,18 +103,28 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
         display.blit(s, (0, 0))
 
         # Print pause text
-        print_text(display, "Pause", 50, (222, 222, 222),
-                   (display.get_width() / 2), (display.get_height() * .15))
-        print_text(display, "Press ESC to continue", 18, (222, 222, 222),
-                   (display.get_width() / 2), (display.get_height() * .15) + 50)
+        print_text(display, "Pause", 50, (222, 222, 222), (display.get_width() / 2), (display.get_height() * 0.15))
+        print_text(
+            display,
+            "Press ESC to continue",
+            18,
+            (222, 222, 222),
+            (display.get_width() / 2),
+            (display.get_height() * 0.15) + 50,
+        )
 
         # Buttons
-        button_rects = {'back': print_text(display, "BACK", 33, (222, 222, 222),
-                                           (display.get_width() / 2), (display.get_height() / 2) + 20, True),
-                        'exit': print_text(display, "EXIT", 33, (222, 222, 222),
-                                           (display.get_width() / 2), (display.get_height() / 2) + 70, True),
-                        'quit': print_text(display, "QUIT", 33, (222, 222, 222),
-                                           (display.get_width() / 2), (display.get_height() / 2) + 120, True)}
+        button_rects = {
+            "back": print_text(
+                display, "BACK", 33, (222, 222, 222), (display.get_width() / 2), (display.get_height() / 2) + 20, True
+            ),
+            "exit": print_text(
+                display, "EXIT", 33, (222, 222, 222), (display.get_width() / 2), (display.get_height() / 2) + 70, True
+            ),
+            "quit": print_text(
+                display, "QUIT", 33, (222, 222, 222), (display.get_width() / 2), (display.get_height() / 2) + 120, True
+            ),
+        }
 
         # Exit upon pressing ALT + F4
         keys = pygame.key.get_pressed()
@@ -124,6 +149,7 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
                             case "exit":
                                 pause = False
                                 from main import main_menu  # pylint: disable = import-outside-toplevel
+
                                 main_menu()
                             case "quit":
                                 pygame.quit()
@@ -136,13 +162,13 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
         def get_hover_surface(button_name: str) -> pygame.Surface:
             match button_name:
                 case "back":
-                    message = 'Resume the game'
+                    message = "Resume the game"
                 case "exit":
-                    message = 'Return to the main menu'
+                    message = "Return to the main menu"
                 case "quit":
-                    message = 'Close the application'
+                    message = "Close the application"
                 case _:
-                    message = 'Something went wrong'
+                    message = "Something went wrong"
             hover_surface = font.render(message, True, pygame.Color(255, 255, 255), pygame.Color(34, 34, 34))
             return hover_surface
 
@@ -156,7 +182,7 @@ def paused(display: pygame.Surface, clock: pygame.time.Clock, width: int, height
         pygame.display.update()
         clock.tick(15)
 
-    checkboxes['path_highlights'] = chckbx.checked
+    checkboxes["path_highlights"] = chckbx.checked
     return checkboxes
 
 
@@ -170,7 +196,7 @@ def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
     :return: Nothing.
     """
     # Life text
-    print_text(display, 'Lives:', 16, (222, 222, 222), 35, 455)
+    print_text(display, "Lives:", 16, (222, 222, 222), 35, 455)
 
     # Life icons
     life = pygame.Surface((30, 30))
@@ -185,13 +211,13 @@ def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
     # Copyright
     file_path = "Resources\\PixeloidSans.ttf"
     smallfont = pygame.font.Font(file_path, 10)
-    text = smallfont.render('© 2023', True, (222, 222, 222))
+    text = smallfont.render("© 2023", True, (222, 222, 222))
     text_rect = text.get_rect()
     text_rect.center = (180, 455)
     display.blit(text, text_rect)
 
     # Score text
-    print_text(display, 'Score:', 16, (222, 222, 222), 270, 455)
+    print_text(display, "Score:", 16, (222, 222, 222), 270, 455)
 
     # Current score
     score = score % 1600000
@@ -200,7 +226,7 @@ def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
         score = chr(int(score[:2]) + 55) + score[2:]
     else:
         score = str(score).zfill(6)
-    print_text(display, f'{score}', 16, (222, 222, 222), 340, 455)
+    print_text(display, f"{score}", 16, (222, 222, 222), 340, 455)
 
 
 def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group) -> None:
@@ -236,10 +262,10 @@ def game_over(score) -> None:
         except yaml.YAMLError as exc:
             print(exc)
 
-    top_score = {'name': 'God', 'value': '∞'}
+    top_score = {"name": "God", "value": "∞"}
 
     # Sort dict (based on score value)
-    high_scores = [top_score] + sorted(high_scores, key=lambda d: d['value'], reverse=True)
+    high_scores = [top_score] + sorted(high_scores, key=lambda d: d["value"], reverse=True)
     indexes = [0] + sorted(list(random.sample(range(1, len(high_scores) - 1), 8))) + [len(high_scores) - 1]
 
     user_name = None
@@ -266,32 +292,51 @@ def game_over(score) -> None:
                             f.write(f"- name: {user_name}\n  value: {score}\n")
 
                         from main import main_menu  # pylint: disable = import-outside-toplevel
+
                         main_menu()
 
         surf.fill((50, 50, 50))  # this fills the entire surface
 
         # Print title
-        print_text(surf, 'High Scores', 22, (222, 222, 222), surf.get_width() / 2, 20)
+        print_text(surf, "High Scores", 22, (222, 222, 222), surf.get_width() / 2, 20)
 
         # Print names and (random selection of) scores
         for i in range(len(indexes)):
-            print_text(surf, f"{indexes[i] + 1:02d}. {high_scores[indexes[i]]['name']:<14}", 16,
-                       (222, 222, 222), surf.get_width() / 6, 50 + 20 * i, pos='topleft')
+            print_text(
+                surf,
+                f"{indexes[i] + 1:02d}. {high_scores[indexes[i]]['name']:<14}",
+                16,
+                (222, 222, 222),
+                surf.get_width() / 6,
+                50 + 20 * i,
+                pos="topleft",
+            )
 
-            value = f"{high_scores[indexes[i]]['value']:06d}" if isinstance(high_scores[indexes[i]]['value'], int) \
-                else high_scores[indexes[i]]['value']
-            print_text(surf, f"{value}", 16, (222, 222, 222),
-                       surf.get_width() - surf.get_width() / 3, 50 + 20 * i, pos='topleft')
+            value = (
+                f"{high_scores[indexes[i]]['value']:06d}"
+                if isinstance(high_scores[indexes[i]]["value"], int)
+                else high_scores[indexes[i]]["value"]
+            )
+            print_text(
+                surf,
+                f"{value}",
+                16,
+                (222, 222, 222),
+                surf.get_width() - surf.get_width() / 3,
+                50 + 20 * i,
+                pos="topleft",
+            )
 
         # Show input box until the player has entered a username
         if not user_name:
-            print_text(surf, 'Enter your name', 18, (222, 222, 222), surf.get_width() / 2, 350)
+            print_text(surf, "Enter your name", 18, (222, 222, 222), surf.get_width() / 2, 350)
 
             input_box.update()
             input_box.draw(surf)
         else:
-            next_rect = print_text(surf, "→ NEXT →", 22, (222, 222, 222),
-                                   (surf.get_width() / 2), (surf.get_height() / 2) + 150, True)
+            next_rect = print_text(
+                surf, "→ NEXT →", 22, (222, 222, 222), (surf.get_width() / 2), (surf.get_height() / 2) + 150, True
+            )
 
         pygame.display.update()
         clock.tick(15)

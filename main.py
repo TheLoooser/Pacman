@@ -197,7 +197,7 @@ def run(params: dict = None) -> None:
 
         # Update score
         params['score'] = params['max_points'] - len(
-            params['dots']) * 100 + blinky.score + inky.score + pinky.score  # + clyde.score
+            params['dots']) * 100 + blinky.score + inky.score + pinky.score + clyde.score
 
         # Update second window
         base_matrix = np.array(Grid().walls)
@@ -206,7 +206,7 @@ def run(params: dict = None) -> None:
         player_pos_x, player_pos_y = player.get_current_cell()
         matrix = np.copy(base_matrix)
         matrix[player_pos_y][player_pos_x] = 6
-        for enemy in [blinky, pinky, inky]:
+        for enemy in enemies.values():
             pos_x, pos_y = enemy.get_current_cell()
             matrix[pos_y][pos_x] = 5 if fear_state and enemy.pos != enemy.home else 4
         if params['toggle']:
@@ -326,9 +326,20 @@ if __name__ == "__main__":
 
     # TODO: Improve point system (e.g. time based)
     #       - Time based survival points (points per sec)
+    #           → Not good: If AI gets this, would simply play forever.
+    #           Rather reward fast completion (ie more points for collecting dots, plus bonus for low time)
     #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
+    #           → Not necessary, because each dot already acts as a kind of bonus/checkpoint
     #       - Time based completion points (faster lvl completion = more pts)
+    #           → my time: 90s (quite fast)
+    #           - 60s (or less): max points, linear decrease to 180s, 180+s: fixed amount of points (to incentivise the
+    #             AI to complete the game (regardless of time) and not stall the game by running around
+    #           - min points for completion: ~500 (?), 
     #       - Adjust points for eating ghosts
+    #           → 10 for dots, 100 for ghosts (as initial calibration, dot and pellet = same amount)
     #       Adjust speed
     #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
+    #       Remove some leftover print statements
+
+    # Press key (for AI): https://stackoverflow.com/questions/55728777/how-to-simulate-key-press-event-in-python-on-another-program-running-in-python

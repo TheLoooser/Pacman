@@ -13,6 +13,7 @@ class Direction(Enum):
     """
     An enumeration of the four main directions.
     """
+
     UP = 0
     RIGHT = 1
     DOWN = 2
@@ -50,7 +51,7 @@ class Grid:
             [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
             [1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ]
 
     def init_map(self) -> list[list[Cell]]:
@@ -169,10 +170,12 @@ class Grid:
         start_i, start_j = (c_i - n) % len(self.walls[0]), (c_j - n) % len(self.walls)
         for _ in range(2 * n + 1):
             for _ in range(2 * n + 1):
-                if start_i == (c_i - n) % len(self.walls[0]) \
-                        or start_j == (c_j - n) % len(self.walls) \
-                        or start_i == (c_i + n) % len(self.walls[0]) \
-                        or start_j == (c_j + n) % len(self.walls):
+                if (
+                    start_i == (c_i - n) % len(self.walls[0])
+                    or start_j == (c_j - n) % len(self.walls)
+                    or start_i == (c_i + n) % len(self.walls[0])
+                    or start_j == (c_j + n) % len(self.walls)
+                ):
                     if is_not_wall and not self.is_wall(start_j, start_i):
                         indexes.append([start_i, start_j])
                     elif not is_not_wall:

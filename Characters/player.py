@@ -2,7 +2,7 @@
 This module contains an implementation of a player object.
 """
 import pygame
-from pygame.locals import *
+from pygame.locals import K_LEFT, K_RIGHT, K_UP, K_DOWN
 
 from Level.cell import Cell
 from Level.field import Field
@@ -96,8 +96,8 @@ class Player(pygame.sprite.Sprite):
             self.dir = 2
         if self.dir != old_direction:
             return True, self.dir
-        else:
-            return False | next_move, old_direction
+
+        return False | next_move, old_direction
 
     def get_direction(self) -> int:
         """
@@ -107,8 +107,12 @@ class Player(pygame.sprite.Sprite):
         """
         return self.dir
 
-    def highlight_player_cell(self, cells: list[list[Cell]], previous_cell: tuple[int, int, tuple[int, int, int]],
-                              grid: Grid) -> tuple[int, int, tuple[int, int, tuple[int, int, int]], list[list[Cell]]]:
+    def highlight_player_cell(
+        self,
+        cells: list[list[Cell]],
+        previous_cell: tuple[int, int, tuple[int, int, int]],
+        grid: Grid,
+    ) -> tuple[int, int, tuple[int, int, tuple[int, int, int]], list[list[Cell]]]:
         """
         Highlight the current grid cell of the player.
 
@@ -127,8 +131,17 @@ class Player(pygame.sprite.Sprite):
 
         return i, j, previous_cell, cells
 
-    def move_player(self, next_move: bool, old_direction: int, grid: Grid, i: int, j: int, cells: list[list[Cell]],
-                    old_field: Field, params: dict[str, any]) -> tuple[bool, int, int, Field, bool]:
+    def move_player(
+        self,
+        next_move: bool,
+        old_direction: int,
+        grid: Grid,
+        i: int,
+        j: int,
+        cells: list[list[Cell]],
+        old_field: Field,
+        params: dict[str, any],
+    ) -> tuple[bool, int, int, Field, bool]:
         """
         Move the player.
 
@@ -164,18 +177,15 @@ class Player(pygame.sprite.Sprite):
         x_old, y_old = grid.get_next_cell((i, j), old_direction)  # keep the old direction
 
         # Movement
-        speed, width = params['speed'], params['width']
+        speed, width = params["speed"], params["width"]
         if next_move and not grid.is_wall(y_new, x_new):  # Change direction
-            if ((self.get_direction() % 2 == 0
-                 and self.pos.x % 10 == 0
-                 and (self.pos.x / 10) % 2 == 1)
-                    or (self.get_direction() % 2 == 1
-                        and (self.pos.y - 5) % 10 == 0
-                        and ((self.pos.y - 5) / 10) % 2 == 0)):
+            if (self.get_direction() % 2 == 0 and self.pos.x % 10 == 0 and (self.pos.x / 10) % 2 == 1) or (
+                self.get_direction() % 2 == 1 and (self.pos.y - 5) % 10 == 0 and ((self.pos.y - 5) / 10) % 2 == 0
+            ):
                 self.move(new_direction, speed, width)
 
                 # Rotate player sprite
-                dir_change = (new_direction - old_direction)
+                dir_change = new_direction - old_direction
                 angle = (90 * dir_change) if dir_change % 2 == 0 else (90 * dir_change) + 180
                 self.surf = pygame.transform.rotate(self.surf, angle)
 
@@ -187,8 +197,7 @@ class Player(pygame.sprite.Sprite):
             if grid.is_wall(y_old, x_old):
                 if old_direction % 2 == 1 and self.pos.x % 10 == 0 and (self.pos.x / 10) % 2 == 1:
                     self.stop()
-                elif old_direction % 2 == 0 and (self.pos.y - 5) % 10 == 0 and (
-                        (self.pos.y - 5) / 10) % 2 == 0:
+                elif old_direction % 2 == 0 and (self.pos.y - 5) % 10 == 0 and ((self.pos.y - 5) / 10) % 2 == 0:
                     self.stop()
                 else:
                     self.move(old_direction, speed, width)
@@ -197,8 +206,7 @@ class Player(pygame.sprite.Sprite):
         elif grid.is_wall(y_new, x_new):  # Stop the player before hitting a wall
             if self.get_direction() % 2 == 1 and self.pos.x % 10 == 0 and (self.pos.x / 10) % 2 == 1:
                 self.stop()
-            elif self.get_direction() % 2 == 0 and (self.pos.y - 5) % 10 == 0 and (
-                    (self.pos.y - 5) / 10) % 2 == 0:
+            elif self.get_direction() % 2 == 0 and (self.pos.y - 5) % 10 == 0 and ((self.pos.y - 5) / 10) % 2 == 0:
                 self.stop()
             else:
                 self.move(old_direction, speed, width)
@@ -207,15 +215,15 @@ class Player(pygame.sprite.Sprite):
 
         # Eat dot
         fear_state = False
-        if self.get_current_cell() in params['dots']:
-            dot = params['dots'].pop(self.get_current_cell(), None)
+        if self.get_current_cell() in params["dots"]:
+            dot = params["dots"].pop(self.get_current_cell(), None)
             if dot.is_pellet:
                 print("FEAR!!!")
                 fear_state = True
 
         # Game over when all dots are eaten
-        if not params['dots']:
-            game_over(params['score'])
+        if not params["dots"]:
+            game_over(params["score"])
 
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()

@@ -1,9 +1,12 @@
+"""
+This module contains an implementation of an enemy object.
+"""
 import math
 import sys
+import copy
 import pygame
 from Logic.astar import astar
 from Level.menu import game_over
-import copy
 
 
 def swap(a, b):
@@ -85,7 +88,16 @@ class Enemy(pygame.sprite.Sprite):
             self.pos.x = width
         self.rect.midbottom = self.pos + pygame.math.Vector2(0, 10)
 
-    def move_enemy(self, cells, grid, player, params, enemy="blinky", highlight_path=True, position=None):
+    def move_enemy(
+        self,
+        cells,
+        grid,
+        player,
+        params,
+        enemy="blinky",
+        highlight_path=True,
+        position=None,
+    ):
         surface = pygame.Surface((5, 5))
         surface.fill((0, 0, 0))
         color = (0, 0, 0)
@@ -151,8 +163,10 @@ class Enemy(pygame.sprite.Sprite):
                 maze = get_maze(grid.walls, self.get_current_cell())
                 # If the distance between clyde and player is <= 5.5 grid cells,
                 # then go to bottom left corner (does not work with the portal).
-                if (math.sqrt(math.pow(player.pos.x - self.pos.x, 2) + math.pow(player.pos.y - self.pos.y, 2))
-                        <= 5.5 * 20):
+                if (
+                    math.sqrt(math.pow(player.pos.x - self.pos.x, 2) + math.pow(player.pos.y - self.pos.y, 2))
+                    <= 5.5 * 20
+                ):
                     path = self.get_path(maze, (1, 20))  # Get new path
                 else:
                     path = self.get_path(maze, player.get_current_cell())  # Get new path
@@ -165,7 +179,7 @@ class Enemy(pygame.sprite.Sprite):
 
                 if self._is_feared == 3:
                     return  # wait for fear timer to be over
-                elif self._is_feared < 2 or swap(*self.get_current_cell()) == self.path[-1]:
+                if self._is_feared < 2 or swap(*self.get_current_cell()) == self.path[-1]:
                     self._is_feared = 2
                     # Get new path to a random position
                     random_pos = grid.get_random_position()
@@ -196,20 +210,21 @@ class Enemy(pygame.sprite.Sprite):
 
         # Collision
         if player.get_current_cell() == self.get_current_cell():
-            if enemy == 'feared':
+            if enemy == "feared":
                 self._is_feared = 3  # ghost was eaten while being feared
                 self._reset_position()  # return to home
                 self.score += 3333
                 return
+
+            # DISCLAIMER: This is NOT clean code!
+            from main import run  # pylint: disable=import-outside-toplevel
+
+            params["lives"] = params["lives"] - 1
+            if params["lives"] == 0:
+                print("GAME OVER!!!")
+                game_over(params["score"])
             else:
-                # DISCLAIMER: This is NOT clean code!
-                from main import run
-                params['lives'] = params['lives'] - 1
-                if params['lives'] == 0:
-                    print("GAME OVER!!!")
-                    game_over(params['score'])
-                else:
-                    run(params)
+                run(params)
 
         def tuple_difference(t1, t2, add=False):
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))
@@ -218,7 +233,7 @@ class Enemy(pygame.sprite.Sprite):
         if not path:
             return
 
-        speed, width = params['speed'], params['width']
+        speed, width = params["speed"], params["width"]
         if len(path) > 1:
             # Make ghosts warp around border
             diff = tuple_difference(path[0], path[1])

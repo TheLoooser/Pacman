@@ -8,6 +8,7 @@ class Field:
     """
     A class to represent a field (square on the grid).
     """
+
     def __init__(self, x: int, y: int, colour: tuple[int, int, int]):
         """
         Constructs a field object.
