@@ -61,7 +61,7 @@ def run(params: dict = None) -> None:
     if params is None:
         # Initialise parameters
         params = {
-            'width': 380, 'height': 440, 'speed': 1, 'lives': 1, 'score': 0,
+            'width': 380, 'height': 440, 'speed': 1, 'lives': 2, 'score': 0, 'timer': -1,
             # 'display': display_surface, 'clock': FramePerSec,
             # Initialise variables for the second window
             'window': -1, 'renderer': -1, 'toggle': False  # window will be created later
@@ -115,6 +115,9 @@ def run(params: dict = None) -> None:
                      zip(["blinky", "pinky", "inky", "clyde"], sorted(random.sample(range(0, 10), 4)))}
     release_timer = timer.Timer()
     release_timer.start()
+    if params['timer'] == -1:
+        params['timer'] = timer.Timer()
+        params['timer'].start()
     checkboxes = {"path_highlights": True}
     print(release_times)
 
@@ -142,6 +145,7 @@ def run(params: dict = None) -> None:
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:  # pause game
                     display_surface.blit(blur_surface(display_surface, 2), (0, 0))
+                    params['timer'].pause()
                     release_timer.pause()
                     if fear_timer.is_running():
                         fear_timer.pause()
@@ -150,6 +154,7 @@ def run(params: dict = None) -> None:
                     else:
                         checkboxes = paused(display_surface, FramePerSec, WIDTH, HEIGHT, checkboxes)
                         print(f"IN MAIN -> {checkboxes['path_highlights']}")
+                    params['timer'].resume()
                     release_timer.resume()
                 # Close 2nd window if main window is currently in focus
                 elif event.key == pygame.K_t:
@@ -324,22 +329,10 @@ def score_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Improve point system (e.g. time based)
-    #       - Time based survival points (points per sec)
-    #           → Not good: If AI gets this, would simply play forever.
-    #           Rather reward fast completion (ie more points for collecting dots, plus bonus for low time)
-    #       - Bonus points per percentage of dots collected (e.g. 100pts for 10%, aka checkpoints)
-    #           → Not necessary, because each dot already acts as a kind of bonus/checkpoint
-    #       - Time based completion points (faster lvl completion = more pts)
-    #           → my time: 90s (quite fast)
-    #           - 60s (or less): max points, linear decrease to 180s, 180+s: fixed amount of points (to incentivise the
-    #             AI to complete the game (regardless of time) and not stall the game by running around
-    #           - min points for completion: ~500 (?), 
-    #       - Adjust points for eating ghosts
-    #           → 10 for dots, 100 for ghosts (as initial calibration, dot and pellet = same amount)
-    #       Adjust speed
+    # TODO: Adjust speed
     #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
     #       Remove some leftover print statements
+    #       Basic Readme (Requirements, Install, Get started)
 
     # Press key (for AI): https://stackoverflow.com/questions/55728777/how-to-simulate-key-press-event-in-python-on-another-program-running-in-python

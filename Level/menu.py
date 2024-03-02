@@ -241,6 +241,21 @@ def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group) -> None
         display.blit(surf.surf, surf.rect)
 
 
+def update_score(score, timer):
+    time = timer.get_elapsed_time()
+    match time:
+        case _ if time < 60:
+            score += 600 + 500
+        case _ if 60 <= time < 180:
+            score += (120 - (time - 60))*5 + 500
+        case _ if time >= 180:
+            score += 500
+        case _:
+            print(f"Impossible time. You finished in {time} seconds.")
+    print(f"Beat the game in {timer.get_elapsed_time()} seconds.")
+    return score
+
+
 def game_over(score) -> None:
     """
     Shows the game over screen

@@ -6,7 +6,7 @@ import sys
 import copy
 import pygame
 from Logic.astar import astar
-from Level.menu import game_over
+from Level.menu import game_over, update_score
 
 
 def swap(a, b):
@@ -89,14 +89,14 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.midbottom = self.pos + pygame.math.Vector2(0, 10)
 
     def move_enemy(
-        self,
-        cells,
-        grid,
-        player,
-        params,
-        enemy="blinky",
-        highlight_path=True,
-        position=None,
+            self,
+            cells,
+            grid,
+            player,
+            params,
+            enemy="blinky",
+            highlight_path=True,
+            position=None,
     ):
         surface = pygame.Surface((5, 5))
         surface.fill((0, 0, 0))
@@ -164,8 +164,8 @@ class Enemy(pygame.sprite.Sprite):
                 # If the distance between clyde and player is <= 5.5 grid cells,
                 # then go to bottom left corner (does not work with the portal).
                 if (
-                    math.sqrt(math.pow(player.pos.x - self.pos.x, 2) + math.pow(player.pos.y - self.pos.y, 2))
-                    <= 5.5 * 20
+                        math.sqrt(math.pow(player.pos.x - self.pos.x, 2) + math.pow(player.pos.y - self.pos.y, 2))
+                        <= 5.5 * 20
                 ):
                     path = self.get_path(maze, (1, 20))  # Get new path
                 else:
@@ -213,7 +213,7 @@ class Enemy(pygame.sprite.Sprite):
             if enemy == "feared":
                 self._is_feared = 3  # ghost was eaten while being feared
                 self._reset_position()  # return to home
-                self.score += 3333
+                self.score += 100
                 return
 
             # DISCLAIMER: This is NOT clean code!
@@ -222,7 +222,7 @@ class Enemy(pygame.sprite.Sprite):
             params["lives"] = params["lives"] - 1
             if params["lives"] == 0:
                 print("GAME OVER!!!")
-                game_over(params["score"])
+                game_over(params["score"] - 420)
             else:
                 run(params)
 

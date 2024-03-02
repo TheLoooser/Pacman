@@ -37,7 +37,7 @@ class Timer:
 
         :return: Nothing.
         """
-        self._elapsed_time = time.perf_counter() - self._start_time
+        self._elapsed_time = self._elapsed_time + time.perf_counter() - self._start_time
         self._start_time = None
 
     def resume(self) -> None:

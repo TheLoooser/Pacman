@@ -7,7 +7,7 @@ from pygame.locals import K_LEFT, K_RIGHT, K_UP, K_DOWN
 from Level.cell import Cell
 from Level.field import Field
 from Level.grid import Grid
-from Level.menu import game_over
+from Level.menu import game_over, update_score
 
 
 class Player(pygame.sprite.Sprite):
@@ -223,7 +223,7 @@ class Player(pygame.sprite.Sprite):
 
         # Game over when all dots are eaten
         if not params["dots"]:
-            game_over(params["score"])
+            game_over(update_score(params["score"], params["timer"]))
 
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()
