@@ -273,7 +273,6 @@ def game_over(score) -> None:
     with open("Resources/high_scores.yaml", "r") as stream:
         try:
             high_scores = yaml.safe_load(stream)
-            print(high_scores)
         except yaml.YAMLError as exc:
             print(exc)
 

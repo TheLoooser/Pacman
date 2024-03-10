@@ -178,9 +178,10 @@ class Player(pygame.sprite.Sprite):
 
         # Movement
         speed, width = params["speed"], params["width"]
+        position = [int(self.pos.x), int(self.pos.y)]
         if next_move and not grid.is_wall(y_new, x_new):  # Change direction
-            if (self.get_direction() % 2 == 0 and self.pos.x % 10 == 0 and (self.pos.x / 10) % 2 == 1) or (
-                self.get_direction() % 2 == 1 and (self.pos.y - 5) % 10 == 0 and ((self.pos.y - 5) / 10) % 2 == 0
+            if (self.get_direction() % 2 == 0 and position[0] % 10 == 0 and (position[0] / 10) % 2 == 1) or (
+                self.get_direction() % 2 == 1 and (position[1] - 5) % 10 == 0 and ((position[1] - 5) / 10) % 2 == 0
             ):
                 self.move(new_direction, speed, width)
 
@@ -195,18 +196,18 @@ class Player(pygame.sprite.Sprite):
                 self.move(old_direction, speed, width)
         elif next_move and grid.is_wall(y_new, x_new):  # Keep direction
             if grid.is_wall(y_old, x_old):
-                if old_direction % 2 == 1 and self.pos.x % 10 == 0 and (self.pos.x / 10) % 2 == 1:
+                if old_direction % 2 == 1 and position[0] % 10 == 0 and (position[0] / 10) % 2 == 1:
                     self.stop()
-                elif old_direction % 2 == 0 and (self.pos.y - 5) % 10 == 0 and ((self.pos.y - 5) / 10) % 2 == 0:
+                elif old_direction % 2 == 0 and (position[1] - 5) % 10 == 0 and ((position[1] - 5) / 10) % 2 == 0:
                     self.stop()
                 else:
                     self.move(old_direction, speed, width)
             else:
                 self.move(old_direction, speed, width)
         elif grid.is_wall(y_new, x_new):  # Stop the player before hitting a wall
-            if self.get_direction() % 2 == 1 and self.pos.x % 10 == 0 and (self.pos.x / 10) % 2 == 1:
+            if self.get_direction() % 2 == 1 and position[0] % 10 == 0 and (position[0] / 10) % 2 == 1:
                 self.stop()
-            elif self.get_direction() % 2 == 0 and (self.pos.y - 5) % 10 == 0 and ((self.pos.y - 5) / 10) % 2 == 0:
+            elif self.get_direction() % 2 == 0 and (position[1] - 5) % 10 == 0 and ((position[1] - 5) / 10) % 2 == 0:
                 self.stop()
             else:
                 self.move(old_direction, speed, width)
@@ -218,7 +219,6 @@ class Player(pygame.sprite.Sprite):
         if self.get_current_cell() in params["dots"]:
             dot = params["dots"].pop(self.get_current_cell(), None)
             if dot.is_pellet:
-                print("FEAR!!!")
                 fear_state = True
 
         # Game over when all dots are eaten

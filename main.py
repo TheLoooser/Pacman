@@ -31,7 +31,7 @@ pygame.init()
 
 HEIGHT = 440  # 22 * 20
 WIDTH = 380  # 19 * 20
-SPEED = 1  # 2
+SPEED = 2  # The game breaks if the speed is not an integer.
 FPS = 60
 
 FramePerSec = pygame.time.Clock()
@@ -61,7 +61,7 @@ def run(params: dict = None) -> None:
     if params is None:
         # Initialise parameters
         params = {
-            'width': 380, 'height': 440, 'speed': 1, 'lives': 2, 'score': 0, 'timer': -1,
+            'width': 380, 'height': 440, 'speed': SPEED, 'lives': 2, 'score': 0, 'timer': -1,
             # 'display': display_surface, 'clock': FramePerSec,
             # Initialise variables for the second window
             'window': -1, 'renderer': -1, 'toggle': False  # window will be created later
@@ -153,7 +153,6 @@ def run(params: dict = None) -> None:
                         fear_timer.resume()
                     else:
                         checkboxes = paused(display_surface, FramePerSec, WIDTH, HEIGHT, checkboxes)
-                        print(f"IN MAIN -> {checkboxes['path_highlights']}")
                     params['timer'].resume()
                     release_timer.resume()
                 # Close 2nd window if main window is currently in focus
@@ -185,7 +184,6 @@ def run(params: dict = None) -> None:
             fear_timer.start()
 
         if fear_timer.get_elapsed_time() > fear_duration:
-            print("fear_over")
             fear_timer.stop()
         if fear_timer.is_running():
             fear_state = True
@@ -329,10 +327,12 @@ def score_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Adjust speed
+    # TODO: Adjust speed (especially while enemy's are feared)
+    #       Update score because of speed adjustments!!!
     #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
     #       Remove some leftover print statements
     #       Basic Readme (Requirements, Install, Get started)
+    #       Create .exe for game (pyinstaller)
 
     # Press key (for AI): https://stackoverflow.com/questions/55728777/how-to-simulate-key-press-event-in-python-on-another-program-running-in-python

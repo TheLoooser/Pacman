@@ -65,6 +65,9 @@ class Enemy(pygame.sprite.Sprite):
 
     def move(self, y, x, speed, width):
         target = pygame.math.Vector2(x * 20 + 10, y * 20 + 10)
+        # if pygame.math.Vector2(self.pos - target).length() == 0:
+        #     print(f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} ")
+        #     return
         direction = pygame.math.Vector2(self.pos - target).normalize()
 
         if direction == [1, 0]:
@@ -234,20 +237,21 @@ class Enemy(pygame.sprite.Sprite):
             return
 
         speed, width = params["speed"], params["width"]
+        speed = speed * 0.5 if not (enemy == "feared") else speed * 0.25
         if len(path) > 1:
             # Make ghosts warp around border
             diff = tuple_difference(path[0], path[1])
             if sum(diff) > 1:
-                self.move(*tuple_difference(path[0], diff, True), speed / 3, width)
+                self.move(*tuple_difference(path[0], diff, True), speed, width)
             elif sum(diff) < -1:
                 abs_diff = tuple(abs(d) for d in diff)
-                self.move(*tuple_difference(path[0], abs_diff), speed / 3, width)
+                self.move(*tuple_difference(path[0], abs_diff), speed, width)
             # Move ghosts along calculated path
             elif swap(*self.get_current_cell()) == path[0]:
-                self.move(*path[1], speed / 3, width)
+                self.move(*path[1], speed, width)
             else:
-                self.move(*path[0], speed / 3, width)
+                self.move(*path[0], speed, width)
         else:
-            self.move(*path[0], speed / 3, width)
+            self.move(*path[0], speed, width)
 
         self.path = path
