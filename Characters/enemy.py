@@ -5,8 +5,9 @@ import math
 import sys
 import copy
 import pygame
+import numpy as np
 from Logic.astar import astar
-from Level.menu import game_over, update_score
+from Level.menu import game_over
 
 
 def swap(a, b):
@@ -25,15 +26,23 @@ def get_maze(grid_walls, pos):
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, name, colour, path=None):
+    """
+    A class representing an enemy (NPC)
+    """
+    def __init__(self, x, y, name, colour):
+        """
+        Constructs an enemy object
+
+        :param x: The horizontal position
+        :param y: The vertical position
+        :param name: The name of the ghost
+        :param colour: The colour of the ghost
+        """
         super().__init__()
         self.name = name
         self.col = colour
         self._is_feared = 0
-        if path is None:
-            self.path = []
-        else:
-            self.path = path
+        self.path = []
 
         self.surf = pygame.Surface((18, 18))
         self.surf.fill((0, 0, 0))
@@ -63,12 +72,17 @@ class Enemy(pygame.sprite.Sprite):
     def get_current_cell(self):
         return int((self.pos.x - 1) / 20) % 19, int((self.pos.y - 1) / 20) % 22
 
-    def move(self, y, x, speed, width):
+    def move(self, y, x, speed, width, timer, enemy):
         target = pygame.math.Vector2(x * 20 + 10, y * 20 + 10)
-        # if pygame.math.Vector2(self.pos - target).length() == 0:
-        #     print(f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} ")
-        #     return
+        if pygame.math.Vector2(self.pos - target).length() == 0:
+            print(f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} ")
+            return
         direction = pygame.math.Vector2(self.pos - target).normalize()
+
+        # If the enemy is feared, only move it every second hundredth of a second (to reduce its speed)
+        val = int(np.modf(timer.get_elapsed_time())[0] * 100 % 10)
+        if enemy == "feared" and val % 2 == 0:
+            return
 
         if direction == [1, 0]:
             self.vel.x = -speed
@@ -237,21 +251,21 @@ class Enemy(pygame.sprite.Sprite):
             return
 
         speed, width = params["speed"], params["width"]
-        speed = speed * 0.5 if not (enemy == "feared") else speed * 0.25
+        speed = int(speed * 0.5)
         if len(path) > 1:
             # Make ghosts warp around border
             diff = tuple_difference(path[0], path[1])
             if sum(diff) > 1:
-                self.move(*tuple_difference(path[0], diff, True), speed, width)
+                self.move(*tuple_difference(path[0], diff, True), speed, width, params['timer'], enemy)
             elif sum(diff) < -1:
                 abs_diff = tuple(abs(d) for d in diff)
-                self.move(*tuple_difference(path[0], abs_diff), speed, width)
+                self.move(*tuple_difference(path[0], abs_diff), speed, width, params['timer'], enemy)
             # Move ghosts along calculated path
             elif swap(*self.get_current_cell()) == path[0]:
-                self.move(*path[1], speed, width)
+                self.move(*path[1], speed, width, params['timer'], enemy)
             else:
-                self.move(*path[0], speed, width)
+                self.move(*path[0], speed, width, params['timer'], enemy)
         else:
-            self.move(*path[0], speed, width)
+            self.move(*path[0], speed, width, params['timer'], enemy)
 
         self.path = path

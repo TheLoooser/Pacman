@@ -327,8 +327,9 @@ def score_menu():
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Adjust speed (especially while enemy's are feared)
-    #       Update score because of speed adjustments!!!
+    # TODO: Fix enemy move issue (can't normalize vector of length zero)
+    #       Adjust speed (especially while enemy's are feared)
+    #       Update score because of speed adjustments (45s)!!!
     #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
     #       Remove some leftover print statements
