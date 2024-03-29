@@ -17,8 +17,9 @@ class Timer:
         """
         Constructs a timer object.
         """
-        self._start_time = None
-        self._elapsed_time = 0
+        self._running = False
+        self._start_time = 0.0
+        self._elapsed_time = 0.0
 
     def start(self) -> None:
         """
@@ -30,6 +31,7 @@ class Timer:
         #     raise TimerError(f"Timer is running. Use .stop() to stop it")
 
         self._start_time = time.perf_counter()
+        self._running = True
 
     def pause(self) -> None:
         """
@@ -38,7 +40,8 @@ class Timer:
         :return: Nothing.
         """
         self._elapsed_time = self._elapsed_time + time.perf_counter() - self._start_time
-        self._start_time = None
+        self._start_time = 0.0
+        self._running = False
 
     def resume(self) -> None:
         """
@@ -46,7 +49,8 @@ class Timer:
 
         :return: Nothing.
         """
-        self._start_time = time.perf_counter() if not self._start_time else self._start_time
+        self._start_time = time.perf_counter() if not self._running else self._start_time
+        self._running = True
 
     def stop(self) -> None:
         """
@@ -54,20 +58,21 @@ class Timer:
 
         :return: Nothing.
         """
-        if self._start_time is None and self._elapsed_time == 0:
+        if not self._running and self._elapsed_time == 0:
             raise TimerError("Timer is and was not running. Use .start() to start it")
 
         # print(f"Elapsed time: {self.get_elapsed_time():0.4f} seconds")
-        self._start_time = None
-        self._elapsed_time = 0
+        self._running = False
+        self._start_time = 0.0
+        self._elapsed_time = 0.0
 
-    def get_elapsed_time(self) -> int:
+    def get_elapsed_time(self) -> float:
         """
         Gets the elapsed time.
 
         :return: The elapsed time.
         """
-        return time.perf_counter() - self._start_time + self._elapsed_time if self._start_time else self._elapsed_time
+        return time.perf_counter() - self._start_time + self._elapsed_time if self._running else self._elapsed_time
 
     def is_running(self) -> bool:
         """
@@ -75,7 +80,7 @@ class Timer:
 
         :return: True if the timer is active, False otherwise.
         """
-        return self._start_time is not None
+        return self._running
 
 
 if __name__ == "__main__":

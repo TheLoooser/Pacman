@@ -100,7 +100,7 @@ class Grid:
         :param j: The horizontal index (column).
         :return: True if the cell at this location if a wall, False otherwise.
         """
-        return self.walls[i][j]
+        return bool(self.walls[i][j])
 
     def get_next_cell(self, current_cell: tuple[int, int], direction: int) -> tuple[int, int]:
         """
@@ -152,7 +152,8 @@ class Grid:
             case Direction.LEFT.value:
                 return self.get_cell_in_front((i - 1) % len(self.walls[0]), j, direction, n - 1)
             case _:
-                print(f"Warning: Direction not initialised. Current direction: {direction}")  # only used in move_enemy (pinky)
+                # Only used in move_enemy (pinky)
+                print(f"Warning: Direction not initialised. Current direction: {direction}")
                 return i, j
 
     def get_adjacent_cells(self, c_i: int, c_j: int, n: int = 1, is_not_wall: bool = False) -> list[list[int]]:

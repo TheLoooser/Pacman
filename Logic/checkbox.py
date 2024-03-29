@@ -16,7 +16,7 @@ class CheckBox:
                  caption: str = "", outline_color: tuple[int, int, int] = (0, 0, 0),
                  check_color: tuple[int, int, int] = (0, 0, 0), font_size: int = 22,
                  font_color: tuple[int, int, int] = (0, 0, 0), text_offset: tuple[int, int] = (28, 1),
-                 font: pygame.font = pygame.font.SysFont('Ariel Black', 22), checked: bool = False) -> None:
+                 font: pygame.font.Font = pygame.font.SysFont('Ariel Black', 22), checked: bool = False) -> None:
         """
         Constructs a checkbox object.
 

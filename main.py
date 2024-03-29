@@ -50,7 +50,7 @@ def get_move_pattern(enemy: str, is_feared: bool) -> str:
     return enemy if not is_feared else "feared"
 
 
-def run(params: dict = None) -> None:
+def run(params: dict = {}) -> None:
     """
     The main game loop
 
@@ -58,7 +58,7 @@ def run(params: dict = None) -> None:
     :return: Nothing
     """
 
-    if params is None:
+    if not params:
         # Initialise parameters
         params = {
             'width': 380, 'height': 440, 'speed': SPEED, 'lives': 2, 'score': 0, 'timer': -1,
@@ -90,11 +90,11 @@ def run(params: dict = None) -> None:
     enemies = {"blinky": blinky, "pinky": pinky, "inky": inky, "clyde": clyde}
 
     # Create a sprite group
-    cell_sprites = pygame.sprite.Group()
+    cell_sprites = pygame.sprite.Group()  # type: pygame.sprite.Group
     for row in cells:
         cell_sprites.add(row)
 
-    character_sprites = pygame.sprite.Group()
+    character_sprites = pygame.sprite.Group()  # type: pygame.sprite.Group
     character_sprites.add([player, blinky, pinky, inky, clyde])
 
     # Ghost house door
@@ -328,8 +328,6 @@ if __name__ == "__main__":
     main_menu()
 
     # TODO: Fix enemy move issue (can't normalize vector of length zero)
-    #       Adjust speed (especially while enemy's are feared)
-    #       Update score because of speed adjustments (45s)!!!
     #       Sphinx, black, mypy, pylint, isort, pre-commit
     #       rtd dark theme
     #       Remove some leftover print statements

@@ -4,10 +4,14 @@ This module contains functions which enable the creation of a second window.
 from collections.abc import Iterable
 import numpy
 import pygame
-from pygame._sdl2 import Window, Texture, Renderer  # WARNING: Module still in development
+from pygame._sdl2 import (
+    Window,
+    Texture,
+    Renderer,
+)  # WARNING: Module still in development
 
 
-def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy.array) -> None:
+def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy.ndarray) -> None:
     """
     Updates the surface of the second window.
 
@@ -37,10 +41,10 @@ def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy
 
     for i in range(19):
         for j in range(22):
-            number = matrix[j][i]
+            number = int(matrix[j][i])
             t = font.render(f"{number}", True, colour_dict[number])
             tr = t.get_rect()
-            tr.center = (w * i + w / 2, h * j + h / 2)
+            tr.center = (int(w * i + w / 2), int(h * j + h / 2))
             surf.blit(t, tr)
 
     tex = Texture.from_surface(renderer, surf)
@@ -50,7 +54,7 @@ def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy
     del tex
 
 
-def create_window(matrix: numpy.array) -> tuple[Window, Renderer]:
+def create_window(matrix: numpy.ndarray) -> tuple[Window, Renderer]:
     """
     Creates a second window.
 
