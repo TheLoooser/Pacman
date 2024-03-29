@@ -4,17 +4,37 @@ This module contains an implementation of an enemy object.
 import math
 import sys
 import copy
+from typing import Any, cast
+
 import pygame
 import numpy as np
+from Characters.player import Player
+from Level.cell import Cell
+from Level.grid import Grid
 from Logic.astar import astar
+from Logic.timer import Timer
 from Level.menu import game_over
 
 
-def swap(a, b):
+def swap(a: int, b: int) -> tuple[int, int]:
+    """
+    Swap the assignment of two variables
+
+    :param a: The first variable
+    :param b: The second variable
+    :return: The two passed variables with their assigned value swapped
+    """
     return b, a
 
 
-def get_maze(grid_walls, pos):
+def get_maze(grid_walls: list[list[int]], pos: tuple[int, int]) -> list[list[int]]:
+    """
+    Get the maze depending on the position
+
+    :param grid_walls: The grid of the game
+    :param pos: The current position of the enemy
+    :return: The updated maze
+    """
     ghost_house = [(9, 9), (10, 8), (10, 9), (10, 10)]
     maze = copy.deepcopy(grid_walls)
     # When the ghost is in his home
@@ -29,7 +49,8 @@ class Enemy(pygame.sprite.Sprite):
     """
     A class representing an enemy (NPC)
     """
-    def __init__(self, x, y, name, colour):
+
+    def __init__(self, x: int, y: int, name: str, colour: tuple[int, int, int]) -> None:
         """
         Constructs an enemy object
 
@@ -56,7 +77,12 @@ class Enemy(pygame.sprite.Sprite):
 
         self.score = 0  # Points given to the player for being eaten
 
-    def _reset_position(self):
+    def _reset_position(self) -> None:
+        """
+        Place the enemy back at its starting position
+
+        :return: Nothing
+        """
         x = self.home.x
         y = self.home.y
         self.rect = self.surf.get_rect(center=(x, y))
@@ -64,18 +90,43 @@ class Enemy(pygame.sprite.Sprite):
         pygame.draw.circle(self.surf, self.col, (18 // 2, 18 // 2), 9)
         pygame.draw.rect(self.surf, self.col, pygame.Rect(0, 9, 18, 9))
 
-    def get_path(self, grid, player_position):
+    def get_path(self, grid: list[list[int]], player_position: tuple[int, int]) -> list[tuple[int, int]] | None:
+        """
+        Get a path from the current position to the target position
+
+        :param grid: The grid of the game
+        :param player_position: The target position
+        :return: A path from the current to the target position
+        """
         i, j = swap(*self.get_current_cell())
         x, y = swap(*player_position)
         return astar(grid, (i, j), (x, y))
 
-    def get_current_cell(self):
+    def get_current_cell(self) -> tuple[int, int]:
+        """
+        Get the indices of the current cell based on the horizontal and vertical position
+
+        :return: The indices of the current cell
+        """
         return int((self.pos.x - 1) / 20) % 19, int((self.pos.y - 1) / 20) % 22
 
-    def move(self, y, x, speed, width, timer, enemy):
+    def move(self, y: int, x: int, speed: int, width: int, timer: Timer, enemy: str) -> None:
+        """
+        Update the enemy's position
+
+        :param y: The vertical index of the next cell
+        :param x: The horizontal index of the next cell
+        :param speed: The speed of the enemy
+        :param width: The width of the game window
+        :param timer: The game timer
+        :param enemy: The name of the enemy (or feared)
+        :return: Nothing
+        """
         target = pygame.math.Vector2(x * 20 + 10, y * 20 + 10)
+        # TODO: HERE
         if pygame.math.Vector2(self.pos - target).length() == 0:
-            print(f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} ")
+            print(
+                f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} ")
             return
         direction = pygame.math.Vector2(self.pos - target).normalize()
 
@@ -107,14 +158,26 @@ class Enemy(pygame.sprite.Sprite):
 
     def move_enemy(
             self,
-            cells,
-            grid,
-            player,
-            params,
-            enemy="blinky",
-            highlight_path=True,
-            position=None,
-    ):
+            cells: list[list[Cell]],
+            grid: Grid,
+            player: Player,
+            params: dict,
+            enemy: str = "blinky",
+            highlight_path: bool = True,
+            position: tuple[int, int] = None,
+    ) -> None:
+        """
+        Move the enemy
+
+        :param cells: The matrix of Cell objects
+        :param grid: The grid of the game
+        :param player: The player object
+        :param params: Various game parameters
+        :param enemy: The name of the ghost (or feared)
+        :param highlight_path: Boolean flag to show or hide the path of enemies
+        :param position: The position of a second enemy
+        :return: Nothing
+        """
         surface = pygame.Surface((5, 5))
         surface.fill((0, 0, 0))
         color = (0, 0, 0)
@@ -157,7 +220,7 @@ class Enemy(pygame.sprite.Sprite):
 
                 # print(f"{possible_targets} - {min_distance} - {target}")
                 maze = get_maze(grid.walls, self.get_current_cell())
-                path = self.get_path(maze, possible_targets[min_distance[0]])  # Get new path
+                path = self.get_path(maze, cast(tuple[int, int], tuple(possible_targets[min_distance[0]])))  # Get new path
 
             case "pinky":
                 cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
@@ -243,7 +306,15 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 run(params)
 
-        def tuple_difference(t1, t2, add=False):
+        def tuple_difference(t1: tuple[int, int], t2: tuple[Any, ...], add: bool = False) -> tuple[Any, ...]:
+            """
+            Calculate the difference between two given tuples
+
+            :param t1: The first tuple
+            :param t2: The second tuple
+            :param add: Whether to add or subtract
+            :return: The difference between the two tuples
+            """
             return tuple(map(lambda i, j: i - j if not add else i + j, t1, t2))
 
         # Do not move the enemy if no path has been found
