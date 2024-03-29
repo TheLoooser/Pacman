@@ -57,16 +57,20 @@ def print_text(
 
     file_path = "Resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, font_size)
-    text = font.render(text, True, colour)
+    txt = font.render(text, True, colour)
     # text.set_alpha(200)
-    text_rect = text.get_rect(center=(x_pos, y_pos)) if pos == "center" else text.get_rect(topleft=(x_pos, y_pos))
+    text_rect = txt.get_rect(center=(x_pos, y_pos)) if pos == "center" else txt.get_rect(topleft=(x_pos, y_pos))
     # text_rect.center = (x_pos, y_pos)
-    display.blit(text, text_rect)
+    display.blit(txt, text_rect)
     return text_rect if clickable else None
 
 
 def paused(
-    display: pygame.Surface, clock: pygame.time.Clock, width: int, height: int, checkboxes: dict[str, bool]
+    display: pygame.Surface,
+    clock: pygame.time.Clock,
+    width: int,
+    height: int,
+    checkboxes: dict[str, bool],
 ) -> dict[str, bool]:
     """
     Pauses the game (opens the pause menu).
@@ -103,7 +107,14 @@ def paused(
         display.blit(s, (0, 0))
 
         # Print pause text
-        print_text(display, "Pause", 50, (222, 222, 222), (display.get_width() / 2), (display.get_height() * 0.15))
+        print_text(
+            display,
+            "Pause",
+            50,
+            (222, 222, 222),
+            (display.get_width() / 2),
+            (display.get_height() * 0.15),
+        )
         print_text(
             display,
             "Press ESC to continue",
@@ -116,13 +127,31 @@ def paused(
         # Buttons
         button_rects = {
             "back": print_text(
-                display, "BACK", 33, (222, 222, 222), (display.get_width() / 2), (display.get_height() / 2) + 20, True
+                display,
+                "BACK",
+                33,
+                (222, 222, 222),
+                (display.get_width() / 2),
+                (display.get_height() / 2) + 20,
+                True,
             ),
             "exit": print_text(
-                display, "EXIT", 33, (222, 222, 222), (display.get_width() / 2), (display.get_height() / 2) + 70, True
+                display,
+                "EXIT",
+                33,
+                (222, 222, 222),
+                (display.get_width() / 2),
+                (display.get_height() / 2) + 70,
+                True,
             ),
             "quit": print_text(
-                display, "QUIT", 33, (222, 222, 222), (display.get_width() / 2), (display.get_height() / 2) + 120, True
+                display,
+                "QUIT",
+                33,
+                (222, 222, 222),
+                (display.get_width() / 2),
+                (display.get_height() / 2) + 120,
+                True,
             ),
         }
 
@@ -142,13 +171,15 @@ def paused(
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for button, rect in button_rects.items():
-                    if rect.collidepoint(event.pos):
+                    if rect and rect.collidepoint(event.pos):
                         match button:
                             case "back":
                                 pause = False
                             case "exit":
                                 pause = False
-                                from main import main_menu  # pylint: disable = import-outside-toplevel
+                                from main import (
+                                    main_menu,
+                                )  # pylint: disable = import-outside-toplevel
 
                                 main_menu()
                             case "quit":
@@ -175,8 +206,11 @@ def paused(
         # Display info text when hovering over buttons
         mouse_x, mouse_y = pygame.mouse.get_pos()
         for button, rect in button_rects.items():
-            if rect.collidepoint((mouse_x, mouse_y)):
-                display.blit(get_hover_surface(button), (mouse_x - rect.width / 2, mouse_y - rect.height / 2))
+            if rect and rect.collidepoint((mouse_x, mouse_y)):
+                display.blit(
+                    get_hover_surface(button),
+                    (mouse_x - rect.width / 2, mouse_y - rect.height / 2),
+                )
 
         chckbx.render_checkbox()
         pygame.display.update()
@@ -188,7 +222,7 @@ def paused(
 
 def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
     """
-    Draws the HUD ar the bottom of the main window.
+    Draws the HUD at the bottom of the main window.
 
     :param display: The surface.
     :param nr_of_lives: The number of lives left.
@@ -206,7 +240,15 @@ def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
     rect = life.get_rect()
 
     for i in range(nr_of_lives):
-        display.blit(life, (rect[0] + 60 + i * 20, rect[1] + 440, rect[2] + 60 + i * 20, rect[3] + 470))
+        display.blit(
+            life,
+            (
+                rect[0] + 60 + i * 20,
+                rect[1] + 440,
+                rect[2] + 60 + i * 20,
+                rect[3] + 470,
+            ),
+        )
 
     # Copyright
     file_path = "Resources\\PixeloidSans.ttf"
@@ -222,11 +264,11 @@ def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
     # Current score
     score = score % 1600000
     if score > 999999:
-        score = str(score)
-        score = chr(int(score[:2]) + 55) + score[2:]
+        score_str = str(score)
+        score_str = chr(int(score_str[:2]) + 55) + score_str[2:]
     else:
-        score = str(score).zfill(6)
-    print_text(display, f"{score}", 16, (222, 222, 222), 340, 455)
+        score_str = str(score).zfill(6)
+    print_text(display, f"{score_str}", 16, (222, 222, 222), 340, 455)
 
 
 def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group) -> None:
@@ -244,11 +286,11 @@ def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group) -> None
 def update_score(score, timer):
     time = timer.get_elapsed_time()
     match time:
-        case _ if time < 60:
-            score += 600 + 500
-        case _ if 60 <= time < 180:
-            score += (120 - (time - 60))*5 + 500
-        case _ if time >= 180:
+        case _ if time < 30:
+            score += 600 + 500  # max bonus
+        case _ if 30 <= time < 150:
+            score += (120 - (time - 30)) * 5 + 500
+        case _ if time >= 150:
             score += 500
         case _:
             print(f"Impossible time. You finished in {time} seconds.")
@@ -305,7 +347,9 @@ def game_over(score) -> None:
                         with open("Resources/high_scores.yaml", "a") as f:
                             f.write(f"- name: {user_name}\n  value: {score}\n")
 
-                        from main import main_menu  # pylint: disable = import-outside-toplevel
+                        from main import (
+                            main_menu,
+                        )  # pylint: disable = import-outside-toplevel
 
                         main_menu()
 
@@ -349,7 +393,13 @@ def game_over(score) -> None:
             input_box.draw(surf)
         else:
             next_rect = print_text(
-                surf, "→ NEXT →", 22, (222, 222, 222), (surf.get_width() / 2), (surf.get_height() / 2) + 150, True
+                surf,
+                "→ NEXT →",
+                22,
+                (222, 222, 222),
+                (surf.get_width() / 2),
+                (surf.get_height() / 2) + 150,
+                True,
             )
 
         pygame.display.update()
