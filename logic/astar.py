@@ -5,8 +5,10 @@ Original code from: https://gist.github.com/ryancollingwood/32446307e976a11a1185
 
 # Credit for this: Nicholas Swift
 # as found at https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
-from warnings import warn
+
 import heapq
+from warnings import warn
+
 from logic.node import Node
 
 
@@ -132,7 +134,13 @@ def astar(maze: list[list[int]], start: tuple[int, int], end: tuple[int, int], a
     return None
 
 
-def example(print_maze=True):
+def example(print_maze=True) -> None:
+    """
+    Example of the A* algorithm
+
+    :param print_maze: Whether to print the maze or not
+    :return: Nothing
+    """
     maze = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
