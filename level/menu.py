@@ -8,8 +8,8 @@ import random
 import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE  # pylint: disable = no-name-in-module
 
-from Logic.input_box import InputBox
-from Logic import checkbox
+from logic.input_box import InputBox
+from logic import checkbox
 
 
 def blur_surface(surface: pygame.Surface, amount: int) -> pygame.Surface:
@@ -55,7 +55,7 @@ def print_text(
     :return: Nothing or the text rectangle
     """
 
-    file_path = "Resources\\PixeloidSans.ttf"
+    file_path = "resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, font_size)
     txt = font.render(text, True, colour)
     # text.set_alpha(200)
@@ -88,7 +88,7 @@ def paused(
     s.fill((50, 50, 50))  # this fills the entire surface
 
     # Checkbox
-    file_path = "Resources\\PixeloidSans.ttf"
+    file_path = "resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, 18)
     chckbx = checkbox.CheckBox(
         display,
@@ -251,7 +251,7 @@ def draw_hud(display: pygame.Surface, nr_of_lives: int, score: int) -> None:
         )
 
     # Copyright
-    file_path = "Resources\\PixeloidSans.ttf"
+    file_path = "resources\\PixeloidSans.ttf"
     smallfont = pygame.font.Font(file_path, 10)
     text = smallfont.render("© 2023", True, (222, 222, 222))
     text_rect = text.get_rect()
@@ -312,7 +312,7 @@ def game_over(score) -> None:
     input_box = InputBox(100, 400, 140, 32, active=True)
 
     # Load high scores
-    with open("Resources/high_scores.yaml", "r") as stream:
+    with open("resources/high_scores.yaml", "r") as stream:
         try:
             high_scores = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
@@ -344,7 +344,7 @@ def game_over(score) -> None:
                 if next_rect:
                     if next_rect.collidepoint(event.pos):
                         # Append player score to high scores
-                        with open("Resources/high_scores.yaml", "a") as f:
+                        with open("resources/high_scores.yaml", "a") as f:
                             f.write(f"- name: {user_name}\n  value: {score}\n")
 
                         from main import (

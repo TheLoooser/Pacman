@@ -18,13 +18,13 @@ from pygame_menu.locals import ALIGN_LEFT, ALIGN_RIGHT
 from pygame.locals import K_ESCAPE, KEYDOWN, QUIT, WINDOWCLOSE
 
 # Modules
-from Characters.enemy import Enemy
-from Characters.player import Player
-from Level.field import Field
-from Level.grid import Grid
-from Level.menu import blur_surface, draw_hud, draw_surface, paused
-from Level.window import change_surface, create_window
-from Logic import timer
+from characters.enemy import Enemy
+from characters.player import Player
+from level.field import Field
+from level.grid import Grid
+from level.menu import blur_surface, draw_hud, draw_surface, paused
+from level.window import change_surface, create_window
+from logic import timer
 
 # Based on: https://coderslegacy.com/python/pygame-platformer-game-development/
 
@@ -283,7 +283,7 @@ def score_menu():
     my_scores.add.label('High Scores', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 20))
 
     # Load high scores
-    with open("Resources/high_scores.yaml", "r") as stream:
+    with open("resources/high_scores.yaml", "r") as stream:
         try:
             high_scores = yaml.safe_load(stream)
         except yaml.YAMLError as exc:

@@ -5,8 +5,8 @@ This module contains an enumeration of directions and the grid (i.e. the map) of
 import random
 from enum import Enum
 
-from Level.cell import Cell
-from Logic.dot import Dot
+from level.cell import Cell
+from logic.dot import Dot
 
 
 class Direction(Enum):

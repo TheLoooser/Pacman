@@ -8,12 +8,12 @@ from typing import Any, cast
 
 import pygame
 import numpy as np
-from Characters.player import Player
-from Level.cell import Cell
-from Level.grid import Grid
-from Logic.astar import astar
-from Logic.timer import Timer
-from Level.menu import game_over
+from characters.player import Player
+from level.cell import Cell
+from level.grid import Grid
+from logic.astar import astar
+from logic.timer import Timer
+from level.menu import game_over
 
 
 def swap(a: int, b: int) -> tuple[int, int]:

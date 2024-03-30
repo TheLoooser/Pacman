@@ -7,7 +7,7 @@ Original code from: https://gist.github.com/ryancollingwood/32446307e976a11a1185
 # as found at https://medium.com/@nicholas.w.swift/easy-a-star-pathfinding-7e6689c7f7b2
 from warnings import warn
 import heapq
-from Logic.node import Node
+from logic.node import Node
 
 
 def return_path(current_node: Node) -> list[tuple[int, int]]:

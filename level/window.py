@@ -27,7 +27,7 @@ def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy
     w = window_size[0] / 19
     h = window_size[1] / 22
 
-    file_path = "Resources\\PixeloidSans.ttf"
+    file_path = "resources\\PixeloidSans.ttf"
     font = pygame.font.Font(file_path, 8)
     colour_dict = {
         0: (0, 0, 0),  # corridor

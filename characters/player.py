@@ -6,10 +6,10 @@ from typing import Any, cast
 import pygame
 from pygame.locals import K_DOWN, K_LEFT, K_RIGHT, K_UP
 
-from Level.cell import Cell
-from Level.field import Field
-from Level.grid import Grid
-from Level.menu import game_over, update_score
+from level.cell import Cell
+from level.field import Field
+from level.grid import Grid
+from level.menu import game_over, update_score
 
 
 class Player(pygame.sprite.Sprite):
