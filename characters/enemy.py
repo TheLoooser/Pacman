@@ -1,19 +1,20 @@
 """
 This module contains an implementation of an enemy object.
 """
+import copy
 import math
 import sys
-import copy
 from typing import Any, cast
 
-import pygame
 import numpy as np
+import pygame
+
 from characters.player import Player
 from level.cell import Cell
 from level.grid import Grid
+from level.menu import game_over
 from logic.astar import astar
 from logic.timer import Timer
-from level.menu import game_over
 
 
 def swap(a: int, b: int) -> tuple[int, int]:

@@ -2,13 +2,11 @@
 This module contains functions which enable the creation of a second window.
 """
 from collections.abc import Iterable
+
 import numpy
 import pygame
-from pygame._sdl2 import (
-    Window,
-    Texture,
-    Renderer,
-)  # WARNING: Module still in development
+from pygame._sdl2 import Renderer  # WARNING: Module still in development
+from pygame._sdl2 import Texture, Window
 
 
 def change_surface(window_size: Iterable[int], renderer: Renderer, matrix: numpy.ndarray) -> None:
