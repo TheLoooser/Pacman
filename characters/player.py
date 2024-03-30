@@ -143,7 +143,7 @@ class Player(pygame.sprite.Sprite):
         cells: list[list[Cell]],
         old_field: Field,
         params: dict[str, Any],
-    ) -> tuple[bool, int, int, Field, bool]:
+    ) -> tuple[bool, int, Field, bool]:
         """
         Move the player.
 
@@ -229,4 +229,4 @@ class Player(pygame.sprite.Sprite):
 
         # if pygame.sprite.spritecollideany(player, all_sprites):
         #     player.stop()
-        return next_move, old_direction, new_direction, new_field, fear_state
+        return next_move, old_direction, new_field, fear_state

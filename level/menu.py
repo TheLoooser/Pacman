@@ -2,14 +2,17 @@
 This module contains menu-related functions.
 """
 
-import sys
-import yaml
 import random
-import pygame
-from pygame.locals import QUIT, KEYDOWN, K_ESCAPE  # pylint: disable = no-name-in-module
+import sys
 
-from logic.input_box import InputBox
+import pygame
+import yaml
+from pygame.locals import K_ESCAPE  # pylint: disable = no-name-in-module
+from pygame.locals import KEYDOWN, QUIT
+
 from logic import checkbox
+from logic.input_box import InputBox
+from logic.timer import Timer
 
 
 def blur_surface(surface: pygame.Surface, amount: int) -> pygame.Surface:
@@ -177,9 +180,7 @@ def paused(
                                 pause = False
                             case "exit":
                                 pause = False
-                                from main import (
-                                    main_menu,
-                                )  # pylint: disable = import-outside-toplevel
+                                from main import main_menu  # pylint: disable = import-outside-toplevel
 
                                 main_menu()
                             case "quit":
@@ -283,13 +284,20 @@ def draw_surface(display: pygame.Surface, surfaces: pygame.sprite.Group) -> None
         display.blit(surf.surf, surf.rect)
 
 
-def update_score(score, timer):
+def update_score(score: int, timer: Timer) -> int:
+    """
+    Add time based bonus point for completing the level to the score
+
+    :param score: The current score
+    :param timer: The global game timer
+    :return: The updated score
+    """
     time = timer.get_elapsed_time()
     match time:
         case _ if time < 30:
             score += 600 + 500  # max bonus
         case _ if 30 <= time < 150:
-            score += (120 - (time - 30)) * 5 + 500
+            score += (120 - (time - 30)) * 5 + 500  # type: ignore
         case _ if time >= 150:
             score += 500
         case _:
@@ -298,7 +306,7 @@ def update_score(score, timer):
     return score
 
 
-def game_over(score) -> None:
+def game_over(score: int) -> None:
     """
     Shows the game over screen
 
@@ -312,7 +320,7 @@ def game_over(score) -> None:
     input_box = InputBox(100, 400, 140, 32, active=True)
 
     # Load high scores
-    with open("resources/high_scores.yaml", "r") as stream:
+    with open("resources/high_scores.yaml", "r", encoding="utf-8") as stream:
         try:
             high_scores = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
@@ -344,13 +352,10 @@ def game_over(score) -> None:
                 if next_rect:
                     if next_rect.collidepoint(event.pos):
                         # Append player score to high scores
-                        with open("resources/high_scores.yaml", "a") as f:
+                        with open("resources/high_scores.yaml", "a", encoding="utf-8") as f:
                             f.write(f"- name: {user_name}\n  value: {score}\n")
 
-                        from main import (
-                            main_menu,
-                        )  # pylint: disable = import-outside-toplevel
-
+                        from main import main_menu  # pylint: disable = import-outside-toplevel
                         main_menu()
 
         surf.fill((50, 50, 50))  # this fills the entire surface
@@ -359,10 +364,10 @@ def game_over(score) -> None:
         print_text(surf, "High Scores", 22, (222, 222, 222), surf.get_width() / 2, 20)
 
         # Print names and (random selection of) scores
-        for i in range(len(indexes)):
+        for i, index in enumerate(indexes):
             print_text(
                 surf,
-                f"{indexes[i] + 1:02d}. {high_scores[indexes[i]]['name']:<14}",
+                f"{index + 1:02d}. {high_scores[index]['name']:<14}",
                 16,
                 (222, 222, 222),
                 surf.get_width() / 6,
@@ -371,9 +376,9 @@ def game_over(score) -> None:
             )
 
             value = (
-                f"{high_scores[indexes[i]]['value']:06d}"
-                if isinstance(high_scores[indexes[i]]["value"], int)
-                else high_scores[indexes[i]]["value"]
+                f"{high_scores[index]['value']:06d}"
+                if isinstance(high_scores[index]["value"], int)
+                else high_scores[index]["value"]
             )
             print_text(
                 surf,

@@ -6,16 +6,17 @@ This script is the main entry point to the game.
 import random
 import sys
 from collections import defaultdict
-from typing import cast, Any
+from typing import Any, cast
 
 # Packages
 import numpy as np
 import yaml
+
 # Pygame
 import pygame
 import pygame_menu
-from pygame_menu.locals import ALIGN_LEFT, ALIGN_RIGHT
 from pygame.locals import K_ESCAPE, KEYDOWN, QUIT, WINDOWCLOSE
+from pygame_menu.locals import ALIGN_LEFT, ALIGN_RIGHT
 
 # Modules
 from characters.enemy import Enemy
@@ -108,12 +109,12 @@ def run(params: dict = {}) -> None:
     # Initialise variables
     previous_cell = (16, 9, (0, 0, 0))
     next_move = False
-    old_direction = -1
+    direction = -1
     old_field = Field(-1, -1, (0, 0, 255))
+    matrix = np.empty(0)
     fear_duration = 5  # sec
     fear_timer = timer.Timer()
-    release_times = {name: timing for name, timing in
-                     zip(["blinky", "pinky", "inky", "clyde"], sorted(random.sample(range(0, 10), 4)))}
+    release_times = dict(zip(["blinky", "pinky", "inky", "clyde"], sorted(random.sample(range(0, 10), 4))))
     release_timer = timer.Timer()
     release_timer.start()
     if params['timer'] == -1:
@@ -177,8 +178,8 @@ def run(params: dict = {}) -> None:
 
         # Move player and ghosts
         i, j, previous_cell, cells = player.highlight_player_cell(cells, previous_cell, grid)
-        next_move, old_direction, new_direction, old_field, fear_state = \
-            player.move_player(next_move, old_direction, grid, i, j, cells, old_field, params)
+        next_move, direction, old_field, fear_state = \
+            player.move_player(next_move, direction, grid, i, j, cells, old_field, params)
 
         # Fear timer
         if fear_state:
@@ -283,7 +284,7 @@ def score_menu():
     my_scores.add.label('High Scores', font_size=32, font_color=(130, 130, 130), font_shadow=True, margin=(0, 20))
 
     # Load high scores
-    with open("resources/high_scores.yaml", "r") as stream:
+    with open("resources/high_scores.yaml", "r", encoding="utf-8") as stream:
         try:
             high_scores = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
@@ -304,14 +305,13 @@ def score_menu():
     colours[2] = (205, 127, 50)  # bronze
 
     # Print names and (random selection of) scores
-    for i in range(len(indexes)):
-
-        my_scores.add.label(f"{indexes[i] + 1:02d}", font_size=14, align=ALIGN_LEFT,
+    for i, index in enumerate(indexes):
+        my_scores.add.label(f"{index + 1:02d}", font_size=14, align=ALIGN_LEFT,
                             font_color=colours[i], font_shadow=True, margin=(10, 0))
-        my_scores.add.label(f"{high_scores[indexes[i]]['name']:<14}", font_size=14, align=ALIGN_LEFT,
+        my_scores.add.label(f"{high_scores[index]['name']:<14}", font_size=14, align=ALIGN_LEFT,
                             font_color=colours[i], font_shadow=True, margin=(50, 0), float=True)
-        value = f"{high_scores[indexes[i]]['value']:06d}" if isinstance(high_scores[indexes[i]]['value'], int) \
-            else high_scores[indexes[i]]['value']
+        value = f"{high_scores[index]['value']:06d}" if isinstance(high_scores[index]['value'], int) \
+            else high_scores[index]['value']
         if i == 0:
             lbl = my_scores.add.label("8", font_size=14, align=ALIGN_RIGHT, font_color=colours[i], font_shadow=True,
                                       margin=(-20, 0), float=True)

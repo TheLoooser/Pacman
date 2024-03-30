@@ -53,7 +53,7 @@ class InputBox:
             if self.active:
                 if event.key == pg.K_RETURN:
                     return self.text
-                elif event.key == pg.K_BACKSPACE:
+                if event.key == pg.K_BACKSPACE:
                     self.text = self.text[:-1]
                 elif event.key == pg.K_ESCAPE:
                     self.active = False
