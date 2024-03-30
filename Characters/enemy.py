@@ -63,7 +63,7 @@ class Enemy(pygame.sprite.Sprite):
         self.name = name
         self.col = colour
         self._is_feared = 0
-        self.path = []
+        self.path = []  # type: list[tuple[int, int]]
 
         self.surf = pygame.Surface((18, 18))
         self.surf.fill((0, 0, 0))
@@ -100,7 +100,7 @@ class Enemy(pygame.sprite.Sprite):
         """
         i, j = swap(*self.get_current_cell())
         x, y = swap(*player_position)
-        return astar(grid, (i, j), (x, y))
+        return astar(grid, (i, j), (x, y))  # type: ignore
 
     def get_current_cell(self) -> tuple[int, int]:
         """
@@ -154,7 +154,7 @@ class Enemy(pygame.sprite.Sprite):
             self.pos.x = 0
         if self.pos.x < 0:
             self.pos.x = width
-        self.rect.midbottom = self.pos + pygame.math.Vector2(0, 10)
+        self.rect.midbottom = cast(tuple[int, int], self.pos + pygame.math.Vector2(0, 10))
 
     def move_enemy(
             self,
@@ -164,7 +164,7 @@ class Enemy(pygame.sprite.Sprite):
             params: dict,
             enemy: str = "blinky",
             highlight_path: bool = True,
-            position: tuple[int, int] = None,
+            position: tuple[int, int] = (-1, -1),
     ) -> None:
         """
         Move the enemy
@@ -204,7 +204,7 @@ class Enemy(pygame.sprite.Sprite):
                 target = player.pos - position + player.pos
                 target.y = target.y - 2 * 15  # correction due to player offset
 
-                possible_targets = []
+                possible_targets = []  # type: list[list[int]]
                 level = 1
                 target_i = min(21, max(0, int((target.y - 10) / 20)))
                 target_j = min(18, max(0, int((target.x - 10) / 20)))
@@ -223,8 +223,8 @@ class Enemy(pygame.sprite.Sprite):
                 path = self.get_path(maze, cast(tuple[int, int], tuple(possible_targets[min_distance[0]])))  # Get new path
 
             case "pinky":
-                cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
-                x, y = cell
+                grid_cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
+                x, y = grid_cell
                 # cells[y][x].surf.fill((255, 105, 180))
 
                 maze = get_maze(grid.walls, self.get_current_cell())
@@ -232,7 +232,7 @@ class Enemy(pygame.sprite.Sprite):
                 if (x, y) != (player_pos_x, player_pos_y):
                     maze[player_pos_y][player_pos_x] = 1
 
-                path = self.get_path(maze, cell)  # Get new path
+                path = self.get_path(maze, grid_cell)  # Get new path
 
             case "blinky":
                 maze = get_maze(grid.walls, self.get_current_cell())
@@ -269,7 +269,7 @@ class Enemy(pygame.sprite.Sprite):
                 elif self.path:
                     maze = get_maze(grid.walls, self.get_current_cell())
                     new_path = self.get_path(maze, swap(*self.path[-1]))
-                    if len(new_path) >= len(self.path):
+                    if new_path and len(new_path) >= len(self.path):
                         path = self.path
                     else:
                         path = new_path
@@ -327,10 +327,10 @@ class Enemy(pygame.sprite.Sprite):
             # Make ghosts warp around border
             diff = tuple_difference(path[0], path[1])
             if sum(diff) > 1:
-                self.move(*tuple_difference(path[0], diff, True), speed, width, params['timer'], enemy)
+                self.move(*tuple_difference(path[0], diff, True), speed, width, params['timer'], enemy)  # type: ignore
             elif sum(diff) < -1:
                 abs_diff = tuple(abs(d) for d in diff)
-                self.move(*tuple_difference(path[0], abs_diff), speed, width, params['timer'], enemy)
+                self.move(*tuple_difference(path[0], abs_diff), speed, width, params['timer'], enemy)  # type: ignore
             # Move ghosts along calculated path
             elif swap(*self.get_current_cell()) == path[0]:
                 self.move(*path[1], speed, width, params['timer'], enemy)

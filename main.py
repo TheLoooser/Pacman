@@ -6,6 +6,7 @@ This script is the main entry point to the game.
 import random
 import sys
 from collections import defaultdict
+from typing import cast, Any
 
 # Packages
 import numpy as np
@@ -98,7 +99,7 @@ def run(params: dict = {}) -> None:
     character_sprites.add([player, blinky, pinky, inky, clyde])
 
     # Ghost house door
-    door = {}
+    door = {}  # type: dict
     door_surface = pygame.Surface((20, 3))
     door_surface.fill((255, 165, 0))
     door['surface'] = door_surface
@@ -160,7 +161,7 @@ def run(params: dict = {}) -> None:
                     if params['toggle']:
                         params['window'].destroy()
                     else:
-                        params['window'], params['renderer'] = create_window(matrix)
+                        params['window'], params['renderer'] = create_window(matrix)  # type: ignore
                     params['toggle'] = not params['toggle']
             elif event.type == WINDOWCLOSE:
                 pygame.quit()
@@ -192,7 +193,7 @@ def run(params: dict = {}) -> None:
             if release_timer.get_elapsed_time() > release_times[enemy_name]:
                 position = blinky.pos if enemy_name == "inky" else None
                 enemy.move_enemy(cells, grid, player, params, get_move_pattern(enemy_name, fear_state),
-                                 checkboxes['path_highlights'], position)
+                                 checkboxes['path_highlights'], cast(tuple[int, int], position))
 
         # Todo: Gradually increase enemy speed over time
         #       Investigate no path found bug when player is somewhere in lower half
@@ -297,7 +298,7 @@ def score_menu():
     def def_value():
         return 200, 200, 200
 
-    colours = defaultdict(def_value)
+    colours = defaultdict(def_value)  # type: defaultdict[Any, tuple[int, int, int]]
     colours[0] = (255, 215, 0)  # gold
     colours[1] = (165, 169, 180)  # silver
     colours[2] = (205, 127, 50)  # bronze
@@ -314,7 +315,7 @@ def score_menu():
         if i == 0:
             lbl = my_scores.add.label("8", font_size=14, align=ALIGN_RIGHT, font_color=colours[i], font_shadow=True,
                                       margin=(-20, 0), float=True)
-            lbl.rotate(90)
+            lbl.rotate(90)  # type: ignore
         else:
             my_scores.add.label(f"{value}", font_size=14, align=ALIGN_RIGHT, font_color=colours[i],
                                 font_shadow=True, margin=(-20, 0), float=True)

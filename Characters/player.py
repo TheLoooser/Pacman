@@ -1,8 +1,10 @@
 """
 This module contains an implementation of a player object.
 """
+from typing import Any, cast
+
 import pygame
-from pygame.locals import K_LEFT, K_RIGHT, K_UP, K_DOWN
+from pygame.locals import K_DOWN, K_LEFT, K_RIGHT, K_UP
 
 from Level.cell import Cell
 from Level.field import Field
@@ -29,7 +31,7 @@ class Player(pygame.sprite.Sprite):
 
         self.pos = pygame.math.Vector2((190, 345))
         self.vel = pygame.math.Vector2(0, 0)
-        self.dir = -1
+        self.dir = -1  # type: int
 
     def move(self, direction: int, speed: float, width: int) -> None:
         """
@@ -59,7 +61,7 @@ class Player(pygame.sprite.Sprite):
             self.pos.x = 0
         if self.pos.x < 0:
             self.pos.x = width
-        self.rect.midbottom = self.pos
+        self.rect.midbottom = cast(tuple[int, int], self.pos)
 
     def stop(self) -> None:
         """
@@ -77,7 +79,7 @@ class Player(pygame.sprite.Sprite):
         """
         return int(self.pos.x / 20) % 19, int((self.pos.y - 15) / 20) % 22
 
-    def set_direction(self, pressed_keys: any, next_move: bool, old_direction: int) -> tuple[bool, int]:
+    def set_direction(self, pressed_keys: Any, next_move: bool, old_direction: int) -> tuple[bool, int]:
         """
         Sets the players moving direction.
 
@@ -140,7 +142,7 @@ class Player(pygame.sprite.Sprite):
         j: int,
         cells: list[list[Cell]],
         old_field: Field,
-        params: dict[str, any],
+        params: dict[str, Any],
     ) -> tuple[bool, int, int, Field, bool]:
         """
         Move the player.
