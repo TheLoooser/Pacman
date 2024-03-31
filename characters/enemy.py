@@ -127,7 +127,8 @@ class Enemy(pygame.sprite.Sprite):
         # TODO: HERE
         if pygame.math.Vector2(self.pos - target).length() == 0:
             print(
-                f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} ")
+                f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} "
+            )
             return
         direction = pygame.math.Vector2(self.pos - target).normalize()
 
@@ -158,14 +159,14 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.midbottom = cast(tuple[int, int], self.pos + pygame.math.Vector2(0, 10))
 
     def move_enemy(
-            self,
-            cells: list[list[Cell]],
-            grid: Grid,
-            player: Player,
-            params: dict,
-            enemy: str = "blinky",
-            highlight_path: bool = True,
-            position: tuple[int, int] = (-1, -1),
+        self,
+        cells: list[list[Cell]],
+        grid: Grid,
+        player: Player,
+        params: dict,
+        enemy: str = "blinky",
+        highlight_path: bool = True,
+        position: tuple[int, int] = (-1, -1),
     ) -> None:
         """
         Move the enemy
@@ -221,7 +222,9 @@ class Enemy(pygame.sprite.Sprite):
 
                 # print(f"{possible_targets} - {min_distance} - {target}")
                 maze = get_maze(grid.walls, self.get_current_cell())
-                path = self.get_path(maze, cast(tuple[int, int], tuple(possible_targets[min_distance[0]])))  # Get new path
+                path = self.get_path(
+                    maze, cast(tuple[int, int], tuple(possible_targets[min_distance[0]]))
+                )  # Get new path
 
             case "pinky":
                 grid_cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
@@ -245,8 +248,8 @@ class Enemy(pygame.sprite.Sprite):
                 # If the distance between clyde and player is <= 5.5 grid cells,
                 # then go to bottom left corner (does not work with the portal).
                 if (
-                        math.sqrt(math.pow(player.pos.x - self.pos.x, 2) + math.pow(player.pos.y - self.pos.y, 2))
-                        <= 5.5 * 20
+                    math.sqrt(math.pow(player.pos.x - self.pos.x, 2) + math.pow(player.pos.y - self.pos.y, 2))
+                    <= 5.5 * 20
                 ):
                     path = self.get_path(maze, (1, 20))  # Get new path
                 else:
@@ -328,16 +331,16 @@ class Enemy(pygame.sprite.Sprite):
             # Make ghosts warp around border
             diff = tuple_difference(path[0], path[1])
             if sum(diff) > 1:
-                self.move(*tuple_difference(path[0], diff, True), speed, width, params['timer'], enemy)  # type: ignore
+                self.move(*tuple_difference(path[0], diff, True), speed, width, params["timer"], enemy)  # type: ignore
             elif sum(diff) < -1:
                 abs_diff = tuple(abs(d) for d in diff)
-                self.move(*tuple_difference(path[0], abs_diff), speed, width, params['timer'], enemy)  # type: ignore
+                self.move(*tuple_difference(path[0], abs_diff), speed, width, params["timer"], enemy)  # type: ignore
             # Move ghosts along calculated path
             elif swap(*self.get_current_cell()) == path[0]:
-                self.move(*path[1], speed, width, params['timer'], enemy)
+                self.move(*path[1], speed, width, params["timer"], enemy)
             else:
-                self.move(*path[0], speed, width, params['timer'], enemy)
+                self.move(*path[0], speed, width, params["timer"], enemy)
         else:
-            self.move(*path[0], speed, width, params['timer'], enemy)
+            self.move(*path[0], speed, width, params["timer"], enemy)
 
         self.path = path

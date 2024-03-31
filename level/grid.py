@@ -25,7 +25,7 @@ class Grid:
     A class to represent a grid.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructs a grid object (2D matrix).
         """
@@ -136,7 +136,7 @@ class Grid:
         if n == 0:
             return i, j
 
-        def swap(left, right):
+        def swap(left: int, right: int) -> tuple[int, int]:
             return right, left
 
         if self.is_wall(*swap(*self.get_next_cell((i, j), direction))):

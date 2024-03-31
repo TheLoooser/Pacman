@@ -12,11 +12,22 @@ class CheckBox:
     """
     A class to represent a checkbox.
     """
-    def __init__(self, surface: pygame.Surface, x: float, y: float, color: tuple[int, int, int] = (230, 230, 230),
-                 caption: str = "", outline_color: tuple[int, int, int] = (0, 0, 0),
-                 check_color: tuple[int, int, int] = (0, 0, 0), font_size: int = 22,
-                 font_color: tuple[int, int, int] = (0, 0, 0), text_offset: tuple[int, int] = (28, 1),
-                 font: pygame.font.Font = pygame.font.SysFont('Ariel Black', 22), checked: bool = False) -> None:
+
+    def __init__(
+        self,
+        surface: pygame.Surface,
+        x: float,
+        y: float,
+        color: tuple[int, int, int] = (230, 230, 230),
+        caption: str = "",
+        outline_color: tuple[int, int, int] = (0, 0, 0),
+        check_color: tuple[int, int, int] = (0, 0, 0),
+        font_size: int = 22,
+        font_color: tuple[int, int, int] = (0, 0, 0),
+        text_offset: tuple[int, int] = (28, 1),
+        font: pygame.font.Font = pygame.font.SysFont("Ariel Black", 22),
+        checked: bool = False,
+    ) -> None:
         """
         Constructs a checkbox object.
 
@@ -94,9 +105,9 @@ class CheckBox:
                 self.checked = False
             else:
                 self.checked = True
-            print(str(self.caption) + ' toggle ' + str(self.checked))
+            print(str(self.caption) + " toggle " + str(self.checked))
 
-    def update_checkbox(self, event_object) -> None:
+    def update_checkbox(self, event_object: pygame.event.Event) -> None:
         """
         Updates the checkbox.
 

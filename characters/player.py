@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
     A class to represent a player.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructs a player object.
         """

@@ -11,3 +11,7 @@
 [![MIT license](https://img.shields.io/badge/License-MIT%20License-green.svg)](https://github.com/TheLoooser/Pacman/blob/master/LICENSE)
 [![Maintainer](https://img.shields.io/badge/Maintainer-Dizzy-blue.svg)]()
 
+
+[//]: # (mypy --config-file mypy.ini .)
+
+[//]: # (pylint --disable=R,C,W0511 --recursive=y .)

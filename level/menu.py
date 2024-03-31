@@ -356,6 +356,7 @@ def game_over(score: int) -> None:
                             f.write(f"- name: {user_name}\n  value: {score}\n")
 
                         from main import main_menu  # pylint: disable = import-outside-toplevel
+
                         main_menu()
 
         surf.fill((50, 50, 50))  # this fills the entire surface

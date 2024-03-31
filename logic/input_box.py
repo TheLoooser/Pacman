@@ -6,8 +6,8 @@ import pygame as pg
 import pygame.event
 
 pg.init()
-COLOR_INACTIVE = pg.Color('lightskyblue3')
-COLOR_ACTIVE = pg.Color('dodgerblue2')
+COLOR_INACTIVE = pg.Color("lightskyblue3")
+COLOR_ACTIVE = pg.Color("dodgerblue2")
 FONT = pg.font.Font(None, 32)
 
 
@@ -16,7 +16,7 @@ class InputBox:
     A class to represent an input box.
     """
 
-    def __init__(self, x: int, y: int, w: int, h: int, text: str = '', active: bool = False) -> None:
+    def __init__(self, x: int, y: int, w: int, h: int, text: str = "", active: bool = False) -> None:
         """
         Constructs an input box object.
 

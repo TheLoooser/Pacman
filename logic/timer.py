@@ -13,6 +13,7 @@ class Timer:
     """
     A class to represent a timer.
     """
+
     def __init__(self) -> None:
         """
         Constructs a timer object.

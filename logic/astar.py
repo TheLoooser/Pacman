@@ -27,8 +27,9 @@ def return_path(current_node: Node) -> list[tuple[int, int]]:
     return path[::-1]  # Return reversed path
 
 
-def astar(maze: list[list[int]], start: tuple[int, int], end: tuple[int, int], allow_diagonal_movement: bool = False) \
-        -> list[tuple[int, int]] | None:
+def astar(
+    maze: list[list[int]], start: tuple[int, int], end: tuple[int, int], allow_diagonal_movement: bool = False
+) -> list[tuple[int, int]] | None:
     """
     Returns a list of tuples as a path from the given start to the given end in the given maze
 
@@ -58,9 +59,23 @@ def astar(maze: list[list[int]], start: tuple[int, int], end: tuple[int, int], a
     max_iterations = len(maze[0]) * len(maze) // 2
 
     # what squares do we search
-    adjacent_squares = ((0, -1), (0, 1), (-1, 0), (1, 0),)
+    adjacent_squares = (
+        (0, -1),
+        (0, 1),
+        (-1, 0),
+        (1, 0),
+    )
     if allow_diagonal_movement:
-        adjacent_squares = ((0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1),)
+        adjacent_squares = (
+            (0, -1),
+            (0, 1),
+            (-1, 0),
+            (1, 0),
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+            (1, 1),
+        )
 
     # Loop until you find the end
     while len(open_list) > 0:
@@ -84,10 +99,11 @@ def astar(maze: list[list[int]], start: tuple[int, int], end: tuple[int, int], a
         children = []
 
         for new_position in adjacent_squares:  # Adjacent squares
-
             # Get node position
-            node_position = ((current_node.position[0] + new_position[0]) % len(maze),
-                             (current_node.position[1] + new_position[1]) % len(maze[0]))
+            node_position = (
+                (current_node.position[0] + new_position[0]) % len(maze),
+                (current_node.position[1] + new_position[1]) % len(maze[0]),
+            )
 
             # Make sure within range
             # if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (
@@ -123,8 +139,16 @@ def astar(maze: list[list[int]], start: tuple[int, int], end: tuple[int, int], a
             child.f = child.g + child.h
 
             # Child is already in the open list
-            if len([open_node for open_node in open_list if
-                    child.position == open_node.position and child.g > open_node.g]) > 0:
+            if (
+                len(
+                    [
+                        open_node
+                        for open_node in open_list
+                        if child.position == open_node.position and child.g > open_node.g
+                    ]
+                )
+                > 0
+            ):
                 continue
 
             # Add the child to the open list
@@ -163,7 +187,7 @@ def example(print_maze=True) -> None:
         [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
         [1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ]
 
     start = (10, 18)  # (8, 9)
