@@ -26,9 +26,10 @@ repos:
         entry: pylint --disable=R --recursive=y --rcfile=.pylintrc .  # --disable=R,C,W0511
         language: system
         types: [python]
-#    -   id: isort
-#        name: isort
-#        entry: isort
-#        language: system
-#        types: [ python ]
-#        args: [ --check,--profile=black ]
+    -   id: isort
+        name: isort
+        entry: isort
+        language: system
+        types: [ python ]
+        args: [--profile=black, --line-length=120, --skip=docs]
+        exclude: docs

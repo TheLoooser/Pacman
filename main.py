@@ -10,7 +10,8 @@ from typing import Any, cast
 
 # Packages
 import numpy as np
-import yaml
+
+import yaml  # isort: split
 
 # Pygame
 import pygame
