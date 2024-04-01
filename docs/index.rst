@@ -6,17 +6,14 @@
 Welcome to Pacman's documentation!
 ==================================
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    modules
+
+Indices
+=======
+
+* :ref:`genindex`
+* :ref:`modindex`

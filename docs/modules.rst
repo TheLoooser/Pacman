@@ -4,7 +4,7 @@ Pacman
 .. toctree::
    :maxdepth: 4
 
-   Characters
-   Level
-   Logic
+   characters
+   level
+   logic
    main
