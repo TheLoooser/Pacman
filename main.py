@@ -371,8 +371,6 @@ if __name__ == "__main__":
     main_menu()
 
     # TODO: Fix enemy move issue (can't normalize vector of length zero)
-    #       Sphinx, black, mypy, pylint, isort, pre-commit
-    #       rtd dark theme
     #       Remove some leftover print statements
     #       Basic Readme (Requirements, Install, Get started)
     #       Create .exe for game (pyinstaller)
