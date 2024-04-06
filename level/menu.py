@@ -292,7 +292,7 @@ def update_score(score: int, timer: Timer) -> int:
     :param timer: The global game timer
     :return: The updated score
     """
-    time = timer.get_elapsed_time()
+    time = int(timer.get_elapsed_time())
     match time:
         case _ if time < 30:
             score += 600 + 500  # max bonus
@@ -302,7 +302,7 @@ def update_score(score: int, timer: Timer) -> int:
             score += 500
         case _:
             print(f"Impossible time. You finished in {time} seconds.")
-    print(f"Beat the game in {timer.get_elapsed_time()} seconds.")
+    # print(f"Beat the game in {timer.get_elapsed_time()} seconds.")
     return score
 
 
