@@ -67,7 +67,7 @@ def run(params: dict = {}) -> None:
             "width": 380,
             "height": 440,
             "speed": SPEED,
-            "lives": 2,
+            "lives": 3,
             "score": 0,
             "timer": -1,
             # 'display': display_surface, 'clock': FramePerSec,
@@ -129,7 +129,6 @@ def run(params: dict = {}) -> None:
         params["timer"] = timer.Timer()
         params["timer"].start()
     checkboxes = {"path_highlights": True}
-    print(release_times)
 
     # Main Game Loop
     while True:
@@ -370,9 +369,7 @@ def score_menu() -> None:
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Fix enemy move issue (can't normalize vector of length zero)
-    #       Remove some leftover print statements
-    #       Basic Readme (Requirements, Install, Get started)
+    # TODO: Set path highlight default to off
     #       Create .exe for game (pyinstaller)
 
     # Press key (for AI): https://stackoverflow.com/questions/55728777/how-to-simulate-key-press-event-in-python-on-another-program-running-in-python
