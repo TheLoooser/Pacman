@@ -15,6 +15,14 @@
 [![MIT license](https://img.shields.io/badge/License-MIT%20License-green.svg)](https://github.com/TheLoooser/Pacman/blob/master/LICENSE)
 [![Maintainer](https://img.shields.io/badge/Maintainer-Dizzy-cyan.svg)]()
 
+[//]: # (![]&#40;resources/main_menu.png "title-1"&#41; ![]&#40;resources/main_menu.png "title-1"&#41; ![]&#40;resources/main_menu.png "title-1"&#41;)
+
+<p float="left">
+  <img src="resources/main_menu.png" width="32%" />
+  <img src="resources/game_screen.png" width="30%" />
+  <img src="resources/matrix_view.png" width="35.3%" />
+</p>
+
 
 ## Getting Started
 
@@ -46,3 +54,10 @@ Run the game
 ```commandline
 python main.py
 ```
+
+Hotkeys
+
+| Key | Description                             |
+|-----|-----------------------------------------|
+| ESC | Pauses the game or closes the window    |
+| T   | Opens matrix view in a secondary window |
