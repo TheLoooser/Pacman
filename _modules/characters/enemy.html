@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>characters.enemy &mdash; Pacman 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/dark_mode_css/general.css?v=c0a7eb24" />
+      <link rel="stylesheet" type="text/css" href="../../_static/dark_mode_css/dark.css?v=70edf1c7" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Pacman
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Pacman</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pacman</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">characters.enemy</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for characters.enemy</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains an implementation of an enemy object.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pygame</span>
+
+<span class="kn">from</span> <span class="nn">characters.player</span> <span class="kn">import</span> <span class="n">Player</span>
+<span class="kn">from</span> <span class="nn">level.cell</span> <span class="kn">import</span> <span class="n">Cell</span>
+<span class="kn">from</span> <span class="nn">level.grid</span> <span class="kn">import</span> <span class="n">Grid</span>
+<span class="kn">from</span> <span class="nn">level.menu</span> <span class="kn">import</span> <span class="n">game_over</span>
+<span class="kn">from</span> <span class="nn">logic.astar</span> <span class="kn">import</span> <span class="n">astar</span>
+<span class="kn">from</span> <span class="nn">logic.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+
+
+<div class="viewcode-block" id="swap">
+<a class="viewcode-back" href="../../characters.html#characters.enemy.swap">[docs]</a>
+<span class="k">def</span> <span class="nf">swap</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Swap the assignment of two variables</span>
+
+<span class="sd">    :param a: The first variable</span>
+<span class="sd">    :param b: The second variable</span>
+<span class="sd">    :return: The two passed variables with their assigned value swapped</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span></div>
+
+
+
+<div class="viewcode-block" id="get_maze">
+<a class="viewcode-back" href="../../characters.html#characters.enemy.get_maze">[docs]</a>
+<span class="k">def</span> <span class="nf">get_maze</span><span class="p">(</span><span class="n">grid_walls</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">pos</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the maze depending on the position</span>
+
+<span class="sd">    :param grid_walls: The grid of the game</span>
+<span class="sd">    :param pos: The current position of the enemy</span>
+<span class="sd">    :return: The updated maze</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ghost_house</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
+    <span class="n">maze</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">grid_walls</span><span class="p">)</span>
+    <span class="c1"># When the ghost is in his home</span>
+    <span class="k">if</span> <span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="n">pos</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ghost_house</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="n">ghost_house</span><span class="p">:</span>
+            <span class="n">maze</span><span class="p">[</span><span class="n">room</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">room</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">maze</span></div>
+
+
+
+<div class="viewcode-block" id="Enemy">
+<a class="viewcode-back" href="../../characters.html#characters.enemy.Enemy">[docs]</a>
+<span class="k">class</span> <span class="nc">Enemy</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">sprite</span><span class="o">.</span><span class="n">Sprite</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representing an enemy (NPC)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">colour</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs an enemy object</span>
+
+<span class="sd">        :param x: The horizontal position</span>
+<span class="sd">        :param y: The vertical position</span>
+<span class="sd">        :param name: The name of the ghost</span>
+<span class="sd">        :param colour: The colour of the ghost</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">colour</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: list[tuple[int, int]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">surf</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">((</span><span class="mi">18</span><span class="p">,</span> <span class="mi">18</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="p">(</span><span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">home</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vel</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Points given to the player for being eaten</span>
+
+    <span class="k">def</span> <span class="nf">_reset_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Place the enemy back at its starting position</span>
+
+<span class="sd">        :return: Nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="o">.</span><span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Enemy.get_path">
+<a class="viewcode-back" href="../../characters.html#characters.enemy.Enemy.get_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">player_position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a path from the current position to the target position</span>
+
+<span class="sd">        :param grid: The grid of the game</span>
+<span class="sd">        :param player_position: The target position</span>
+<span class="sd">        :return: A path from the current to the target position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="n">player_position</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">astar</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>  <span class="c1"># type: ignore</span></div>
+
+
+<div class="viewcode-block" id="Enemy.get_current_cell">
+<a class="viewcode-back" href="../../characters.html#characters.enemy.Enemy.get_current_cell">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_current_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the indices of the current cell based on the horizontal and vertical position</span>
+
+<span class="sd">        :return: The indices of the current cell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span> <span class="o">%</span> <span class="mi">19</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span> <span class="o">%</span> <span class="mi">22</span></div>
+
+
+<div class="viewcode-block" id="Enemy.move">
+<a class="viewcode-back" href="../../characters.html#characters.enemy.Enemy.move">[docs]</a>
+    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">timer</span><span class="p">:</span> <span class="n">Timer</span><span class="p">,</span> <span class="n">enemy</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the enemy&#39;s position</span>
+
+<span class="sd">        :param y: The vertical index of the next cell</span>
+<span class="sd">        :param x: The horizontal index of the next cell</span>
+<span class="sd">        :param speed: The speed of the enemy</span>
+<span class="sd">        :param width: The width of the game window</span>
+<span class="sd">        :param timer: The game timer</span>
+<span class="sd">        :param enemy: The name of the enemy (or feared)</span>
+<span class="sd">        :return: Nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">y</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">length</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># known bug (can&#39;t normalize vector of length zero)</span>
+            <span class="c1"># print(f&quot;{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y},&quot;</span>
+            <span class="c1">#       f&quot; {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} &quot;)</span>
+            <span class="k">return</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+
+        <span class="c1"># If the enemy is feared, only move it every second hundredth of a second (to reduce its speed)</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">modf</span><span class="p">(</span><span class="n">timer</span><span class="o">.</span><span class="n">get_elapsed_time</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">enemy</span> <span class="o">==</span> <span class="s2">&quot;feared&quot;</span> <span class="ow">and</span> <span class="n">val</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">speed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="n">speed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">speed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vel</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vel</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">width</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">midbottom</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">+</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Enemy.move_enemy">
+<a class="viewcode-back" href="../../characters.html#characters.enemy.Enemy.move_enemy">[docs]</a>
+    <span class="k">def</span> <span class="nf">move_enemy</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Cell</span><span class="p">]],</span>
+        <span class="n">grid</span><span class="p">:</span> <span class="n">Grid</span><span class="p">,</span>
+        <span class="n">player</span><span class="p">:</span> <span class="n">Player</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">enemy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;blinky&quot;</span><span class="p">,</span>
+        <span class="n">highlight_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move the enemy</span>
+
+<span class="sd">        :param cells: The matrix of Cell objects</span>
+<span class="sd">        :param grid: The grid of the game</span>
+<span class="sd">        :param player: The player object</span>
+<span class="sd">        :param params: Various game parameters</span>
+<span class="sd">        :param enemy: The name of the ghost (or feared)</span>
+<span class="sd">        :param highlight_path: Boolean flag to show or hide the path of enemies</span>
+<span class="sd">        :param position: The position of a second enemy</span>
+<span class="sd">        :return: Nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">surface</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">enemy</span> <span class="o">==</span> <span class="s2">&quot;feared&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">enemy</span> <span class="o">!=</span> <span class="s2">&quot;feared&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+
+        <span class="c1"># Update enemy target</span>
+        <span class="k">for</span> <span class="n">pos_y</span><span class="p">,</span> <span class="n">pos_x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>  <span class="c1"># Clear old path</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+
+        <span class="c1"># Set the colour of the new highlighted path</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span>
+
+        <span class="k">match</span> <span class="n">enemy</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;inky&quot;</span><span class="p">:</span>
+                <span class="n">target</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">position</span> <span class="o">+</span> <span class="n">player</span><span class="o">.</span><span class="n">pos</span>
+                <span class="n">target</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">15</span>  <span class="c1"># correction due to player offset</span>
+
+                <span class="n">possible_targets</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: list[list[int]]</span>
+                <span class="n">level</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">target_i</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">target</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)))</span>
+                <span class="n">target_j</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">target</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">10</span><span class="p">)</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)))</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">possible_targets</span><span class="p">:</span>
+                    <span class="n">possible_targets</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">get_adjacent_cells</span><span class="p">(</span><span class="n">target_j</span><span class="p">,</span> <span class="n">target_i</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">is_not_wall</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">min_distance</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">possible_targets</span><span class="p">):</span>
+                    <span class="n">distance</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">Vector2</span><span class="p">(</span><span class="n">cell</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">cell</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">min_distance</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">min_distance</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+
+                <span class="n">maze</span> <span class="o">=</span> <span class="n">get_maze</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span>
+                    <span class="n">maze</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">possible_targets</span><span class="p">[</span><span class="n">min_distance</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+                <span class="p">)</span>  <span class="c1"># Get new path</span>
+
+            <span class="k">case</span> <span class="s2">&quot;pinky&quot;</span><span class="p">:</span>
+                <span class="n">grid_cell</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">get_cell_in_front</span><span class="p">(</span><span class="o">*</span><span class="n">player</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">(),</span> <span class="n">player</span><span class="o">.</span><span class="n">get_direction</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">grid_cell</span>
+
+                <span class="n">maze</span> <span class="o">=</span> <span class="n">get_maze</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>
+                <span class="n">player_pos_x</span><span class="p">,</span> <span class="n">player_pos_y</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">()</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">player_pos_x</span><span class="p">,</span> <span class="n">player_pos_y</span><span class="p">):</span>
+                    <span class="n">maze</span><span class="p">[</span><span class="n">player_pos_y</span><span class="p">][</span><span class="n">player_pos_x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">grid_cell</span><span class="p">)</span>  <span class="c1"># Get new path</span>
+
+            <span class="k">case</span> <span class="s2">&quot;blinky&quot;</span><span class="p">:</span>
+                <span class="n">maze</span> <span class="o">=</span> <span class="n">get_maze</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">player</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>  <span class="c1"># Get new path</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>  <span class="c1"># use a slightly less intensive colour</span>
+
+            <span class="k">case</span> <span class="s2">&quot;clyde&quot;</span><span class="p">:</span>
+                <span class="n">maze</span> <span class="o">=</span> <span class="n">get_maze</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>
+                <span class="c1"># If the distance between clyde and player is &lt;= 5.5 grid cells,</span>
+                <span class="c1"># then go to bottom left corner (does not work with the portal).</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                    <span class="o">&lt;=</span> <span class="mf">5.5</span> <span class="o">*</span> <span class="mi">20</span>
+                <span class="p">):</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>  <span class="c1"># Get new path</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">player</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>  <span class="c1"># Get new path</span>
+
+            <span class="k">case</span> <span class="s2">&quot;feared&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="p">:</span>
+                    <span class="n">colour</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">get_ticks</span><span class="p">()</span> <span class="o">/</span> <span class="mi">400</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="p">(</span><span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">18</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">colour</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">return</span>  <span class="c1"># wait for fear timer to be over</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="c1"># Get new path to a random position</span>
+                    <span class="n">random_pos</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">get_random_position</span><span class="p">()</span>
+                    <span class="n">maze</span> <span class="o">=</span> <span class="n">get_maze</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="n">random_pos</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                    <span class="n">maze</span> <span class="o">=</span> <span class="n">get_maze</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span>
+                    <span class="n">new_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="n">maze</span><span class="p">,</span> <span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="n">new_path</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="n">new_path</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">127</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">127</span><span class="p">)</span>
+
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Enemy move pattern not found.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">highlight_path</span> <span class="ow">and</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pos_y</span><span class="p">,</span> <span class="n">pos_x</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>  <span class="c1"># Highlight new path</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">thickness</span><span class="p">)</span>
+
+        <span class="c1"># Collision</span>
+        <span class="k">if</span> <span class="n">player</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">enemy</span> <span class="o">==</span> <span class="s2">&quot;feared&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_feared</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># ghost was eaten while being feared</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_reset_position</span><span class="p">()</span>  <span class="c1"># return to home</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">score</span> <span class="o">+=</span> <span class="mi">100</span>
+                <span class="k">return</span>
+
+            <span class="c1"># DISCLAIMER: This is NOT clean code!</span>
+            <span class="kn">from</span> <span class="nn">main</span> <span class="kn">import</span> <span class="n">run</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
+
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;lives&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;lives&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;lives&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">game_over</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">420</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">run</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">tuple_difference</span><span class="p">(</span><span class="n">t1</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">t2</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">add</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Calculate the difference between two given tuples</span>
+
+<span class="sd">            :param t1: The first tuple</span>
+<span class="sd">            :param t2: The second tuple</span>
+<span class="sd">            :param add: Whether to add or subtract</span>
+<span class="sd">            :return: The difference between the two tuples</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="n">i</span> <span class="o">-</span> <span class="n">j</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">add</span> <span class="k">else</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">))</span>
+
+        <span class="c1"># Do not move the enemy if no path has been found</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">speed</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;speed&quot;</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
+        <span class="n">speed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">speed</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Make ghosts warp around border</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="n">tuple_difference</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">tuple_difference</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diff</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">speed</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">],</span> <span class="n">enemy</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">abs_diff</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">diff</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">tuple_difference</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">abs_diff</span><span class="p">),</span> <span class="n">speed</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">],</span> <span class="n">enemy</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="c1"># Move ghosts along calculated path</span>
+            <span class="k">elif</span> <span class="n">swap</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">())</span> <span class="o">==</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">speed</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">],</span> <span class="n">enemy</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">speed</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">],</span> <span class="n">enemy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">speed</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">],</span> <span class="n">enemy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Dizzy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

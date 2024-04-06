@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>main &mdash; Pacman 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/dark_mode_css/general.css?v=c0a7eb24" />
+      <link rel="stylesheet" type="text/css" href="../_static/dark_mode_css/dark.css?v=70edf1c7" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Pacman
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Pacman</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Pacman</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for main</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This script is the main entry point to the game.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Built-in</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="c1"># Packages</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>  <span class="c1"># isort: split</span>
+
+<span class="c1"># Pygame</span>
+<span class="kn">import</span> <span class="nn">pygame</span>
+<span class="kn">import</span> <span class="nn">pygame_menu</span>
+<span class="kn">from</span> <span class="nn">pygame.locals</span> <span class="kn">import</span> <span class="n">K_ESCAPE</span><span class="p">,</span> <span class="n">KEYDOWN</span><span class="p">,</span> <span class="n">QUIT</span><span class="p">,</span> <span class="n">WINDOWCLOSE</span>
+<span class="kn">from</span> <span class="nn">pygame_menu.locals</span> <span class="kn">import</span> <span class="n">ALIGN_LEFT</span><span class="p">,</span> <span class="n">ALIGN_RIGHT</span>
+
+<span class="c1"># Modules</span>
+<span class="kn">from</span> <span class="nn">characters.enemy</span> <span class="kn">import</span> <span class="n">Enemy</span>
+<span class="kn">from</span> <span class="nn">characters.player</span> <span class="kn">import</span> <span class="n">Player</span>
+<span class="kn">from</span> <span class="nn">level.field</span> <span class="kn">import</span> <span class="n">Field</span>
+<span class="kn">from</span> <span class="nn">level.grid</span> <span class="kn">import</span> <span class="n">Grid</span>
+<span class="kn">from</span> <span class="nn">level.menu</span> <span class="kn">import</span> <span class="n">blur_surface</span><span class="p">,</span> <span class="n">draw_hud</span><span class="p">,</span> <span class="n">draw_surface</span><span class="p">,</span> <span class="n">paused</span>
+<span class="kn">from</span> <span class="nn">level.window</span> <span class="kn">import</span> <span class="n">change_surface</span><span class="p">,</span> <span class="n">create_window</span>
+<span class="kn">from</span> <span class="nn">logic</span> <span class="kn">import</span> <span class="n">timer</span>
+
+<span class="c1"># Based on: https://coderslegacy.com/python/pygame-platformer-game-development/</span>
+
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">HEIGHT</span> <span class="o">=</span> <span class="mi">440</span>  <span class="c1"># 22 * 20</span>
+<span class="n">WIDTH</span> <span class="o">=</span> <span class="mi">380</span>  <span class="c1"># 19 * 20</span>
+<span class="n">SPEED</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># The game breaks if the speed is not an integer.</span>
+<span class="n">FPS</span> <span class="o">=</span> <span class="mi">60</span>
+
+<span class="n">FramePerSec</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
+<span class="n">display_surface</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="mi">20</span><span class="p">))</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s2">&quot;Pacman&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_move_pattern">
+<a class="viewcode-back" href="../main.html#main.get_move_pattern">[docs]</a>
+<span class="k">def</span> <span class="nf">get_move_pattern</span><span class="p">(</span><span class="n">enemy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_feared</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the string name of the enemy if the enemy is not feared. Otherwise, &#39;feared&#39; will be returned</span>
+
+<span class="sd">    :param enemy: The name of the enemy.</span>
+<span class="sd">    :param is_feared: Whether the enemy is currently feared or not.</span>
+<span class="sd">    :return: The name of the enemy or &#39;feared&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">enemy</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_feared</span> <span class="k">else</span> <span class="s2">&quot;feared&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="run">
+<a class="viewcode-back" href="../main.html#main.run">[docs]</a>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{})</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The main game loop</span>
+
+<span class="sd">    :param params: A dictionary of game parameters</span>
+<span class="sd">    :return: Nothing</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="c1"># Initialise parameters</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">380</span><span class="p">,</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="mi">440</span><span class="p">,</span>
+            <span class="s2">&quot;speed&quot;</span><span class="p">:</span> <span class="n">SPEED</span><span class="p">,</span>
+            <span class="s2">&quot;lives&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;timer&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="c1"># &#39;display&#39;: display_surface, &#39;clock&#39;: FramePerSec,</span>
+            <span class="c1"># Initialise variables for the second window</span>
+            <span class="s2">&quot;window&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;renderer&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;toggle&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># window will be created later</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Initialise Map</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">Grid</span><span class="p">()</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">init_map</span><span class="p">()</span>
+    <span class="n">pellets</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">16</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="s2">&quot;dots&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">init_dots</span><span class="p">(</span><span class="n">pellets</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;max_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dots&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="c1"># Matrix</span>
+    <span class="n">base_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Grid</span><span class="p">()</span><span class="o">.</span><span class="n">walls</span><span class="p">)</span>
+    <span class="n">old_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">base_matrix</span><span class="p">)</span>
+
+    <span class="c1"># Create a player</span>
+    <span class="n">player</span> <span class="o">=</span> <span class="n">Player</span><span class="p">()</span>
+
+    <span class="c1"># Create ghost(s)</span>
+    <span class="n">blinky</span> <span class="o">=</span> <span class="n">Enemy</span><span class="p">(</span><span class="mi">9</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">9</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;blinky&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">pinky</span> <span class="o">=</span> <span class="n">Enemy</span><span class="p">(</span><span class="mi">9</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;pinky&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">105</span><span class="p">,</span> <span class="mi">180</span><span class="p">))</span>
+    <span class="n">inky</span> <span class="o">=</span> <span class="n">Enemy</span><span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;inky&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+    <span class="n">clyde</span> <span class="o">=</span> <span class="n">Enemy</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;clyde&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">185</span><span class="p">,</span> <span class="mi">85</span><span class="p">))</span>
+    <span class="n">enemies</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;blinky&quot;</span><span class="p">:</span> <span class="n">blinky</span><span class="p">,</span> <span class="s2">&quot;pinky&quot;</span><span class="p">:</span> <span class="n">pinky</span><span class="p">,</span> <span class="s2">&quot;inky&quot;</span><span class="p">:</span> <span class="n">inky</span><span class="p">,</span> <span class="s2">&quot;clyde&quot;</span><span class="p">:</span> <span class="n">clyde</span><span class="p">}</span>
+
+    <span class="c1"># Create a sprite group</span>
+    <span class="n">cell_sprites</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">sprite</span><span class="o">.</span><span class="n">Group</span><span class="p">()</span>  <span class="c1"># type: pygame.sprite.Group</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cells</span><span class="p">:</span>
+        <span class="n">cell_sprites</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="n">character_sprites</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">sprite</span><span class="o">.</span><span class="n">Group</span><span class="p">()</span>  <span class="c1"># type: pygame.sprite.Group</span>
+    <span class="n">character_sprites</span><span class="o">.</span><span class="n">add</span><span class="p">([</span><span class="n">player</span><span class="p">,</span> <span class="n">blinky</span><span class="p">,</span> <span class="n">pinky</span><span class="p">,</span> <span class="n">inky</span><span class="p">,</span> <span class="n">clyde</span><span class="p">])</span>
+
+    <span class="c1"># Ghost house door</span>
+    <span class="n">door</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: dict</span>
+    <span class="n">door_surface</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">door_surface</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">255</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">door</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">door_surface</span>
+    <span class="n">door</span><span class="p">[</span><span class="s2">&quot;rectangle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">door_surface</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">9</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Initialise variables</span>
+    <span class="n">previous_cell</span> <span class="o">=</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">next_move</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">direction</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">old_field</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fear_duration</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># sec</span>
+    <span class="n">fear_timer</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">Timer</span><span class="p">()</span>
+    <span class="n">release_times</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;blinky&quot;</span><span class="p">,</span> <span class="s2">&quot;pinky&quot;</span><span class="p">,</span> <span class="s2">&quot;inky&quot;</span><span class="p">,</span> <span class="s2">&quot;clyde&quot;</span><span class="p">],</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">4</span><span class="p">))))</span>
+    <span class="n">release_timer</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">Timer</span><span class="p">()</span>
+    <span class="n">release_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timer</span><span class="o">.</span><span class="n">Timer</span><span class="p">()</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">checkboxes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;path_highlights&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+    <span class="c1"># Main Game Loop</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Exit upon pressing ALT + F4</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_LALT</span><span class="p">]</span> <span class="ow">and</span> <span class="n">keys</span><span class="p">[</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_F4</span><span class="p">]:</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="c1"># Close game upon exiting the window</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s2">&quot;window&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;window&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_ESCAPE</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">WINDOWCLOSE</span><span class="p">:</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;window&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+                <span class="c1"># Close 2nd window if it is in focus and toggle key is pressed</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_t</span><span class="p">:</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;window&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_ESCAPE</span><span class="p">:</span>  <span class="c1"># pause game</span>
+                    <span class="n">display_surface</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">blur_surface</span><span class="p">(</span><span class="n">display_surface</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+                    <span class="n">release_timer</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">fear_timer</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
+                        <span class="n">fear_timer</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+                        <span class="n">checkboxes</span> <span class="o">=</span> <span class="n">paused</span><span class="p">(</span><span class="n">display_surface</span><span class="p">,</span> <span class="n">FramePerSec</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> <span class="n">checkboxes</span><span class="p">)</span>
+                        <span class="n">fear_timer</span><span class="o">.</span><span class="n">resume</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">checkboxes</span> <span class="o">=</span> <span class="n">paused</span><span class="p">(</span><span class="n">display_surface</span><span class="p">,</span> <span class="n">FramePerSec</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> <span class="n">checkboxes</span><span class="p">)</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resume</span><span class="p">()</span>
+                    <span class="n">release_timer</span><span class="o">.</span><span class="n">resume</span><span class="p">()</span>
+                <span class="c1"># Close 2nd window if main window is currently in focus</span>
+                <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_t</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]:</span>
+                        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;window&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;window&quot;</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;renderer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_window</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">WINDOWCLOSE</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Draw surfaces</span>
+        <span class="n">display_surface</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>  <span class="c1"># Initialise black background</span>
+        <span class="n">draw_hud</span><span class="p">(</span><span class="n">display_surface</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;lives&quot;</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">])</span>
+        <span class="n">draw_surface</span><span class="p">(</span><span class="n">display_surface</span><span class="p">,</span> <span class="n">cell_sprites</span><span class="p">)</span>
+        <span class="n">draw_surface</span><span class="p">(</span><span class="n">display_surface</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dots&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">draw_surface</span><span class="p">(</span><span class="n">display_surface</span><span class="p">,</span> <span class="n">character_sprites</span><span class="p">)</span>
+        <span class="n">display_surface</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">door</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">],</span> <span class="n">door</span><span class="p">[</span><span class="s2">&quot;rectangle&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Move player and ghosts</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">previous_cell</span><span class="p">,</span> <span class="n">cells</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">highlight_player_cell</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">previous_cell</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+        <span class="n">next_move</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">old_field</span><span class="p">,</span> <span class="n">fear_state</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">move_player</span><span class="p">(</span>
+            <span class="n">next_move</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">old_field</span><span class="p">,</span> <span class="n">params</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Fear timer</span>
+        <span class="k">if</span> <span class="n">fear_state</span><span class="p">:</span>
+            <span class="n">fear_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">fear_timer</span><span class="o">.</span><span class="n">get_elapsed_time</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">fear_duration</span><span class="p">:</span>
+            <span class="n">fear_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">fear_timer</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
+            <span class="n">fear_state</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">enemy_name</span><span class="p">,</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="n">enemies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">release_timer</span><span class="o">.</span><span class="n">get_elapsed_time</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">release_times</span><span class="p">[</span><span class="n">enemy_name</span><span class="p">]:</span>
+                <span class="n">position</span> <span class="o">=</span> <span class="n">blinky</span><span class="o">.</span><span class="n">pos</span> <span class="k">if</span> <span class="n">enemy_name</span> <span class="o">==</span> <span class="s2">&quot;inky&quot;</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">enemy</span><span class="o">.</span><span class="n">move_enemy</span><span class="p">(</span>
+                    <span class="n">cells</span><span class="p">,</span>
+                    <span class="n">grid</span><span class="p">,</span>
+                    <span class="n">player</span><span class="p">,</span>
+                    <span class="n">params</span><span class="p">,</span>
+                    <span class="n">get_move_pattern</span><span class="p">(</span><span class="n">enemy_name</span><span class="p">,</span> <span class="n">fear_state</span><span class="p">),</span>
+                    <span class="n">checkboxes</span><span class="p">[</span><span class="s2">&quot;path_highlights&quot;</span><span class="p">],</span>
+                    <span class="n">cast</span><span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">position</span><span class="p">),</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Todo: Gradually increase enemy speed over time</span>
+        <span class="c1">#       Investigate no path found bug when player is somewhere in lower half</span>
+        <span class="c1">#       Investigate inky getting stuck in tunnel</span>
+
+        <span class="c1"># Update score</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;max_points&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dots&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="n">blinky</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">inky</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">pinky</span><span class="o">.</span><span class="n">score</span> <span class="o">+</span> <span class="n">clyde</span><span class="o">.</span><span class="n">score</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update second window</span>
+        <span class="n">base_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Grid</span><span class="p">()</span><span class="o">.</span><span class="n">walls</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;dots&quot;</span><span class="p">]:</span>
+            <span class="n">base_matrix</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">pellets</span> <span class="k">else</span> <span class="mi">2</span>
+        <span class="n">player_pos_x</span><span class="p">,</span> <span class="n">player_pos_y</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">()</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">base_matrix</span><span class="p">)</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="n">player_pos_y</span><span class="p">][</span><span class="n">player_pos_x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="k">for</span> <span class="n">enemy</span> <span class="ow">in</span> <span class="n">enemies</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">pos_x</span><span class="p">,</span> <span class="n">pos_y</span> <span class="o">=</span> <span class="n">enemy</span><span class="o">.</span><span class="n">get_current_cell</span><span class="p">()</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="n">pos_y</span><span class="p">][</span><span class="n">pos_x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span> <span class="k">if</span> <span class="n">fear_state</span> <span class="ow">and</span> <span class="n">enemy</span><span class="o">.</span><span class="n">pos</span> <span class="o">!=</span> <span class="n">enemy</span><span class="o">.</span><span class="n">home</span> <span class="k">else</span> <span class="mi">4</span>
+        <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;toggle&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">old_matrix</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+                <span class="n">old_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+                <span class="n">change_surface</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;window&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;renderer&quot;</span><span class="p">],</span> <span class="n">matrix</span><span class="p">)</span>
+
+        <span class="c1"># Game updates</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">FramePerSec</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">FPS</span><span class="p">)</span>
+
+        <span class="c1"># FPS</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pacman (FPS: </span><span class="si">{</span><span class="n">FramePerSec</span><span class="o">.</span><span class="n">get_fps</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_theme">
+<a class="viewcode-back" href="../main.html#main.get_theme">[docs]</a>
+<span class="k">def</span> <span class="nf">get_theme</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">themes</span><span class="o">.</span><span class="n">Theme</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a configured pygame_menu theme.</span>
+
+<span class="sd">    :return: The pygame_menu theme.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">my_theme</span> <span class="o">=</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">themes</span><span class="o">.</span><span class="n">THEME_DARK</span>
+    <span class="n">my_theme</span><span class="o">.</span><span class="n">widget_font</span> <span class="o">=</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">FONT_8BIT</span>
+    <span class="n">my_theme</span><span class="o">.</span><span class="n">widget_selection_effect</span> <span class="o">=</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">LeftArrowSelection</span><span class="p">()</span>
+    <span class="n">my_theme</span><span class="o">.</span><span class="n">title_bar_style</span> <span class="o">=</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">MENUBAR_STYLE_NONE</span>
+    <span class="k">return</span> <span class="n">my_theme</span></div>
+
+
+
+<div class="viewcode-block" id="main_menu">
+<a class="viewcode-back" href="../main.html#main.main_menu">[docs]</a>
+<span class="k">def</span> <span class="nf">main_menu</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main menu</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">my_menu</span> <span class="o">=</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">Menu</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="n">get_theme</span><span class="p">())</span>
+    <span class="n">my_menu</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Pacman&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">130</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">130</span><span class="p">),</span> <span class="n">font_shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+    <span class="n">my_menu</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Play&quot;</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+    <span class="n">my_menu</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Credits&quot;</span><span class="p">,</span> <span class="n">credits_menu</span><span class="p">)</span>
+    <span class="n">my_menu</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Scores&quot;</span><span class="p">,</span> <span class="n">score_menu</span><span class="p">)</span>
+    <span class="n">my_menu</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Quit&quot;</span><span class="p">,</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">EXIT</span><span class="p">)</span>
+    <span class="n">my_menu</span><span class="o">.</span><span class="n">mainloop</span><span class="p">(</span><span class="n">display_surface</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="credits_menu">
+<a class="viewcode-back" href="../main.html#main.credits_menu">[docs]</a>
+<span class="k">def</span> <span class="nf">credits_menu</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Credits menu</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">my_credits</span> <span class="o">=</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">Menu</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="n">get_theme</span><span class="p">())</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Credits&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">130</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">130</span><span class="p">),</span> <span class="n">font_shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Creator</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Co Creator</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Director</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Programmer</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">25</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Artist</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Writer</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Designer</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Playtester</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Producer</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Special Thanks</span><span class="se">\t</span><span class="s2"> Dizzy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">38</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="n">main_menu</span><span class="p">)</span>
+    <span class="n">my_credits</span><span class="o">.</span><span class="n">mainloop</span><span class="p">(</span><span class="n">display_surface</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="score_menu">
+<a class="viewcode-back" href="../main.html#main.score_menu">[docs]</a>
+<span class="k">def</span> <span class="nf">score_menu</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    High score menu</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">my_scores</span> <span class="o">=</span> <span class="n">pygame_menu</span><span class="o">.</span><span class="n">Menu</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">WIDTH</span><span class="p">,</span> <span class="n">HEIGHT</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="n">get_theme</span><span class="p">())</span>
+    <span class="n">my_scores</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;High Scores&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">130</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">130</span><span class="p">),</span> <span class="n">font_shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+
+    <span class="c1"># Load high scores</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;resources/high_scores.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">high_scores</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+    <span class="n">top_score</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;God&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;∞&quot;</span><span class="p">}</span>
+
+    <span class="c1"># Sort dict (based on score value)</span>
+    <span class="n">high_scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">top_score</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">high_scores</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">high_scores</span><span class="p">)),</span> <span class="mi">7</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">def_value</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span>
+
+    <span class="n">colours</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">def_value</span><span class="p">)</span>  <span class="c1"># type: defaultdict[Any, tuple[int, int, int]]</span>
+    <span class="n">colours</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">215</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># gold</span>
+    <span class="n">colours</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">165</span><span class="p">,</span> <span class="mi">169</span><span class="p">,</span> <span class="mi">180</span><span class="p">)</span>  <span class="c1"># silver</span>
+    <span class="n">colours</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">205</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>  <span class="c1"># bronze</span>
+
+    <span class="c1"># Print names and (random selection of) scores</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indexes</span><span class="p">):</span>
+        <span class="n">my_scores</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="n">ALIGN_LEFT</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">font_shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">my_scores</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">font_size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+            <span class="n">align</span><span class="o">=</span><span class="n">ALIGN_LEFT</span><span class="p">,</span>
+            <span class="n">font_color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="n">font_shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="nb">float</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lbl</span> <span class="o">=</span> <span class="n">my_scores</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+                <span class="s2">&quot;8&quot;</span><span class="p">,</span>
+                <span class="n">font_size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+                <span class="n">align</span><span class="o">=</span><span class="n">ALIGN_RIGHT</span><span class="p">,</span>
+                <span class="n">font_color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">font_shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="nb">float</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">lbl</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">my_scores</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">font_size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+                <span class="n">align</span><span class="o">=</span><span class="n">ALIGN_RIGHT</span><span class="p">,</span>
+                <span class="n">font_color</span><span class="o">=</span><span class="n">colours</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">font_shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="nb">float</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="n">my_scores</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">margin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+    <span class="n">my_scores</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Back&quot;</span><span class="p">,</span> <span class="n">main_menu</span><span class="p">)</span>
+    <span class="n">my_scores</span><span class="o">.</span><span class="n">mainloop</span><span class="p">(</span><span class="n">display_surface</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main_menu</span><span class="p">()</span>
+
+    <span class="c1"># Press key (for AI):</span>
+    <span class="c1"># https://stackoverflow.com/questions/55728777/how-to-simulate-key-press-event-in-python-on-another-program-running-in-python</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Dizzy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

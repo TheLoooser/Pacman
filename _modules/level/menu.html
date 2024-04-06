@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>level.menu &mdash; Pacman 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/dark_mode_css/general.css?v=c0a7eb24" />
+      <link rel="stylesheet" type="text/css" href="../../_static/dark_mode_css/dark.css?v=70edf1c7" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/dark_mode_js/default_dark.js?v=fd565c74"></script>
+        <script src="../../_static/dark_mode_js/theme_switcher.js?v=358d3910"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Pacman
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">Pacman</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pacman</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">level.menu</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for level.menu</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains menu-related functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">pygame</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">pygame.locals</span> <span class="kn">import</span> <span class="n">K_ESCAPE</span>  <span class="c1"># pylint: disable = no-name-in-module</span>
+<span class="kn">from</span> <span class="nn">pygame.locals</span> <span class="kn">import</span> <span class="n">KEYDOWN</span><span class="p">,</span> <span class="n">QUIT</span>
+
+<span class="kn">from</span> <span class="nn">logic</span> <span class="kn">import</span> <span class="n">checkbox</span>
+<span class="kn">from</span> <span class="nn">logic.input_box</span> <span class="kn">import</span> <span class="n">InputBox</span>
+<span class="kn">from</span> <span class="nn">logic.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+
+
+<div class="viewcode-block" id="blur_surface">
+<a class="viewcode-back" href="../../level.html#level.menu.blur_surface">[docs]</a>
+<span class="k">def</span> <span class="nf">blur_surface</span><span class="p">(</span><span class="n">surface</span><span class="p">:</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Blurs the given surface.</span>
+
+<span class="sd">    :param surface: The surface of the whole game.</span>
+<span class="sd">    :param amount: The intensity of the blur.</span>
+<span class="sd">    :return: The blurred surface.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">amount</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span>
+    <span class="n">surface_size</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">get_size</span><span class="p">()</span>
+    <span class="n">scale_size</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">surface_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">surface_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale</span><span class="p">))</span>
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">smoothscale</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="n">scale_size</span><span class="p">)</span>
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">smoothscale</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">surface_size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">surf</span></div>
+
+
+
+<div class="viewcode-block" id="print_text">
+<a class="viewcode-back" href="../../level.html#level.menu.print_text">[docs]</a>
+<span class="k">def</span> <span class="nf">print_text</span><span class="p">(</span>
+    <span class="n">display</span><span class="p">:</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">colour</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">x_pos</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">y_pos</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">clickable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">pos</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prints a given text on a given surface.</span>
+
+<span class="sd">    :param display: The surface.</span>
+<span class="sd">    :param text: The text.</span>
+<span class="sd">    :param font_size: The font size of the text.</span>
+<span class="sd">    :param colour: The colour of the text.</span>
+<span class="sd">    :param x_pos: The horizontal position on the surface.</span>
+<span class="sd">    :param y_pos: The vertical position on the surface.</span>
+<span class="sd">    :param clickable: Whether the text should be clickable or not</span>
+<span class="sd">    :param pos: The alignment of the text</span>
+<span class="sd">    :return: Nothing or the text rectangle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;resources</span><span class="se">\\</span><span class="s2">PixeloidSans.ttf&quot;</span>
+    <span class="n">font</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">font_size</span><span class="p">)</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour</span><span class="p">)</span>
+    <span class="c1"># text.set_alpha(200)</span>
+    <span class="n">text_rect</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">))</span> <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="s2">&quot;center&quot;</span> <span class="k">else</span> <span class="n">txt</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">topleft</span><span class="o">=</span><span class="p">(</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">y_pos</span><span class="p">))</span>
+    <span class="c1"># text_rect.center = (x_pos, y_pos)</span>
+    <span class="n">display</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">text_rect</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text_rect</span> <span class="k">if</span> <span class="n">clickable</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="paused">
+<a class="viewcode-back" href="../../level.html#level.menu.paused">[docs]</a>
+<span class="k">def</span> <span class="nf">paused</span><span class="p">(</span>
+    <span class="n">display</span><span class="p">:</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">,</span>
+    <span class="n">clock</span><span class="p">:</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">,</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">checkboxes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pauses the game (opens the pause menu).</span>
+
+<span class="sd">    :param display: The surface.</span>
+<span class="sd">    :param clock: A pygame clock to help track the elapsed time.</span>
+<span class="sd">    :param width: The width of the game window.</span>
+<span class="sd">    :param height: The height of the game window.</span>
+<span class="sd">    :param checkboxes: A dict of checkboxes with their toggle status.</span>
+<span class="sd">    :return: The updated dictionary of checkboxes with their status.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">background</span> <span class="o">=</span> <span class="n">display</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>  <span class="c1"># the size of your rect</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>  <span class="c1"># alpha level</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>  <span class="c1"># this fills the entire surface</span>
+
+    <span class="c1"># Checkbox</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;resources</span><span class="se">\\</span><span class="s2">PixeloidSans.ttf&quot;</span>
+    <span class="n">font</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span>
+    <span class="n">chckbx</span> <span class="o">=</span> <span class="n">checkbox</span><span class="o">.</span><span class="n">CheckBox</span><span class="p">(</span>
+        <span class="n">display</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="n">caption</span><span class="o">=</span><span class="s2">&quot;Highlight paths&quot;</span><span class="p">,</span>
+        <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span>
+        <span class="n">font_color</span><span class="o">=</span><span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+        <span class="n">checked</span><span class="o">=</span><span class="n">checkboxes</span><span class="p">[</span><span class="s2">&quot;path_highlights&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">pause</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="n">pause</span><span class="p">:</span>
+        <span class="c1"># Darken pause background</span>
+        <span class="n">display</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">display</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="c1"># Print pause text</span>
+        <span class="n">print_text</span><span class="p">(</span>
+            <span class="n">display</span><span class="p">,</span>
+            <span class="s2">&quot;Pause&quot;</span><span class="p">,</span>
+            <span class="mi">50</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.15</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">print_text</span><span class="p">(</span>
+            <span class="n">display</span><span class="p">,</span>
+            <span class="s2">&quot;Press ESC to continue&quot;</span><span class="p">,</span>
+            <span class="mi">18</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.15</span><span class="p">)</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Buttons</span>
+        <span class="n">button_rects</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;back&quot;</span><span class="p">:</span> <span class="n">print_text</span><span class="p">(</span>
+                <span class="n">display</span><span class="p">,</span>
+                <span class="s2">&quot;BACK&quot;</span><span class="p">,</span>
+                <span class="mi">33</span><span class="p">,</span>
+                <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;exit&quot;</span><span class="p">:</span> <span class="n">print_text</span><span class="p">(</span>
+                <span class="n">display</span><span class="p">,</span>
+                <span class="s2">&quot;EXIT&quot;</span><span class="p">,</span>
+                <span class="mi">33</span><span class="p">,</span>
+                <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">70</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;quit&quot;</span><span class="p">:</span> <span class="n">print_text</span><span class="p">(</span>
+                <span class="n">display</span><span class="p">,</span>
+                <span class="s2">&quot;QUIT&quot;</span><span class="p">,</span>
+                <span class="mi">33</span><span class="p">,</span>
+                <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">120</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Exit upon pressing ALT + F4</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_LALT</span><span class="p">]</span> <span class="ow">and</span> <span class="n">keys</span><span class="p">[</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_F4</span><span class="p">]:</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">K_ESCAPE</span><span class="p">:</span>
+                    <span class="n">pause</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEBUTTONDOWN</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">button</span><span class="p">,</span> <span class="n">rect</span> <span class="ow">in</span> <span class="n">button_rects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">rect</span> <span class="ow">and</span> <span class="n">rect</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">):</span>
+                        <span class="k">match</span> <span class="n">button</span><span class="p">:</span>
+                            <span class="k">case</span> <span class="s2">&quot;back&quot;</span><span class="p">:</span>
+                                <span class="n">pause</span> <span class="o">=</span> <span class="kc">False</span>
+                            <span class="k">case</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+                                <span class="n">pause</span> <span class="o">=</span> <span class="kc">False</span>
+                                <span class="kn">from</span> <span class="nn">main</span> <span class="kn">import</span> <span class="n">main_menu</span>  <span class="c1"># pylint: disable = import-outside-toplevel</span>
+
+                                <span class="n">main_menu</span><span class="p">()</span>
+                            <span class="k">case</span> <span class="s2">&quot;quit&quot;</span><span class="p">:</span>
+                                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+                            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Button not found.&quot;</span><span class="p">)</span>
+
+            <span class="n">chckbx</span><span class="o">.</span><span class="n">update_checkbox</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_hover_surface</span><span class="p">(</span><span class="n">button_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">:</span>
+            <span class="k">match</span> <span class="n">button_name</span><span class="p">:</span>
+                <span class="k">case</span> <span class="s2">&quot;back&quot;</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Resume the game&quot;</span>
+                <span class="k">case</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Return to the main menu&quot;</span>
+                <span class="k">case</span> <span class="s2">&quot;quit&quot;</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Close the application&quot;</span>
+                <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Something went wrong&quot;</span>
+            <span class="n">hover_surface</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Color</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Color</span><span class="p">(</span><span class="mi">34</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">34</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">hover_surface</span>
+
+        <span class="c1"># Display info text when hovering over buttons</span>
+        <span class="n">mouse_x</span><span class="p">,</span> <span class="n">mouse_y</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">button</span><span class="p">,</span> <span class="n">rect</span> <span class="ow">in</span> <span class="n">button_rects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">rect</span> <span class="ow">and</span> <span class="n">rect</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">((</span><span class="n">mouse_x</span><span class="p">,</span> <span class="n">mouse_y</span><span class="p">)):</span>
+                <span class="n">display</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span>
+                    <span class="n">get_hover_surface</span><span class="p">(</span><span class="n">button</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">mouse_x</span> <span class="o">-</span> <span class="n">rect</span><span class="o">.</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">mouse_y</span> <span class="o">-</span> <span class="n">rect</span><span class="o">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="p">)</span>
+
+        <span class="n">chckbx</span><span class="o">.</span><span class="n">render_checkbox</span><span class="p">()</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="n">checkboxes</span><span class="p">[</span><span class="s2">&quot;path_highlights&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chckbx</span><span class="o">.</span><span class="n">checked</span>
+    <span class="k">return</span> <span class="n">checkboxes</span></div>
+
+
+
+<div class="viewcode-block" id="draw_hud">
+<a class="viewcode-back" href="../../level.html#level.menu.draw_hud">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_hud</span><span class="p">(</span><span class="n">display</span><span class="p">:</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">,</span> <span class="n">nr_of_lives</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">score</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draws the HUD at the bottom of the main window.</span>
+
+<span class="sd">    :param display: The surface.</span>
+<span class="sd">    :param nr_of_lives: The number of lives left.</span>
+<span class="sd">    :param score: The current score of the player.</span>
+<span class="sd">    :return: Nothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Life text</span>
+    <span class="n">print_text</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="s2">&quot;Lives:&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">455</span><span class="p">)</span>
+
+    <span class="c1"># Life icons</span>
+    <span class="n">life</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">((</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+    <span class="n">life</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">life</span><span class="o">.</span><span class="n">set_colorkey</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">life</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">30</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">30</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">7</span><span class="p">)</span>
+    <span class="n">rect</span> <span class="o">=</span> <span class="n">life</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nr_of_lives</span><span class="p">):</span>
+        <span class="n">display</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span>
+            <span class="n">life</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="n">rect</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span>
+                <span class="n">rect</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">440</span><span class="p">,</span>
+                <span class="n">rect</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span>
+                <span class="n">rect</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">470</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Copyright</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;resources</span><span class="se">\\</span><span class="s2">PixeloidSans.ttf&quot;</span>
+    <span class="n">smallfont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">smallfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">&quot;© 2023&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">))</span>
+    <span class="n">text_rect</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">get_rect</span><span class="p">()</span>
+    <span class="n">text_rect</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">180</span><span class="p">,</span> <span class="mi">455</span><span class="p">)</span>
+    <span class="n">display</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">text_rect</span><span class="p">)</span>
+
+    <span class="c1"># Score text</span>
+    <span class="n">print_text</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="s2">&quot;Score:&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span> <span class="mi">270</span><span class="p">,</span> <span class="mi">455</span><span class="p">)</span>
+
+    <span class="c1"># Current score</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">score</span> <span class="o">%</span> <span class="mi">1600000</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">999999</span><span class="p">:</span>
+        <span class="n">score_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+        <span class="n">score_str</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">score_str</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="mi">55</span><span class="p">)</span> <span class="o">+</span> <span class="n">score_str</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">score_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">print_text</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span> <span class="mi">340</span><span class="p">,</span> <span class="mi">455</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="draw_surface">
+<a class="viewcode-back" href="../../level.html#level.menu.draw_surface">[docs]</a>
+<span class="k">def</span> <span class="nf">draw_surface</span><span class="p">(</span><span class="n">display</span><span class="p">:</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Surface</span><span class="p">,</span> <span class="n">surfaces</span><span class="p">:</span> <span class="n">pygame</span><span class="o">.</span><span class="n">sprite</span><span class="o">.</span><span class="n">Group</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draws all surfaces of the given group on the main display surface.</span>
+
+<span class="sd">    :param display: The surface of the main display.</span>
+<span class="sd">    :param surfaces: A group of sprites.</span>
+<span class="sd">    :return: Nothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">surf</span> <span class="ow">in</span> <span class="n">surfaces</span><span class="p">:</span>
+        <span class="n">display</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">surf</span><span class="o">.</span><span class="n">surf</span><span class="p">,</span> <span class="n">surf</span><span class="o">.</span><span class="n">rect</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="update_score">
+<a class="viewcode-back" href="../../level.html#level.menu.update_score">[docs]</a>
+<span class="k">def</span> <span class="nf">update_score</span><span class="p">(</span><span class="n">score</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">timer</span><span class="p">:</span> <span class="n">Timer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add time based bonus point for completing the level to the score</span>
+
+<span class="sd">    :param score: The current score</span>
+<span class="sd">    :param timer: The global game timer</span>
+<span class="sd">    :return: The updated score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">timer</span><span class="o">.</span><span class="n">get_elapsed_time</span><span class="p">())</span>
+    <span class="k">match</span> <span class="n">time</span><span class="p">:</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span> <span class="k">if</span> <span class="n">time</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="mi">600</span> <span class="o">+</span> <span class="mi">500</span>  <span class="c1"># max bonus</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span> <span class="k">if</span> <span class="mi">30</span> <span class="o">&lt;=</span> <span class="n">time</span> <span class="o">&lt;</span> <span class="mi">150</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">120</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span> <span class="o">-</span> <span class="mi">30</span><span class="p">))</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">500</span>  <span class="c1"># type: ignore</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span> <span class="k">if</span> <span class="n">time</span> <span class="o">&gt;=</span> <span class="mi">150</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="mi">500</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Impossible time. You finished in </span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s2"> seconds.&quot;</span><span class="p">)</span>
+    <span class="c1"># print(f&quot;Beat the game in {timer.get_elapsed_time()} seconds.&quot;)</span>
+    <span class="k">return</span> <span class="n">score</span></div>
+
+
+
+<div class="viewcode-block" id="game_over">
+<a class="viewcode-back" href="../../level.html#level.menu.game_over">[docs]</a>
+<span class="k">def</span> <span class="nf">game_over</span><span class="p">(</span><span class="n">score</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shows the game over screen</span>
+
+<span class="sd">    :return: Nothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">clock</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
+    <span class="n">surf</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">get_surface</span><span class="p">()</span>
+    <span class="n">surf</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>  <span class="c1"># this fills the entire surface</span>
+
+    <span class="n">next_rect</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">input_box</span> <span class="o">=</span> <span class="n">InputBox</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">active</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Load high scores</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;resources/high_scores.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">high_scores</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+    <span class="n">top_score</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;God&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;∞&quot;</span><span class="p">}</span>
+
+    <span class="c1"># Sort dict (based on score value)</span>
+    <span class="n">high_scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">top_score</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">high_scores</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">high_scores</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">8</span><span class="p">)))</span> <span class="o">+</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">high_scores</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">user_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Exit upon pressing ALT + F4</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">[</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_LALT</span><span class="p">]</span> <span class="ow">and</span> <span class="n">keys</span><span class="p">[</span><span class="n">pygame</span><span class="o">.</span><span class="n">K_F4</span><span class="p">]:</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+            <span class="n">input_box_text</span> <span class="o">=</span> <span class="n">input_box</span><span class="o">.</span><span class="n">handle_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+            <span class="n">user_name</span> <span class="o">=</span> <span class="n">input_box_text</span> <span class="k">if</span> <span class="n">input_box_text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">user_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">user_name</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEBUTTONDOWN</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">next_rect</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">next_rect</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">):</span>
+                        <span class="c1"># Append player score to high scores</span>
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;resources/high_scores.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- name: </span><span class="si">{</span><span class="n">user_name</span><span class="si">}</span><span class="se">\n</span><span class="s2">  value: </span><span class="si">{</span><span class="n">score</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                        <span class="kn">from</span> <span class="nn">main</span> <span class="kn">import</span> <span class="n">main_menu</span>  <span class="c1"># pylint: disable = import-outside-toplevel</span>
+
+                        <span class="n">main_menu</span><span class="p">()</span>
+
+        <span class="n">surf</span><span class="o">.</span><span class="n">fill</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>  <span class="c1"># this fills the entire surface</span>
+
+        <span class="c1"># Print title</span>
+        <span class="n">print_text</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="s2">&quot;High Scores&quot;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span> <span class="n">surf</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+        <span class="c1"># Print names and (random selection of) scores</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indexes</span><span class="p">):</span>
+            <span class="n">print_text</span><span class="p">(</span>
+                <span class="n">surf</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="mi">16</span><span class="p">,</span>
+                <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+                <span class="n">surf</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span>
+                <span class="mi">50</span> <span class="o">+</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span>
+                <span class="n">pos</span><span class="o">=</span><span class="s2">&quot;topleft&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">06d</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">high_scores</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">print_text</span><span class="p">(</span>
+                <span class="n">surf</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="mi">16</span><span class="p">,</span>
+                <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+                <span class="n">surf</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">-</span> <span class="n">surf</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span>
+                <span class="mi">50</span> <span class="o">+</span> <span class="mi">20</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span>
+                <span class="n">pos</span><span class="o">=</span><span class="s2">&quot;topleft&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Show input box until the player has entered a username</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_name</span><span class="p">:</span>
+            <span class="n">print_text</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="s2">&quot;Enter your name&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span> <span class="n">surf</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">350</span><span class="p">)</span>
+
+            <span class="n">input_box</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="n">input_box</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">surf</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">next_rect</span> <span class="o">=</span> <span class="n">print_text</span><span class="p">(</span>
+                <span class="n">surf</span><span class="p">,</span>
+                <span class="s2">&quot;→ NEXT →&quot;</span><span class="p">,</span>
+                <span class="mi">22</span><span class="p">,</span>
+                <span class="p">(</span><span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">,</span> <span class="mi">222</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">surf</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">surf</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">150</span><span class="p">,</span>
+                <span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Dizzy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
