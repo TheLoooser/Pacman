@@ -105,7 +105,6 @@ class CheckBox:
                 self.checked = False
             else:
                 self.checked = True
-            print(str(self.caption) + " toggle " + str(self.checked))
 
     def update_checkbox(self, event_object: pygame.event.Event) -> None:
         """
