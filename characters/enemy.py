@@ -124,11 +124,9 @@ class Enemy(pygame.sprite.Sprite):
         :return: Nothing
         """
         target = pygame.math.Vector2(x * 20 + 10, y * 20 + 10)
-        # TODO: HERE
-        if pygame.math.Vector2(self.pos - target).length() == 0:
-            print(
-                f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y}, {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} "
-            )
+        if pygame.math.Vector2(self.pos - target).length() == 0:  # known bug (can't normalize vector of length zero)
+            # print(f"{x}, {y}, {self.name}, {self.pos.x}, {self.pos.y}, {target.x}, {target.y},"
+            #       f" {pygame.math.Vector2(self.pos - target)}, {pygame.math.Vector2(self.pos - target).length()} ")
             return
         direction = pygame.math.Vector2(self.pos - target).normalize()
 
@@ -220,7 +218,6 @@ class Enemy(pygame.sprite.Sprite):
                     if distance < min_distance[1]:
                         min_distance = (index, distance)
 
-                # print(f"{possible_targets} - {min_distance} - {target}")
                 maze = get_maze(grid.walls, self.get_current_cell())
                 path = self.get_path(
                     maze, cast(tuple[int, int], tuple(possible_targets[min_distance[0]]))
@@ -229,7 +226,6 @@ class Enemy(pygame.sprite.Sprite):
             case "pinky":
                 grid_cell = grid.get_cell_in_front(*player.get_current_cell(), player.get_direction(), 2)
                 x, y = grid_cell
-                # cells[y][x].surf.fill((255, 105, 180))
 
                 maze = get_maze(grid.walls, self.get_current_cell())
                 player_pos_x, player_pos_y = player.get_current_cell()
@@ -269,7 +265,6 @@ class Enemy(pygame.sprite.Sprite):
                     random_pos = grid.get_random_position()
                     maze = get_maze(grid.walls, self.get_current_cell())
                     path = self.get_path(maze, swap(*random_pos))
-                    # print(f"Got a new path to a random position. {random_pos} -> {path}")
                 elif self.path:
                     maze = get_maze(grid.walls, self.get_current_cell())
                     new_path = self.get_path(maze, swap(*self.path[-1]))
@@ -305,7 +300,6 @@ class Enemy(pygame.sprite.Sprite):
 
             params["lives"] = params["lives"] - 1
             if params["lives"] == 0:
-                print("GAME OVER!!!")
                 game_over(params["score"] - 420)
             else:
                 run(params)
