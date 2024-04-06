@@ -128,7 +128,7 @@ def run(params: dict = {}) -> None:
     if params["timer"] == -1:
         params["timer"] = timer.Timer()
         params["timer"].start()
-    checkboxes = {"path_highlights": True}
+    checkboxes = {"path_highlights": False}
 
     # Main Game Loop
     while True:
@@ -369,7 +369,5 @@ def score_menu() -> None:
 if __name__ == "__main__":
     main_menu()
 
-    # TODO: Set path highlight default to off
-    #       Create .exe for game (pyinstaller)
-
-    # Press key (for AI): https://stackoverflow.com/questions/55728777/how-to-simulate-key-press-event-in-python-on-another-program-running-in-python
+    # Press key (for AI):
+    # https://stackoverflow.com/questions/55728777/how-to-simulate-key-press-event-in-python-on-another-program-running-in-python
