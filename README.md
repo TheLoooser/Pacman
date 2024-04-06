@@ -16,6 +16,33 @@
 [![Maintainer](https://img.shields.io/badge/Maintainer-Dizzy-cyan.svg)]()
 
 
-[//]: # (mypy --config-file mypy.ini .)
+## Getting Started
 
-[//]: # (pylint --disable=R,C,W0511 --recursive=y .)
+### Requirements
+
+- [Python 3.10](https://www.python.org/downloads/)
+- [Pygame](https://www.pygame.org/news)
+
+
+### Installation
+
+Clone the repository
+```commandline
+git clone git@github.com:TheLoooser/Pacman.git
+```
+Create a virtual environment
+```commandline
+python -m venv .venv
+```
+Install the required python packages
+```commandline
+pip install -r requirements.txt
+```
+
+
+### Usage
+
+Run the game
+```commandline
+python main.py
+```
